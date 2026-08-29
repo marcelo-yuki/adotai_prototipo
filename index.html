@@ -1,0 +1,2005 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Adota Aí - Encontre seu novo melhor amigo</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+
+    <style>
+        body {
+            overscroll-behavior-y: contain;
+        }
+
+        .card-container {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            perspective: 1000px;
+        }
+
+        .swipe-card {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            border-radius: 1.5rem;
+            background-color: white;
+            box-shadow: 0 10px 20px -5px rgba(0, 0, 0, 0.15);
+            overflow: hidden;
+            transform-origin: 50% 100%;
+            will-change: transform;
+            transition: transform 0.3s ease-out;
+            touch-action: none;
+        }
+
+        .swipe-card.animating {
+            transition: transform 0.5s ease-out, opacity 0.5s ease-out;
+        }
+
+        .swipe-card.swipe-left {
+            transform: translateX(-150%) rotate(-30deg) !important;
+            opacity: 0;
+        }
+
+        .swipe-card.swipe-right {
+            transform: translateX(150%) rotate(30deg) !important;
+            opacity: 0;
+        }
+
+        .swipe-card.swipe-up {
+            transform: translateY(-150%) !important;
+            opacity: 0;
+        }
+
+        .stamp {
+            position: absolute;
+            top: 40px;
+            padding: 0.5rem 1rem;
+            border: 4px solid;
+            border-radius: 0.5rem;
+            font-size: 2rem;
+            font-weight: 800;
+            text-transform: uppercase;
+            opacity: 0;
+            z-index: 10;
+        }
+
+        .stamp-like {
+            color: #10B981;
+            border-color: #10B981;
+            left: 20px;
+            transform: rotate(-15deg);
+        }
+
+        .stamp-nope {
+            color: #EF4444;
+            border-color: #EF4444;
+            right: 20px;
+            transform: rotate(15deg);
+        }
+
+        .card-gradient {
+            background: linear-gradient(to bottom, rgba(0, 0, 0, 0) 30%, rgba(0, 0, 0, 0.85) 100%);
+        }
+
+        .no-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+
+        .no-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+
+        .toggle-checkbox:checked {
+            right: 0;
+            border-color: #f97316;
+            background-color: #f97316;
+        }
+
+        .toggle-checkbox:checked+.toggle-label {
+            background-color: #f97316;
+        }
+
+        #action-buttons button,
+        #filter-menu,
+        [onclick="toggleFilterMenu()"],
+        #filter-icon,
+        nav button {
+            touch-action: manipulation;
+        }
+    </style>
+</head>
+
+<body class="bg-gray-100 flex items-center justify-center h-[100dvh] w-full fixed inset-0 font-sans">
+
+    <div id="view-auth" class="fixed inset-0 bg-white flex items-center justify-center z-50 px-4">
+        <div class="w-full max-w-sm p-6">
+            <h1 class="text-3xl font-bold text-center text-orange-500 mb-6 flex items-center justify-center gap-2">
+                <i class="ph-fill ph-paw-print text-3xl"></i>
+                Adota Aí
+            </h1>
+
+            <div id="form-login">
+                <input id="login-email" type="email" placeholder="Email"
+                    class="w-full mb-3 p-3 border rounded-xl bg-gray-50 focus:outline-none focus:ring-2 focus:ring-orange-500">
+                <input id="login-password" type="password" placeholder="Senha"
+                    class="w-full mb-4 p-3 border rounded-xl bg-gray-50 focus:outline-none focus:ring-2 focus:ring-orange-500">
+                <button onclick="login()"
+                    class="w-full bg-orange-500 text-white py-3 rounded-xl font-bold active:scale-95 transition-transform">
+                    Entrar
+                </button>
+                <p class="text-sm text-center mt-4">
+                    Não tem conta?
+                    <span onclick="toggleAuth('register')"
+                        class="text-orange-500 cursor-pointer font-bold">Cadastre-se</span>
+                </p>
+            </div>
+
+            <div id="form-register" class="hidden">
+                <input id="register-email" type="email" placeholder="Email"
+                    class="w-full mb-3 p-3 border rounded-xl bg-gray-50 focus:outline-none focus:ring-2 focus:ring-orange-500">
+                <input id="register-password" type="password" placeholder="Senha"
+                    class="w-full mb-4 p-3 border rounded-xl bg-gray-50 focus:outline-none focus:ring-2 focus:ring-orange-500">
+                <button onclick="register()"
+                    class="w-full bg-green-500 text-white py-3 rounded-xl font-bold active:scale-95 transition-transform">
+                    Cadastrar
+                </button>
+                <p class="text-sm text-center mt-4">
+                    Já tem conta?
+                    <span onclick="toggleAuth('login')" class="text-green-500 cursor-pointer font-bold">Entrar</span>
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <div id="view-profile" class="fixed inset-0 bg-white hidden z-50 flex-col overflow-hidden w-full h-full">
+        <div class="bg-white/90 backdrop-blur-md z-10 px-6 py-5 border-b border-gray-100 shadow-sm flex-shrink-0">
+            <h2 class="text-2xl font-bold text-gray-800 flex items-center gap-2">
+                <i class="ph-fill ph-magic-wand text-orange-500"></i> Seu Perfil de Adoção
+            </h2>
+            <p class="text-gray-500 text-sm mt-1">Responda para encontrarmos o match perfeito e seguro!</p>
+        </div>
+
+        <div class="flex-1 min-h-0 overflow-y-auto overscroll-y-auto p-6 space-y-10 pb-36 no-scrollbar"
+            style="touch-action: pan-y;">
+
+            <div class="space-y-6">
+                <div class="flex items-center gap-3 border-b border-gray-100 pb-2">
+                    <span
+                        class="bg-orange-100 text-orange-600 w-8 h-8 rounded-full flex items-center justify-center font-bold text-sm">1</span>
+                    <h3 class="text-lg font-bold text-gray-800">O Pet Ideal</h3>
+                </div>
+
+                <div>
+                    <label class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-3 block">Espécie
+                        Preferida</label>
+                    <div class="grid grid-cols-3 gap-3">
+                        <label class="cursor-pointer">
+                            <input type="radio" name="p-species" value="cão" class="peer hidden">
+                            <div
+                                class="h-24 p-2 border-2 border-gray-100 rounded-2xl flex flex-col items-center justify-center gap-2 peer-checked:border-orange-500 peer-checked:bg-orange-50 peer-checked:text-orange-600 text-gray-400 hover:bg-gray-50 transition-all">
+                                <i class="ph-fill ph-dog text-3xl"></i>
+                                <span class="text-xs font-bold text-center">Cachorro</span>
+                            </div>
+                        </label>
+                        <label class="cursor-pointer">
+                            <input type="radio" name="p-species" value="gato" class="peer hidden">
+                            <div
+                                class="h-24 p-2 border-2 border-gray-100 rounded-2xl flex flex-col items-center justify-center gap-2 peer-checked:border-orange-500 peer-checked:bg-orange-50 peer-checked:text-orange-600 text-gray-400 hover:bg-gray-50 transition-all">
+                                <i class="ph-fill ph-cat text-3xl"></i>
+                                <span class="text-xs font-bold text-center">Gato</span>
+                            </div>
+                        </label>
+                        <label class="cursor-pointer">
+                            <input type="radio" name="p-species" value="" class="peer hidden" checked>
+                            <div
+                                class="h-24 p-2 border-2 border-gray-100 rounded-2xl flex flex-col items-center justify-center gap-2 peer-checked:border-orange-500 peer-checked:bg-orange-50 peer-checked:text-orange-600 text-gray-400 hover:bg-gray-50 transition-all">
+                                <i class="ph-fill ph-paw-print text-3xl"></i>
+                                <span class="text-xs font-bold text-center">Ambos</span>
+                            </div>
+                        </label>
+                    </div>
+                </div>
+
+                <div>
+                    <label class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-3 block">Porte do
+                        Pet</label>
+                    <div class="grid grid-cols-4 gap-2">
+                        <label class="cursor-pointer">
+                            <input type="radio" name="p-size" value="" class="peer hidden" checked>
+                            <div
+                                class="p-3 border-2 border-gray-100 rounded-xl flex justify-center items-center peer-checked:border-orange-500 peer-checked:bg-orange-50 peer-checked:text-orange-600 text-gray-400 transition-all text-xs font-bold">
+                                Todos</div>
+                        </label>
+                        <label class="cursor-pointer">
+                            <input type="radio" name="p-size" value="pequeno" class="peer hidden">
+                            <div
+                                class="p-3 border-2 border-gray-100 rounded-xl flex justify-center items-center peer-checked:border-orange-500 peer-checked:bg-orange-50 peer-checked:text-orange-600 text-gray-400 transition-all text-xs font-bold">
+                                Pequeno</div>
+                        </label>
+                        <label class="cursor-pointer">
+                            <input type="radio" name="p-size" value="médio" class="peer hidden">
+                            <div
+                                class="p-3 border-2 border-gray-100 rounded-xl flex justify-center items-center peer-checked:border-orange-500 peer-checked:bg-orange-50 peer-checked:text-orange-600 text-gray-400 transition-all text-xs font-bold">
+                                Médio</div>
+                        </label>
+                        <label class="cursor-pointer">
+                            <input type="radio" name="p-size" value="grande" class="peer hidden">
+                            <div
+                                class="p-3 border-2 border-gray-100 rounded-xl flex justify-center items-center peer-checked:border-orange-500 peer-checked:bg-orange-50 peer-checked:text-orange-600 text-gray-400 transition-all text-xs font-bold">
+                                Grande</div>
+                        </label>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-3 block">Idade
+                            Desejada</label>
+                        <select id="p-age"
+                            class="w-full p-3 border-2 border-gray-100 rounded-xl bg-white text-gray-700 font-medium focus:outline-none focus:border-orange-500 text-sm">
+                            <option value="">Qualquer</option>
+                            <option value="filhote">Filhote</option>
+                            <option value="adulto">Adulto</option>
+                            <option value="idoso">Idoso</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-3 block">Objetivo da
+                            Adoção</label>
+                        <select id="p-purpose"
+                            class="w-full p-3 border-2 border-gray-100 rounded-xl bg-white text-gray-700 font-medium focus:outline-none focus:border-orange-500 text-sm">
+                            <option value="companhia" selected>Companhia / Pet de estimação</option>
+                            <option value="guarda">Cão de Guarda / Alerta</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <div class="space-y-6">
+                <div class="flex items-center gap-3 border-b border-gray-100 pb-2">
+                    <span
+                        class="bg-blue-100 text-blue-600 w-8 h-8 rounded-full flex items-center justify-center font-bold text-sm">2</span>
+                    <h3 class="text-lg font-bold text-gray-800">Seu Estilo de Vida</h3>
+                </div>
+
+                <div>
+                    <label class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-3 block">Tipo de
+                        Moradia</label>
+                    <div class="grid grid-cols-3 gap-3">
+                        <label class="cursor-pointer">
+                            <input type="radio" name="p-housing" value="apartamento" class="peer hidden">
+                            <div
+                                class="h-24 p-2 border-2 border-gray-100 rounded-2xl flex flex-col items-center justify-center gap-2 peer-checked:border-blue-500 peer-checked:bg-blue-50 peer-checked:text-blue-600 text-gray-400 hover:bg-gray-50 transition-all">
+                                <i class="ph-fill ph-buildings text-3xl"></i>
+                                <span class="text-xs font-bold text-center">Apê</span>
+                            </div>
+                        </label>
+                        <label class="cursor-pointer">
+                            <input type="radio" name="p-housing" value="casa" class="peer hidden" checked>
+                            <div
+                                class="h-24 p-2 border-2 border-gray-100 rounded-2xl flex flex-col items-center justify-center gap-2 peer-checked:border-blue-500 peer-checked:bg-blue-50 peer-checked:text-blue-600 text-gray-400 hover:bg-gray-50 transition-all">
+                                <i class="ph-fill ph-house-line text-3xl"></i>
+                                <span class="text-xs font-bold text-center">Casa</span>
+                            </div>
+                        </label>
+                        <label class="cursor-pointer">
+                            <input type="radio" name="p-housing" value="casa_quintal" class="peer hidden">
+                            <div
+                                class="h-24 p-2 border-2 border-gray-100 rounded-2xl flex flex-col items-center justify-center gap-2 peer-checked:border-blue-500 peer-checked:bg-blue-50 peer-checked:text-blue-600 text-gray-400 hover:bg-gray-50 transition-all">
+                                <i class="ph-fill ph-tree text-3xl"></i>
+                                <span class="text-xs font-bold text-center">Quintal</span>
+                            </div>
+                        </label>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-3 block">Nível de
+                            Atividade</label>
+                        <select id="p-activity-select"
+                            class="w-full p-3 border-2 border-gray-100 rounded-xl bg-white text-gray-700 font-medium focus:outline-none focus:border-blue-500 text-sm">
+                            <option value="sedentario">Tranquilo / Calmo</option>
+                            <option value="moderado" selected>Moderado</option>
+                            <option value="ativo">Ativo / Pratica Esportes</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-3 block">Rotina
+                            Diária</label>
+                        <select id="p-routine"
+                            class="w-full p-3 border-2 border-gray-100 rounded-xl bg-white text-gray-700 font-medium focus:outline-none focus:border-blue-500 text-sm">
+                            <option value="fica_em_casa">Fico em casa / Home Office</option>
+                            <option value="trabalho_fora">Trabalho fora o dia todo</option>
+                            <option value="viajo_frequente">Viajo frequentemente</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <div class="space-y-6">
+                <div class="flex items-center gap-3 border-b border-gray-100 pb-2">
+                    <span
+                        class="bg-green-100 text-green-600 w-8 h-8 rounded-full flex items-center justify-center font-bold text-sm">3</span>
+                    <h3 class="text-lg font-bold text-gray-800">Convivência e Inclusão</h3>
+                </div>
+
+                <div class="bg-gray-50 p-4 rounded-2xl border border-gray-100 space-y-4">
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center gap-2 text-gray-700 font-medium text-sm">
+                            <i class="ph-fill ph-baby text-xl text-gray-400"></i> Tem crianças em casa?
+                        </div>
+                        <div
+                            class="relative inline-block w-12 align-middle select-none transition duration-200 ease-in">
+                            <input type="checkbox" id="p-kids"
+                                class="toggle-checkbox absolute block w-6 h-6 rounded-full bg-white border-4 appearance-none cursor-pointer transition-transform" />
+                            <label for="p-kids"
+                                class="toggle-label block overflow-hidden h-6 rounded-full bg-gray-300 cursor-pointer"></label>
+                        </div>
+                    </div>
+                    <hr class="border-gray-200">
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center gap-2 text-gray-700 font-medium text-sm">
+                            <i class="ph-fill ph-paw-print text-xl text-gray-400"></i> Já tem outros pets?
+                        </div>
+                        <div
+                            class="relative inline-block w-12 align-middle select-none transition duration-200 ease-in">
+                            <input type="checkbox" id="p-otherPets"
+                                class="toggle-checkbox absolute block w-6 h-6 rounded-full bg-white border-4 appearance-none cursor-pointer transition-transform" />
+                            <label for="p-otherPets"
+                                class="toggle-label block overflow-hidden h-6 rounded-full bg-gray-300 cursor-pointer"></label>
+                        </div>
+                    </div>
+                    <hr class="border-gray-200">
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center gap-2 text-gray-700 font-medium text-sm">
+                            <i class="ph-fill ph-first-aid text-xl text-orange-500"></i> Aceita adotar pets
+                            PCD/Crônicos?
+                        </div>
+                        <div
+                            class="relative inline-block w-12 align-middle select-none transition duration-200 ease-in">
+                            <input type="checkbox" id="p-acceptSpecial"
+                                class="toggle-checkbox absolute block w-6 h-6 rounded-full bg-white border-4 appearance-none cursor-pointer transition-transform" />
+                            <label for="p-acceptSpecial"
+                                class="toggle-label block overflow-hidden h-6 rounded-full bg-gray-300 cursor-pointer"></label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="space-y-6">
+                <div class="flex items-center gap-3 border-b border-gray-100 pb-2">
+                    <span
+                        class="bg-purple-100 text-purple-600 w-8 h-8 rounded-full flex items-center justify-center font-bold text-sm">4</span>
+                    <h3 class="text-lg font-bold text-gray-800">Segurança e Suporte Financeiro</h3>
+                </div>
+
+                <div>
+                    <label class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-2 block">Capacidade
+                        Financeira Estimada (Mensal p/ o Pet)</label>
+                    <select id="p-finance"
+                        class="w-full p-3 border-2 border-gray-100 rounded-xl bg-white text-gray-700 font-medium focus:outline-none focus:border-purple-500 text-sm">
+                        <option value="basico">Consigo arcar com o básico (Ração e Vacinas)</option>
+                        <option value="medio" selected>Intermediário (Ração Premium e Consultas)</option>
+                        <option value="pleno">Completo (Ração Super Premium, Veterinário e Emergências)</option>
+                    </select>
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                        <label class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-2 block">Documento de
+                            Identidade (RG/CNH)</label>
+                        <div class="flex items-center justify-center w-full">
+                            <label
+                                class="flex flex-col w-full h-20 border-2 border-dashed border-gray-200 hover:bg-gray-50 rounded-xl justify-center items-center cursor-pointer transition-colors p-2">
+                                <i class="ph ph-identification-card text-2xl text-gray-400"></i>
+                                <span class="text-xs text-gray-500 font-medium text-center mt-1" id="lbl-file-id">Enviar
+                                    foto do Doc</span>
+                                <input type="file" id="p-docId" class="hidden"
+                                    onchange="updateFileLabel('p-docId', 'lbl-file-id')" />
+                            </label>
+                        </div>
+                    </div>
+                    <div>
+                        <label class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-2 block">Comprovante
+                            de Residência</label>
+                        <div class="flex items-center justify-center w-full">
+                            <label
+                                class="flex flex-col w-full h-20 border-2 border-dashed border-gray-200 hover:bg-gray-50 rounded-xl justify-center items-center cursor-pointer transition-colors p-2">
+                                <i class="ph ph-file-text text-2xl text-gray-400"></i>
+                                <span class="text-xs text-gray-500 font-medium text-center mt-1"
+                                    id="lbl-file-res">Enviar Comprovante</span>
+                                <input type="file" id="p-docRes" class="hidden"
+                                    onchange="updateFileLabel('p-docRes', 'lbl-file-res')" />
+                            </label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+        <div
+            class="absolute bottom-0 left-0 w-full p-4 bg-gradient-to-t from-white via-white/90 to-transparent z-20 pointer-events-none">
+            <button onclick="saveProfile()"
+                class="w-full bg-orange-500 text-white py-4 rounded-xl font-bold shadow-lg shadow-orange-200 active:scale-95 transition-transform flex items-center justify-center gap-2 pointer-events-auto">
+                Encontrar meu match <i class="ph-bold ph-arrow-right"></i>
+            </button>
+        </div>
+    </div>
+
+    <div id="app"
+        class="hidden relative w-full max-w-md h-[100dvh] sm:h-[90vh] sm:rounded-3xl bg-white shadow-2xl flex flex-col overflow-hidden sm:border sm:border-gray-200">
+
+        <header class="flex justify-between items-center p-4 border-b border-gray-100 z-20 bg-white flex-shrink-0">
+            <div class="w-10"></div>
+            <h1 class="text-xl font-bold text-gray-800 tracking-tight flex items-center gap-1">
+                <i class="ph-fill ph-paw-print text-orange-500"></i> Adota Aí
+            </h1>
+            <div class="w-10"></div>
+        </header>
+
+        <main id="view-swipe" class="flex-1 flex flex-col relative w-full h-full p-4 overflow-hidden bg-gray-50 pb-24">
+            <div class="px-2 mb-3 z-30">
+                <button onclick="toggleFilterMenu()"
+                    class="w-full flex items-center justify-between bg-white border border-gray-200 p-3 rounded-xl shadow-sm text-gray-700 font-medium active:scale-[0.98] transition-transform text-sm">
+                    <span class="flex items-center gap-2"><i class="ph ph-sliders"></i> Filtros de Busca</span>
+                    <i id="filter-icon" class="ph ph-caret-down"></i>
+                </button>
+
+                <div id="filter-menu"
+                    class="hidden mt-2 bg-white border border-gray-200 rounded-2xl p-4 shadow-xl space-y-4 absolute left-4 right-4 z-40">
+                    <div class="grid grid-cols-2 gap-3">
+                        <div>
+                            <label class="text-xs font-bold text-gray-400 uppercase">Espécie</label>
+                            <select id="filter-species"
+                                class="w-full p-2 bg-gray-50 border-none rounded-lg text-sm focus:ring-0">
+                                <option value="">Todos</option>
+                                <option value="cão">Cachorros</option>
+                                <option value="gato">Gatos</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="text-xs font-bold text-gray-400 uppercase">Porte</label>
+                            <select id="filter-size"
+                                class="w-full p-2 bg-gray-50 border-none rounded-lg text-sm focus:ring-0">
+                                <option value="">Todos</option>
+                                <option value="pequeno">Pequeno</option>
+                                <option value="médio">Médio</option>
+                                <option value="grande">Grande</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="text-xs font-bold text-gray-400 uppercase">Especial / PCD</label>
+                            <select id="filter-special"
+                                class="w-full p-2 bg-gray-50 border-none rounded-lg text-sm focus:ring-0">
+                                <option value="">Todos</option>
+                                <option value="true">Apenas PCD/Crônicos</option>
+                                <option value="false">Sem condições especiais</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="text-xs font-bold text-gray-400 uppercase">Crianças</label>
+                            <select id="filter-kids"
+                                class="w-full p-2 bg-gray-50 border-none rounded-lg text-sm focus:ring-0">
+                                <option value="">Indiferente</option>
+                                <option value="true">Bom p/ crianças</option>
+                            </select>
+                        </div>
+                    </div>
+                    <button onclick="applyFilters()"
+                        class="w-full bg-orange-500 text-white py-3 rounded-xl font-bold shadow-lg shadow-orange-200 active:scale-95 transition-transform text-sm">
+                        Aplicar Filtros
+                    </button>
+                </div>
+            </div>
+
+            <div id="cards-container" class="card-container flex-1 mb-4 relative z-10"></div>
+
+            <div id="empty-state"
+                class="absolute inset-0 flex flex-col items-center justify-center p-6 text-center bg-gray-50 z-0 hidden">
+                <div class="w-20 h-20 bg-orange-100 rounded-full flex items-center justify-center mb-4">
+                    <i class="ph-fill ph-check-circle text-4xl text-orange-500"></i>
+                </div>
+                <h2 class="text-xl font-bold text-gray-800 mb-2">Você viu todos!</h2>
+                <p class="text-sm text-gray-500 mb-6 px-4">Não há mais pets na sua região no momento de acordo com seus
+                    critérios.</p>
+                <button onclick="resetApp()"
+                    class="px-6 py-2.5 bg-white border-2 border-orange-500 text-orange-500 text-sm font-bold rounded-full shadow hover:bg-orange-50 active:scale-95 transition-transform">
+                    Ver Novamente
+                </button>
+            </div>
+        </main>
+
+        <main id="view-liked"
+            class="flex-1 hidden flex-col w-full h-full bg-gray-50 overflow-y-auto no-scrollbar relative pb-24">
+            <div class="p-4 sm:p-6">
+                <div class="flex justify-between items-center mb-6">
+                    <div>
+                        <h2 class="text-2xl font-bold text-gray-800">Seus Matches</h2>
+                        <p class="text-gray-500 text-sm mt-1">Inicie o processo de adoção com a ONG.</p>
+                    </div>
+                </div>
+
+                <div id="liked-grid" class="grid grid-cols-2 gap-4"></div>
+
+                <div id="no-likes" class="flex flex-col items-center justify-center py-16 text-center text-gray-400">
+                    <div class="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mb-4">
+                        <i class="ph-fill ph-heart-break text-3xl text-gray-300"></i>
+                    </div>
+                    <p class="font-medium text-sm text-gray-500">Você ainda não curtiu nenhum pet.</p>
+                    <p class="text-xs mt-1">Dê alguns likes para vê-los aqui!</p>
+                </div>
+            </div>
+        </main>
+
+        <main id="view-settings-tab"
+            class="flex-1 hidden flex-col w-full h-full bg-gray-50 overflow-y-auto no-scrollbar relative pb-24">
+            <div class="p-4 sm:p-6">
+                <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 mb-6 text-center">
+                    <div
+                        class="w-20 h-20 bg-orange-100 rounded-full flex items-center justify-center mx-auto mb-3 border-4 border-white shadow-md relative">
+                        <i class="ph-fill ph-user text-4xl text-orange-500"></i>
+                    </div>
+                    <h3 class="font-bold text-base text-gray-800 truncate" id="profile-user-email">usuario@email.com
+                    </h3>
+                    <p class="text-gray-500 text-xs mt-1"><i class="ph-fill ph-map-pin mr-1 text-orange-500"></i>
+                        Itapetininga - SP</p>
+                    <div
+                        class="mt-2 inline-block bg-green-100 text-green-700 text-[10px] font-bold px-2 py-0.5 rounded-full">
+                        <i class="ph-fill ph-shield-check"></i> Perfil Verificado
+                    </div>
+                </div>
+
+                <h4 class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-3 px-2">Configurações</h4>
+                <div class="bg-white rounded-2xl shadow-sm border border-gray-100 mb-6 overflow-hidden text-sm">
+
+                    <button onclick="openProfileEdit()"
+                        class="w-full flex items-center justify-between p-4 border-b border-gray-50 hover:bg-gray-50 active:bg-gray-100 transition-colors">
+                        <div class="flex items-center gap-3">
+                            <div class="bg-blue-100 p-2 rounded-lg text-blue-600">
+                                <i class="ph-fill ph-list-magnifying-glass text-lg"></i>
+                            </div>
+                            <span class="font-medium text-gray-700">Refazer Quiz de Compatibilidade</span>
+                        </div>
+                        <i class="ph-bold ph-caret-right text-gray-400"></i>
+                    </button>
+
+                    <div class="w-full flex items-center justify-between p-4 border-b border-gray-50">
+                        <div class="flex items-center gap-3">
+                            <div class="bg-green-100 p-2 rounded-lg text-green-600">
+                                <i class="ph-fill ph-bell text-lg"></i>
+                            </div>
+                            <span class="font-medium text-gray-700">Notificações Push</span>
+                        </div>
+                        <div
+                            class="relative inline-block w-10 mr-2 align-middle select-none transition duration-200 ease-in">
+                            <input type="checkbox" name="toggle" id="toggle"
+                                class="toggle-checkbox absolute block w-5 h-5 rounded-full bg-white border-4 appearance-none cursor-pointer transition-transform"
+                                checked />
+                            <label for="toggle"
+                                class="toggle-label block overflow-hidden h-5 rounded-full bg-gray-300 cursor-pointer"></label>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="space-y-3">
+                    <button onclick="logout()"
+                        class="w-full bg-white border border-gray-200 text-gray-700 font-bold py-3 rounded-xl flex items-center justify-center gap-2 text-sm shadow-sm hover:bg-gray-50 active:scale-95 transition-transform">
+                        <i class="ph-bold ph-sign-out text-base"></i> Sair da Conta
+                    </button>
+
+                    <button onclick="deleteAccount()"
+                        class="w-full text-red-500 font-medium py-2 text-xs flex items-center justify-center gap-2 hover:bg-red-50 transition-colors">
+                        <i class="ph-bold ph-trash"></i> Excluir minha conta
+                    </button>
+                </div>
+            </div>
+        </main>
+
+        <nav
+            class="absolute bottom-0 left-0 right-0 bg-white border-t border-gray-100 h-16 flex justify-around items-center z-30 px-4 shadow-[0_-4px_12px_rgba(0,0,0,0.03)] flex-shrink-0">
+            <button id="nav-tab-swipe" onclick="switchTab('swipe')"
+                class="flex flex-col items-center justify-center text-orange-500 flex-1 h-full transition-all">
+                <i class="ph-fill ph-paw-print text-2xl"></i>
+                <span class="text-[10px] font-bold mt-0.5">Descobrir</span>
+            </button>
+            <button id="nav-tab-liked" onclick="switchTab('liked')"
+                class="flex flex-col items-center justify-center text-gray-400 flex-1 h-full relative transition-all">
+                <i class="ph-fill ph-heart text-2xl"></i>
+                <span class="text-[10px] font-bold mt-0.5">Matches</span>
+                <span id="liked-badge"
+                    class="absolute top-2 right-6 bg-red-500 text-white text-[9px] font-bold rounded-full w-4 h-4 flex items-center justify-center hidden border border-white">0</span>
+            </button>
+            <button id="nav-tab-settings" onclick="switchTab('settings')"
+                class="flex flex-col items-center justify-center text-gray-400 flex-1 h-full transition-all">
+                <i class="ph-fill ph-user text-2xl"></i>
+                <span class="text-[10px] font-bold mt-0.5">Perfil</span>
+            </button>
+        </nav>
+
+    </div>
+
+    <div id="pet-modal" class="fixed inset-0 bg-black/70 hidden items-center justify-center z-50 backdrop-blur-sm p-4">
+        <div
+            class="bg-white w-full max-w-md rounded-3xl overflow-hidden shadow-2xl transform scale-100 transition-transform max-h-[90vh] flex flex-col">
+            <div class="relative h-60 flex-shrink-0">
+                <img id="modal-img" class="w-full h-full object-cover">
+                <button onclick="closeModal()"
+                    class="absolute top-4 right-4 bg-black/50 text-white rounded-full w-11 h-11 flex items-center justify-center backdrop-blur-md hover:bg-black/70 transition-colors">
+                    <i class="ph-bold ph-x text-base"></i>
+                </button>
+                <div
+                    class="absolute bottom-0 w-full p-5 bg-gradient-to-t from-black/90 via-black/40 to-transparent text-white">
+                    <h2 id="modal-name" class="text-2xl font-bold"></h2>
+                    <p id="modal-breed" class="text-xs text-gray-200 font-medium mt-0.5"></p>
+                </div>
+            </div>
+
+            <div class="p-5 space-y-4 overflow-y-auto no-scrollbar flex-1 text-sm">
+                <div class="grid grid-cols-2 gap-2 text-xs font-medium text-gray-600 bg-gray-50 p-2.5 rounded-xl">
+                    <span id="modal-age" class="flex items-center gap-1"><i class="ph-fill ph-clock"></i></span>
+                    <span id="modal-city" class="flex items-center gap-1 text-orange-600"><i
+                            class="ph-fill ph-map-pin"></i></span>
+                </div>
+
+                <div class="grid grid-cols-2 gap-2 text-xs">
+                    <div
+                        class="bg-orange-50 border border-orange-100 p-2.5 rounded-xl text-orange-800 flex items-center gap-1.5">
+                        <i class="ph-fill ph-arrows-out"></i> Porte: <span id="modal-size"
+                            class="font-bold capitalize"></span>
+                    </div>
+                    <div
+                        class="bg-purple-50 border border-purple-100 p-2.5 rounded-xl text-purple-800 flex items-center gap-1.5">
+                        <i class="ph-fill ph-shield"></i> <span id="modal-castrated" class="font-bold">Castrado</span>
+                    </div>
+                </div>
+
+                <div class="bg-blue-50 border border-blue-100 p-3.5 rounded-xl text-xs">
+                    <strong class="text-blue-800 flex items-center gap-2 mb-1"><i class="ph-fill ph-heartbeat"></i>
+                        Saúde e Cuidados:</strong>
+                    <p id="modal-medical" class="text-blue-900"></p>
+                </div>
+
+                <div class="text-xs text-gray-700 px-1 space-y-2">
+                    <div>
+                        <strong class="text-gray-900 block mb-0.5">Histórico do Resgate:</strong>
+                        <p id="modal-past" class="leading-relaxed text-gray-600"></p>
+                    </div>
+                    <div>
+                        <strong class="text-gray-900 block mb-0.5">Sobre:</strong>
+                        <p id="modal-desc" class="leading-relaxed text-gray-600"></p>
+                    </div>
+                </div>
+
+                <button onclick="fakeAdoptionAction()"
+                    class="w-full mt-2 bg-orange-500 text-white py-3.5 rounded-xl font-bold shadow-lg shadow-orange-200 active:scale-95 transition-transform flex justify-center items-center gap-2 text-sm">
+                    Tenho interesse em adotar <i class="ph-fill ph-paw-print"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let users = JSON.parse(localStorage.getItem("users")) || [];
+        let userProfile = JSON.parse(localStorage.getItem('profile')) || null;
+        let likedDogs = [];
+        let isDragging = false;
+        let startX = 0, startY = 0, currentX = 0, currentY = 0;
+        let topCard = null;
+
+        // Base enriquecida com os pedidos de feedback dos usuários
+        const dbDogs = [
+            {
+                id: 1,
+                name: "Caramelo",
+                age: "2 anos",
+                breed: "Sem Raça Definida",
+                city: "Itapetininga",
+                img: "https://revistaoeste.com/oestegeral/wp-content/uploads/2025/06/cachorro-caramelo_1749242700989.jpg",
+                desc: "Clássico brasileiro. Cheio de energia, muito carinhoso e amigável.",
+                size: "médio",
+                species: "cão",
+                medical: "Totalmente vacinado, V10 e Raiva em dia.",
+                castrated: true,
+                specialNeed: false,
+                singlePet: false,
+                purpose: "companhia",
+                past: "Encontrado abandonado próximo à rodovia, estava desnutrido mas hoje goza de saúde perfeita."
+            },
+            {
+                id: 2,
+                name: "Luna",
+                age: "6 meses",
+                breed: "Labrador Mix",
+                city: "Tatuí",
+                species: "cão",
+                size: "grande",
+                medical: "Vacinada, vermifugada.",
+                castrated: false,
+                specialNeed: false,
+                singlePet: false,
+                purpose: "companhia",
+                img: "https://images.unsplash.com/photo-1552053831-71594a27632d?q=80&w=600&auto=format&fit=crop",
+                desc: "Filhote aprendendo a fazer xixi no lugar certo. Muito dócil e se dá bem com crianças.",
+                past: "Nascida em uma ninhada de rua resgatada em um terreno baldio."
+            },
+            {
+                id: 3,
+                name: "Thor",
+                age: "4 anos",
+                breed: "Pitbull",
+                city: "Itararé",
+                species: "cão",
+                size: "grande",
+                medical: "Castrado, vacinado, exames cardíacos ok.",
+                castrated: true,
+                specialNeed: false,
+                singlePet: true,
+                purpose: "guarda",
+                img: "https://media.istockphoto.com/id/1370010790/photo/pit-bull-dog-playing-and-having-fun-in-the-park-green-grass-wooden-stakes-around-selective.jpg?s=612x612&w=0&k=20&c=2BhKHzjGSTauuMVtrjEx6aDQrACAPV7iZ2ExQtxArzs=",
+                desc: "Um gigante bobão. Excelente para guarda de território, porém muito amoroso com os donos.",
+                past: "Retirado de situação de maus-tratos e negligência."
+            },
+            {
+                id: 4,
+                name: "Soneca",
+                age: "5 anos",
+                breed: "Gato Siamês",
+                city: "Itapetininga",
+                species: "gato",
+                size: "pequeno",
+                medical: "FIV/FELV negativo, amputação de uma patinha traseira (PCD).",
+                castrated: true,
+                specialNeed: true,
+                singlePet: false,
+                purpose: "companhia",
+                img: "https://images.unsplash.com/photo-1514888286974-6c03e2ca1dba?q=80&w=600&auto=format&fit=crop",
+                desc: "Gatinho de três patinhas extremamente carinhoso. Sua deficiência não impede de pular e brincar.",
+                past: "Resgatado após atropelamento. Passou por cirurgia de amputação e está 100% recuperado."
+            },
+            {
+                id: 5,
+                name: "Bidu",
+                age: "3 anos",
+                breed: "Beagle",
+                city: "Alambari",
+                species: "cão",
+                size: "médio",
+                medical: "Vacinado e ativo.",
+                castrated: true,
+                specialNeed: false,
+                singlePet: false,
+                purpose: "companhia",
+                img: "https://www.zooplus.pt/magazine/wp-content/uploads/2018/06/beagle_2.webp",
+                desc: "Curioso e fujão. Precisa de uma casa com muros altos. Excelente companheiro.",
+                past: "Entregue pela antiga família por falta de espaço no apartamento."
+            },
+            {
+                "id": 6,
+                "name": "Mimi",
+                "age": "2 anos",
+                "breed": "Siamês",
+                "city": "Itapetininga",
+                "species": "gato",
+                "size": "pequeno",
+                "medical": "Vacinada e castrada",
+                "castrated": true,
+                "specialNeed": false,
+                "singlePet": false,
+                "purpose": "companhia",
+                "img": "https://static.wikia.nocookie.net/gatopedia/images/3/3a/Gato_Siam%C3%AAs.png/revision/latest?cb=20140429132749&path-prefix=pt-br",
+                "desc": "Carinhosa e tranquila. Ideal para apartamentos e pessoas que buscam companhia calma.",
+                "past": "Encontrada ainda filhote em uma caixa de papelão, criada em lar temporário com muito amor."
+            },
+            {
+                "id": 7,
+                "name": "Rex",
+                "age": "5 anos",
+                "breed": "Pastor Alemão",
+                "city": "Tatuí",
+                "species": "cão",
+                "size": "grande",
+                "medical": "Vacinado, castrado",
+                "castrated": true,
+                "specialNeed": false,
+                "singlePet": true,
+                "purpose": "guarda e companhia",
+                "img": "https://www.caesparaadocao.com.br/themes/caesparaadocao.com.br/uploads/caes/galeria/12062018111623__MG_3301-Editar.jpg",
+                "desc": "Protetor e leal. Indicado para casas com espaço e donos com experiência.",
+                "past": "Sua antiga família mudou-se para um local menor e não pôde levá-lo. É muito obediente."
+            },
+            {
+                "id": 8,
+                "name": "Mel",
+                "age": "1 ano",
+                "breed": "Sem Raça Definida",
+                "city": "Sarapuí",
+                "species": "cão",
+                "size": "pequeno",
+                "medical": "Vacinada",
+                "castrated": false,
+                "specialNeed": false,
+                "singlePet": false,
+                "purpose": "companhia",
+                "img": "https://www.pedigree.com.br/cdn-cgi/image/format=auto,q=90/sites/g/files/fnmzdf2401/files/2023-09/dia-do-vira-lata.png",
+                "desc": "Muito dócil e brincalhona. Se adapta bem com crianças e ambientes menores.",
+                "past": "Resgatada das ruas ainda bebê. Adora correr atrás de bolinhas e convive bem com outros cães."
+            },
+            {
+                "id": 9,
+                "name": "Simba",
+                "age": "3 anos",
+                "breed": "Laranja SRD",
+                "city": "Itapeva",
+                "species": "gato",
+                "size": "médio",
+                "medical": "Castrado e saudável",
+                "castrated": true,
+                "specialNeed": false,
+                "singlePet": true,
+                "purpose": "companhia",
+                "img": "https://cobasiblog.blob.core.windows.net/production-ofc/2021/08/gato-laranja-conheca-6-racas-com-essa-caracteristica-2.webp",
+                "desc": "Independente e curioso. Ideal para quem já tem experiência com gatos.",
+                "past": "Vivias nas redondezas de um comércio local onde era alimentado, até ser recolhido para adoção responsável."
+            },
+            {
+                "id": 10,
+                "name": "Bolinha",
+                "age": "4 anos",
+                "breed": "Sem Raça Definida",
+                "city": "Boituva",
+                "species": "cão",
+                "size": "pequeno",
+                "medical": "Vacinado",
+                "castrated": false,
+                "specialNeed": false,
+                "singlePet": false,
+                "purpose": "companhia",
+                "img": "https://s2-g1.glbimg.com/TdPTg4jg3ZqtmZtyFnuHehXLgmk=/0x314:720x1073/984x0/smart/filters:strip_icc()/i.s3.glbimg.com/v1/AUTH_59edd422c0c84a879bd37670ae4f538a/internal_photos/bs/2019/B/x/gU7r6UTvyFwLn5G5FlUg/whatsapp-image-2019-02-22-at-14.53.02.jpeg",
+                "desc": "Calmo e companheiro. Perfeito para apartamentos e rotina tranquila.",
+                "past": "Deixado em uma clínica veterinária por pessoas que o encontraram perdido. Ninguém reivindicou sua posse."
+            },
+            {
+                "id": 11,
+                "name": "Bidu",
+                "age": "8 meses",
+                "breed": "Vira-lata",
+                "city": "Capão Bonito",
+                "species": "cão",
+                "size": "médio",
+                "medical": "Vacinado. Diagnosticado com Megaesôfago (necessita comer em comedouro elevado/cadeira de Bailey).",
+                "castrated": false,
+                "specialNeed": true,
+                "singlePet": false,
+                "purpose": "companhia",
+                "img": "https://extra.globo.com/incoming/23952663-75f-7e9/w976h550-PROP/simba-.jpg",
+                "desc": "Filhote cheio de energia e curiosidade. Precisa de atenção e espaço para brincar.",
+                "past": "Resgatado desnutrido devido à sua condição crônica não tratada. Hoje está estável e se alimenta muito bem com os cuidados certos."
+            },
+            {
+                "id": 12,
+                "name": "Fred",
+                "age": "6 anos",
+                "breed": "Sem Raça Definida",
+                "city": "Sorocaba",
+                "species": "cão",
+                "size": "médio",
+                "medical": "Castrado e vacinado",
+                "castrated": true,
+                "specialNeed": false,
+                "singlePet": false,
+                "purpose": "companhia",
+                "img": "https://www.patasdacasa.com.br/sites/default/files/styles/gallery_crop/public/vira-latas-peludos-deysi-aaano.JPG.webp?itok=sKOIzVnb",
+                "desc": "Tranquilo e muito apegado ao dono. Ideal para ambientes internos.",
+                "past": "Resgatado após o falecimento de seu antigo tutor idoso. Busca um recomeço em um lar calmo."
+            },
+            {
+                "id": 13,
+                "name": "Nina",
+                "age": "2 anos",
+                "breed": "Sem Raça Definida",
+                "city": "Itapetininga",
+                "species": "gato",
+                "size": "pequeno",
+                "medical": "Vacinada e castrada",
+                "castrated": true,
+                "specialNeed": false,
+                "singlePet": false,
+                "purpose": "companhia",
+                "img": "https://blog.cobasi.com.br/wp-content/uploads/2018/10/raca-de-gato-1.jpg",
+                "desc": "Calma e silenciosa. Prefere ambientes tranquilos e sem muito movimento.",
+                "past": "Nasceu em uma colônia de gatos comunitários. Foi socializada e se adaptou perfeitamente à vida dentro de casa."
+            },
+            {
+                "id": 14,
+                "name": "Max",
+                "age": "3 anos",
+                "breed": "Rottweiler",
+                "city": "Tatuí",
+                "species": "cão",
+                "size": "grande",
+                "medical": "Vacinado",
+                "castrated": false,
+                "specialNeed": false,
+                "singlePet": true,
+                "purpose": "guarda",
+                "img": "https://objectstorage.sa-vinhedo-1.oraclecloud.com/n/axuh3s32sabm/b/cobasi-institutional-cms-bucket/o/prod/rottweiler_02.webp",
+                "desc": "Forte e protetor. Requer dono experiente e ambiente seguro.",
+                "past": "Entregue a uma ONG após o tutor não conseguir controlar seu tamanho e força por falta de espaço físico."
+            },
+            {
+                "id": 15,
+                "name": "Pipoca",
+                "age": "1 ano",
+                "breed": "Sem Raça Definida",
+                "city": "Alambari",
+                "species": "cão",
+                "size": "pequeno",
+                "medical": "Vacinada",
+                "castrated": false,
+                "specialNeed": false,
+                "singlePet": false,
+                "purpose": "companhia",
+                "img": "https://cdn.folhape.com.br/upload/dn_arquivo/2023/07/sem-titulo_15.jpg",
+                "desc": "Brincalhona e sociável. Se adapta bem com outros animais.",
+                "past": "Encontrada correndo em uma estrada rural. É extremamente alegre e dócil com qualquer pessoa."
+            },
+            {
+                "id": 16,
+                "name": "Bolinha",
+                "age": "4 anos",
+                "breed": "Sem Raça Definida",
+                "city": "Itapetininga",
+                "species": "cão",
+                "size": "pequeno",
+                "medical": "Castrado, vacinado e cardiopata (necessita de medicação diária contínua).",
+                "castrated": true,
+                "specialNeed": true,
+                "singlePet": false,
+                "purpose": "companhia",
+                "img": "https://www.bemparana.com.br/wp-content/uploads/2023/07/hugo-papo-pet-vira-lata-e1690834033757.webp",
+                "desc": "Pequeno e tranquilo, ideal para quem mora em apartamento.",
+                "past": "Resgatado de uma situação de negligência. Seu sopro no coração foi descoberto nos exames de rotina da ONG e já está controlado."
+            },
+            {
+                "id": 17,
+                "name": "Rajado",
+                "age": "2 anos",
+                "breed": "Gato SRD",
+                "city": "Tatuí",
+                "species": "gato",
+                "size": "pequeno",
+                "medical": "Castrado",
+                "castrated": true,
+                "specialNeed": false,
+                "singlePet": false,
+                "purpose": "companhia",
+                "img": "https://cdn6.campograndenews.com.br/uploads/noticias/2026/01/20/2a647e6b3a8cec9f3954dd1e36a9d311dcc0315c.jpeg",
+                "desc": "Independente, mas gosta de companhia no fim do dia.",
+                "past": "Resgatado do telhado de uma fábrica desativada. Demora alguns dias para confiar, mas depois se torna muito companheiro."
+            },
+            {
+                "id": 18,
+                "name": "Pretinha",
+                "age": "3 anos",
+                "breed": "Gato SRD",
+                "city": "Alambari",
+                "species": "gato",
+                "size": "pequeno",
+                "medical": "Vacinada",
+                "castrated": false,
+                "specialNeed": false,
+                "singlePet": false,
+                "purpose": "companhia",
+                "img": "https://images.amigonaosecompra.com.br/unsafe/1176x0/d40a9676-ac8b-4f2e-a414-46a098a09559/2655fac0-d719-4fa6-a168-eb2045cb343d/2655fac0-d719-4fa6-a168-eb2045cb343d.jpg",
+                "desc": "Muito calma e silenciosa, ótima para ambientes tranquilos.",
+                "past": "Seguiu um morador até sua casa em uma noite de chuva. Foi acolhida temporariamente para encontrar um lar definitivo."
+            },
+            {
+                "id": 19,
+                "name": "Fred",
+                "age": "5 anos",
+                "breed": "Sem Raça Definida",
+                "city": "Itararé",
+                "species": "cão",
+                "size": "médio",
+                "medical": "Castrado e saudável",
+                "castrated": true,
+                "specialNeed": false,
+                "singlePet": false,
+                "purpose": "companhia",
+                "img": "https://adotar.com.br/upload/2021-01/animais_imagem660988.jpg?w=700&format=webp",
+                "desc": "Mais velho e tranquilo, gosta de descanso e passeios leves.",
+                "past": "Viveu em um abrigo comunitário regional por 2 anos. É muito sociável com outros cães idosos."
+            },
+            {
+                "id": 20,
+                "name": "Lili",
+                "age": "8 meses",
+                "breed": "Pinscher",
+                "city": "Itapetininga",
+                "species": "cão",
+                "size": "pequeno",
+                "medical": "Vacinada",
+                "castrated": false,
+                "specialNeed": false,
+                "singlePet": true,
+                "purpose": "companhia",
+                "img": "https://img.olx.com.br/images/38/389612632615510.jpg",
+                "desc": "Pequena e alerta, ótima para companhia constante.",
+                "past": "Resgatada de um criador clandestino. Superou o medo inicial e agora é extremamente apegada a humanos."
+            },
+            {
+                "id": 21,
+                "name": "Tom",
+                "age": "1 ano",
+                "breed": "Gato SRD",
+                "city": "Capão Bonito",
+                "species": "gato",
+                "size": "pequeno",
+                "medical": "Vacinado e castrado",
+                "castrated": true,
+                "specialNeed": false,
+                "singlePet": false,
+                "purpose": "companhia",
+                "img": "https://blog-static.petlove.com.br/wp-content/uploads/2024/03/28195636/gato-peludo-Petlove.jpg",
+                "desc": "Brincalhão e curioso, gosta de explorar a casa.",
+                "past": "Encontrado em um motor de carro quando era recém-nascido. Foi amamentado na mamadeira e adora colo."
+            },
+            {
+                "id": 22,
+                "name": "Bela",
+                "age": "2 anos",
+                "breed": "Sem Raça Definida",
+                "city": "Angatuba",
+                "species": "cão",
+                "size": "médio",
+                "medical": "Castrada",
+                "castrated": true,
+                "specialNeed": false,
+                "singlePet": false,
+                "purpose": "companhia",
+                "img": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSPIRiwLl-eEq0LRUoJg5f0sQkeJ2mHNMK8Uw&s",
+                "desc": "Carinhosa e companheira, se adapta fácil a rotina.",
+                "past": "Vivendo em uma guarita de condomínio onde os moradores cuidavam coletivamente. Entrou para a ONG para ganhar uma família real."
+            },
+            {
+                "id": 23,
+                "name": "Chico",
+                "age": "6 anos",
+                "breed": "Sem Raça Definida",
+                "city": "Tatuí",
+                "species": "cão",
+                "size": "médio",
+                "medical": "Vacinado. Cego de um olho devido a trauma antigo (não necessita colírios atuais).",
+                "castrated": false,
+                "specialNeed": true,
+                "singlePet": false,
+                "purpose": "companhia",
+                "img": "https://adotar.com.br/upload/2024-01/animais_imagem1080250.jpg?w=700&format=webp",
+                "desc": "Mais velho, calmo e muito fiel.",
+                "past": "Vítima de maus-tratos no passado, de onde resultou a lesão ocular. Foi reabilitado fisicamente e psicologicamente."
+            },
+            {
+                "id": 24,
+                "name": "Mimi",
+                "age": "3 anos",
+                "breed": "Gato SRD",
+                "city": "Itapetininga",
+                "species": "gato",
+                "size": "pequeno",
+                "medical": "Castrada",
+                "castrated": true,
+                "specialNeed": false,
+                "singlePet": false,
+                "purpose": "companhia",
+                "img": "https://cdn.shopify.com/s/files/1/0500/8965/6473/files/pexels-arina-krasnikova-7726295_480x480.jpg?v=1663249037",
+                "desc": "Carinhosa, adora colo e ambientes calmos.",
+                "past": "Resgatada após entrar no quintal de uma protetora pedindo comida. Muito mansa e sociável."
+            },
+            {
+                "id": 25,
+                "name": "Thor",
+                "age": "2 anos",
+                "breed": "Sem Raça Definida",
+                "city": "Alambari",
+                "species": "cão",
+                "size": "grande",
+                "medical": "Vacinado",
+                "castrated": false,
+                "specialNeed": false,
+                "singlePet": true,
+                "purpose": "guarda e companhia",
+                "img": "https://images.unsplash.com/photo-1507146426996-ef05306b995a?q=80&w=600",
+                "desc": "Forte e protetor, precisa de espaço.",
+                "past": "Visto vagando por chácaras da região. É dócil com as pessoas da casa, mas impõe respeito no quintal."
+            },
+            {
+                "id": 26,
+                "name": "Nino",
+                "age": "1 ano",
+                "breed": "Fox Paulistinha",
+                "city": "Itararé",
+                "species": "cão",
+                "size": "pequeno",
+                "medical": "Vacinado",
+                "castrated": false,
+                "specialNeed": false,
+                "singlePet": false,
+                "purpose": "companhia",
+                "img": "https://cdn.folhape.com.br/upload/dn_arquivo/2023/12/terrier-brasileiro-01.jpg",
+                "desc": "Ativo e brincalhão, ideal para quem gosta de energia.",
+                "past": "Perdido na área urbana, não foi chipado e os donos originais nunca apareceram. Adora brincar com crianças."
+            },
+            {
+                "id": 27,
+                "name": "Luna",
+                "age": "4 anos",
+                "breed": "Gato SRD",
+                "city": "Capão Bonito",
+                "species": "gato",
+                "size": "pequeno",
+                "medical": "Castrada e vacinada",
+                "castrated": true,
+                "specialNeed": false,
+                "singlePet": false,
+                "purpose": "companhia",
+                "img": "https://cdn.shopify.com/s/files/1/0500/8965/6473/files/cat-g4aa970acc_1920_480x480.jpg?v=1663249197",
+                "desc": "Tranquila, gosta de observar tudo de longe.",
+                "past": "Resgatada de uma casa abandonada junto com suas ninhadas, que já foram todas adotadas."
+            },
+            {
+                "id": 28,
+                "name": "Spike",
+                "age": "3 anos",
+                "breed": "Sem Raça Definida",
+                "city": "Angatuba",
+                "species": "cão",
+                "size": "grande",
+                "medical": "Castrado. Possui Displasia Coxofemoral leve (controlada com condroprotetores periódicos).",
+                "castrated": true,
+                "specialNeed": true,
+                "singlePet": false,
+                "purpose": "companhia",
+                "img": "https://adotar.com.br/upload/2026-03/animais_imagem1337129.jpg?w=700&format=webp0",
+                "desc": "Companheiro ideal para caminhadas.",
+                "past": "Resgatado de uma vala na beira da estrada. Apesar da displasia leve, mantém boa mobilidade e ama passear sem exageros."
+            },
+            {
+                "id": 29,
+                "name": "Amora",
+                "age": "2 anos",
+                "breed": "Gato SRD",
+                "city": "Itapetininga",
+                "species": "gato",
+                "size": "pequeno",
+                "medical": "Vacinada",
+                "castrated": false,
+                "specialNeed": false,
+                "singlePet": false,
+                "purpose": "companhia",
+                "img": "https://images.unsplash.com/photo-1573865526739-10659fec78a5?q=80&w=600",
+                "desc": "Muito dócil, perfeita para famílias.",
+                "past": "Entregue na clínica veterinária por uma pessoa que a encontrou em um terreno baldio."
+            },
+            {
+                "id": 30,
+                "name": "Rex",
+                "age": "5 anos",
+                "breed": "Sem Raça Definida",
+                "city": "Tatuí",
+                "species": "cão",
+                "size": "grande",
+                "medical": "Castrado e vacinado",
+                "castrated": true,
+                "specialNeed": false,
+                "singlePet": false,
+                "purpose": "guarda e companhia",
+                "img": "https://i0.wp.com/petcaramelo.com/wp-content/uploads/2019/02/cachorros-grandes-e-doceis.jpg?fit=645%2C380&ssl=1",
+                "desc": "Calmo e obediente, ótimo para guarda e companhia.",
+                "past": "Ex-cão de firma que faliu. Ficou para trás no terreno e foi resgatado pela equipe voluntária."
+            }
+        ];
+
+        let dogsList = [];
+
+        function seededRandom(seed) {
+            let x = Math.sin(seed) * 10000;
+            return x - Math.floor(x);
+        }
+
+        function enrichPet(pet) {
+            const ageNumber = parseInt(pet.age);
+            let ageCategory = "adulto";
+            if (pet.age.includes("mes")) ageCategory = "filhote";
+            if (ageNumber >= 7) ageCategory = "idoso";
+
+            const rng = seededRandom(pet.id);
+
+            return {
+                ...pet,
+                ageCategory,
+                goodWithPets: !pet.singlePet,
+                goodWithKids: seededRandom(pet.id * 3) > 0.3,
+                temperament: pet.temperament || (rng > 0.5 ? "brincalhão" : "calmo")
+            };
+        }
+
+        const cardsContainer = document.getElementById('cards-container');
+        const emptyState = document.getElementById('empty-state');
+        const likedGrid = document.getElementById('liked-grid');
+        const noLikesMsg = document.getElementById('no-likes');
+        const likedBadge = document.getElementById('liked-badge');
+        const viewSwipe = document.getElementById('view-swipe');
+        const viewLiked = document.getElementById('view-liked');
+        const viewSettingsTab = document.getElementById('view-settings-tab');
+
+        document.addEventListener("DOMContentLoaded", () => {
+            initApp();
+            checkAutoLogin();
+        });
+
+        function updateFileLabel(inputId, labelId) {
+            const input = document.getElementById(inputId);
+            const label = document.getElementById(labelId);
+            if (input.files.length > 0) {
+                label.textContent = "✓ Arquivo pronto";
+                label.classList.add("text-green-600");
+            }
+        }
+
+        function initApp() {
+            let processedDogs = dbDogs.map(enrichPet);
+            dogsList = [...processedDogs];
+        }
+
+        function checkAutoLogin() {
+            // Procure por esta verificação ao carregar a página e ajuste-a:
+            const activeUser = localStorage.getItem('currentUser');
+            if (activeUser) {
+                document.getElementById('view-auth').classList.add('hidden');
+                document.getElementById('app').classList.remove('hidden');
+                document.getElementById('profile-user-email').innerText = activeUser;
+
+                // GARANTE QUE OS MATCHE ATUAIS SÃO PUXADOS
+                likedDogs = JSON.parse(localStorage.getItem(`liked_${activeUser}`)) || [];
+                userProfile = JSON.parse(localStorage.getItem(`profile_${activeUser}`)) || null;
+
+                resetApp();
+            }
+        }
+
+        function toggleAuth(type) {
+            document.getElementById('form-login').classList.toggle('hidden', type === 'register');
+            document.getElementById('form-register').classList.toggle('hidden', type === 'login');
+        }
+
+        function login() {
+            const emailInput = document.getElementById('login-email').value.trim();
+            const passwordInput = document.getElementById('login-password').value;
+            const agora = Date.now();
+
+            // Cria as chaves de controle de segurança baseadas no e-mail digitado
+            const tentativasChave = `tentativas_${emailInput}`;
+            const bloqueioChave = `bloqueio_${emailInput}`;
+
+            // RNFR-02.1: Verifica se a conta está atualmente bloqueada por 1 minuto
+            const tempoBloqueado = localStorage.getItem(bloqueioChave);
+            if (tempoBloqueado && agora - parseInt(tempoBloqueado) < 60000) {
+                const segundosRestantes = Math.ceil((60000 - (agora - parseInt(tempoBloqueado))) / 1000);
+                alert(`Conta temporariamente bloqueada. Tente novamente em ${segundosRestantes} segundos.`);
+                return;
+            }
+
+            // Procura o usuário cadastrado
+            const user = users.find(u => u.email === emailInput && u.password === passwordInput);
+
+            if (user) {
+                // Se acertou, limpa o histórico de falhas e faz o login
+                localStorage.removeItem(tentativasChave);
+                localStorage.removeItem(bloqueioChave);
+
+                // Código original de sucesso de login
+                localStorage.setItem("currentUser", JSON.stringify(user));
+                document.getElementById('profile-user-email').innerText = user.email;
+                document.getElementById('view-auth').classList.add('hidden');
+
+                if (!userProfile) {
+                    document.getElementById('view-profile').classList.remove('hidden');
+                    document.getElementById('view-profile').classList.add('flex');
+                } else {
+                    document.getElementById('app').classList.remove('hidden');
+                    initApp();
+                }
+            } else {
+                // Se errou, recupera o histórico de erros do localStorage
+                let erros = JSON.parse(localStorage.getItem(tentativasChave)) || [];
+
+                // Mantém apenas as falhas ocorridas nos últimos 5 minutos (5 * 60 * 1000 = 300000ms)
+                erros = erros.filter(timestamp => agora - timestamp < 300000);
+
+                // Adiciona a tentativa atual errada
+                erros.push(agora);
+                localStorage.setItem(tentativasChave, JSON.stringify(erros));
+
+                // Se atingiu 5 tentativas incorretas em 5 minutos, ativa o bloqueio de 1 minuto
+                if (erros.length >= 5) {
+                    localStorage.setItem(bloqueioChave, agora.toString());
+                    alert("Conta bloqueada por 1 minuto devido a 5 tentativas incorretas de acesso.");
+                } else {
+                    alert(`Credenciais incorretas! Tentativa ${erros.length} de 5.`);
+                }
+            }
+        }
+        function register() {
+            const emailInput = document.getElementById('register-email').value.trim();
+            const passwordInput = document.getElementById('register-password').value;
+
+            // RNFR-01.3: O email informado deve ser válido
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            if (!emailRegex.test(emailInput)) {
+                alert("Erro: O email informado deve ser válido.");
+                return;
+            }
+
+            // RNFR-01.1: A senha deve ter no mínimo 8 caracteres
+            if (passwordInput.length < 8) {
+                alert("Erro: A senha deve ter no mínimo 8 caracteres.");
+                return;
+            }
+
+            // RNFR-01.2: A senha não pode ser composta apenas de letras
+            const apenasLetrasRegex = /^[a-zA-ZÀ-ÿ]+$/;
+            if (apenasLetrasRegex.test(passwordInput)) {
+                alert("Erro: A senha não pode ser composta apenas de letras.");
+                return;
+            }
+
+            const userExists = users.some(u => u.email === emailInput);
+            if (userExists) {
+                alert("Usuário já cadastrado!");
+                return;
+            }
+
+            // Cria e salva o novo usuário
+            const novoUsuario = { email: emailInput, password: passwordInput };
+            users.push(novoUsuario);
+            localStorage.setItem("users", JSON.stringify(users));
+
+            alert("Cadastro realizado com sucesso!");
+
+            // --- LOGIN AUTOMÁTICO INDO DIRETO PARA O QUESTIONÁRIO ---
+            // Limpa históricos de bloqueio antigos desse e-mail
+            localStorage.removeItem(`tentativas_${emailInput}`);
+            localStorage.removeItem(`bloqueio_${emailInput}`);
+
+            // Define como usuário atual do sistema
+            localStorage.setItem("currentUser", JSON.stringify(novoUsuario));
+            document.getElementById('profile-user-email').innerText = novoUsuario.email;
+
+            // Zera o perfil na memória para garantir que o sistema saiba que é um perfil novo
+            userProfile = null;
+
+            // Esconde a tela de autenticação (cadastro/login) e a tela do app principal
+            document.getElementById('view-auth').classList.add('hidden');
+            document.getElementById('app').classList.add('hidden');
+
+            // Força a exibição correta e limpa da tela do Questionário (Perfil)
+            const viewProfile = document.getElementById('view-profile');
+            viewProfile.classList.remove('hidden');
+            viewProfile.classList.add('flex');
+
+            // Se o seu arquivo index.html tiver uma função para limpar/resetar os campos do questionário, 
+            // você pode chamá-la aqui (ex: resetProfileForm()), mas o código acima já garante a exibição da tela.
+        }
+
+        function logout() {
+            // Remove o usuário ativo da sessão
+            localStorage.removeItem('currentUser');
+
+            // Esconde o app principal e exibe a tela de login
+            document.getElementById('app').classList.add('hidden');
+            document.getElementById('view-auth').classList.remove('hidden');
+
+            // Limpa os campos de input de login por segurança
+            document.getElementById('login-email').value = '';
+            document.getElementById('login-password').value = '';
+
+            // Reseta a aba ativa para a de "Descobrir" (swipe) para o próximo login
+            switchTab('swipe');
+        }
+
+        function deleteAccount() {
+            const activeUser = localStorage.getItem('currentUser');
+            if (!activeUser) return;
+
+            // Confirmação de segurança
+            const confirmFirst = confirm("Tem certeza de que deseja excluir sua conta? Esta ação não pode ser desfeita.");
+            if (!confirmFirst) return;
+
+            const confirmSecond = confirm("Isso apagará permanentemente seu Perfil de Adoção e seus Matches. Deseja continuar?");
+            if (!confirmSecond) return;
+
+            // 1. Remover o usuário do array global e atualizar o localStorage
+            users = users.filter(u => u.email !== activeUser);
+            localStorage.setItem("users", JSON.stringify(users));
+
+            // 2. Limpar os dados vinculados a este e-mail específico
+            localStorage.removeItem(`profile_${activeUser}`);
+            localStorage.removeItem(`liked_${activeUser}`);
+
+            // 3. Dar feedback ao usuário e deslogar
+            alert("Sua conta e seus dados foram excluídos com sucesso. Até logo! 🐾");
+            logout();
+        }
+
+        function enterApp() {
+            document.getElementById('view-auth').classList.add('hidden');
+            const activeUser = localStorage.getItem('currentUser') || 'visitante';
+
+            // Buscar as preferências específicas deste e-mail cadastrado
+            const saved = localStorage.getItem(`profile_${activeUser}`);
+
+            if (saved) {
+                userProfile = JSON.parse(saved);
+                document.getElementById('app').classList.remove('hidden');
+
+                // Carrega também o histórico de curtidas deste usuário específico
+                const savedLikes = localStorage.getItem(`liked_${activeUser}`);
+                likedDogs = savedLikes ? JSON.parse(savedLikes) : [];
+                updateLikedView();
+                updateBadge();
+
+                applySmartFilters();
+            } else {
+                // Se for a primeira vez deste e-mail, limpa os dados da sessão anterior e abre o quiz
+                userProfile = null;
+                likedDogs = [];
+                updateLikedView();
+                updateBadge();
+
+                document.getElementById('view-profile').classList.remove('hidden');
+                document.getElementById('view-profile').classList.add('flex');
+            }
+        }
+
+        function getRadioVal(name) {
+            const el = document.querySelector(`input[name="${name}"]:checked`);
+            return el ? el.value : "";
+        }
+
+        function setRadioVal(name, value) {
+            const el = document.querySelector(`input[name="${name}"][value="${value}"]`);
+            if (el) el.checked = true;
+        }
+
+        function openUserSettings() {
+            const email = localStorage.getItem('currentUser') || 'visitante@adotaai.com';
+            document.getElementById('profile-user-email').textContent = email;
+
+            viewUserSettings.classList.remove('hidden');
+            viewUserSettings.classList.add('flex');
+        }
+
+        function closeUserSettings() {
+            viewUserSettings.classList.add('hidden');
+            viewUserSettings.classList.remove('flex');
+        }
+
+        function triggerProfileEditFromSettings() {
+            closeUserSettings();
+            openProfileEdit();
+        }
+
+        function openProfileEdit() {
+            if (userProfile) {
+                setRadioVal('p-housing', userProfile.housing || "casa");
+                setRadioVal('p-activity', userProfile.activity || "moderado");
+                setRadioVal('p-species', userProfile.species || "");
+                setRadioVal('p-size', userProfile.size || "");
+
+                const ageEl = document.getElementById('p-age');
+                const tempEl = document.getElementById('p-temperament');
+                const routineEl = document.getElementById('p-routine');
+                const experienceEl = document.getElementById('p-experience');
+                const allergyEl = document.getElementById('p-allergy');
+                const kidsEl = document.getElementById('p-kids');
+                const otherPetsEl = document.getElementById('p-otherPets');
+
+                if (ageEl) ageEl.value = userProfile.age || "";
+                if (tempEl) tempEl.value = userProfile.temperament || "";
+                if (routineEl) routineEl.value = userProfile.routine || "fica_em_casa";
+                if (experienceEl) experienceEl.value = userProfile.experience || "intermediario";
+                if (allergyEl) allergyEl.checked = (userProfile.allergy === "sim");
+                if (kidsEl) kidsEl.checked = (userProfile.kids === "sim");
+                if (otherPetsEl) otherPetsEl.checked = (userProfile.otherPets === "sim");
+            }
+
+            document.getElementById('filter-menu').classList.add('hidden');
+            document.getElementById('filter-icon').classList.replace('ph-caret-up', 'ph-caret-down');
+            document.getElementById('app').classList.add('hidden');
+
+            document.getElementById('view-profile').classList.remove('hidden');
+            document.getElementById('view-profile').classList.add('flex');
+        }
+
+        function saveProfile() {
+            const activeUser = localStorage.getItem('currentUser') || 'visitante';
+
+            const ageEl = document.getElementById('p-age');
+            const tempEl = document.getElementById('p-temperament');
+            const routineEl = document.getElementById('p-routine');
+            const experienceEl = document.getElementById('p-experience');
+            const allergyEl = document.getElementById('p-allergy');
+            const kidsEl = document.getElementById('p-kids');
+            const otherPetsEl = document.getElementById('p-otherPets');
+
+            const profile = {
+                housing: getRadioVal('p-housing'),
+                activity: getRadioVal('p-activity'),
+                species: getRadioVal('p-species'),
+                size: getRadioVal('p-size'),
+
+                age: ageEl ? ageEl.value : "",
+                temperament: tempEl ? tempEl.value : "",
+                routine: routineEl ? routineEl.value : "fica_em_casa",
+                experience: experienceEl ? experienceEl.value : "intermediario",
+
+                allergy: (allergyEl && allergyEl.checked) ? "sim" : "não",
+                kids: (kidsEl && kidsEl.checked) ? "sim" : "não",
+                otherPets: (otherPetsEl && otherPetsEl.checked) ? "sim" : "não"
+            };
+
+            // Salva o perfil com a chave exclusiva do usuário logado
+            localStorage.setItem(`profile_${activeUser}`, JSON.stringify(profile));
+            userProfile = profile;
+
+            document.getElementById('view-profile').classList.add('hidden');
+            document.getElementById('view-profile').classList.remove('flex');
+            document.getElementById('app').classList.remove('hidden');
+            applySmartFilters();
+        }
+
+        function applySmartFilters() {
+            const processedDogs = dbDogs.map(pet => {
+                const enriched = enrichPet(pet);
+                return enrichWithMatch(userProfile, enriched);
+            });
+
+            // Se o usuário não aceita PCD/crônicos, filtramos fora automaticamente para evitar match indesejado
+            let results = processedDogs;
+            if (userProfile && userProfile.acceptSpecial === "não") {
+                results = results.filter(pet => !pet.specialNeed);
+            }
+
+            dogsList = results.sort((a, b) => b.matchScore - a.matchScore);
+            renderCards();
+        }
+
+        function toggleFilterMenu() {
+            const menu = document.getElementById('filter-menu');
+            const icon = document.getElementById('filter-icon');
+            const isOpen = !menu.classList.contains('hidden');
+
+            if (isOpen) {
+                menu.classList.add('hidden');
+                icon.classList.replace('ph-caret-up', 'ph-caret-down');
+            } else {
+                menu.classList.remove('hidden');
+                icon.classList.replace('ph-caret-down', 'ph-caret-up');
+            }
+        }
+
+        function applyFilters() {
+            const species = document.getElementById('filter-species').value;
+            const size = document.getElementById('filter-size').value;
+            const specialFilter = document.getElementById('filter-special').value;
+            const kidsOnly = document.getElementById('filter-kids').value === "true";
+
+            let filteredResults = dbDogs.filter(dog => {
+                const traits = enrichPet(dog);
+                const matchSpecies = !species || dog.species === species;
+                const matchSize = !size || dog.size === size;
+                const matchKids = !kidsOnly || traits.goodWithKids === true;
+
+                let matchSpecial = true;
+                if (specialFilter === "true") matchSpecial = dog.specialNeed === true;
+                if (specialFilter === "false") matchSpecial = dog.specialNeed === false;
+
+                return matchSpecies && matchSize && matchKids && matchSpecial;
+            });
+
+            dogsList = filteredResults.map(dog => {
+                const enrichedTraits = enrichPet(dog);
+                return enrichWithMatch(userProfile || {}, enrichedTraits);
+            });
+
+            dogsList.sort((a, b) => b.matchScore - a.matchScore);
+            renderCards();
+            toggleFilterMenu();
+        }
+
+        // --- SISTEMA SWIPE & GESTOS ---
+
+        function createCardElement(dog, index) {
+            const card = document.createElement('div');
+            card.className = 'swipe-card shadow-2xl border border-gray-100';
+            card.style.zIndex = dogsList.length - index;
+
+            card.addEventListener('click', (e) => {
+                if (!isDragging) showDetails(dog);
+            });
+
+            const matchColor = dog.matchScore >= 80 ? "bg-green-500" : dog.matchScore >= 60 ? "bg-yellow-400" : "bg-red-500";
+            const specialBadge = dog.specialNeed ? `<span class="bg-purple-600 text-white font-bold text-[10px] px-2 py-0.5 rounded-full ml-2">PCD/Crônico</span>` : '';
+
+            if (index > 0) {
+                card.style.transform = `scale(${1 - (index * 0.04)}) translateY(${index * 12}px)`;
+            }
+
+            card.innerHTML = `
+                <div class="stamp stamp-like border-green-500 text-green-500 bg-white/90 backdrop-blur-sm">Curti</div>
+                <div class="stamp stamp-nope border-red-500 text-red-500 bg-white/90 backdrop-blur-sm">Passei</div>
+                
+                <div class="absolute top-4 left-4 bg-black/50 text-white text-[11px] font-bold px-3 py-1.5 rounded-full backdrop-blur-md flex items-center border border-white/20 shadow-lg">
+                    <span class="w-2 h-2 rounded-full ${matchColor} mr-1.5"></span>
+                    ${dog.matchScore || 0}% Compatível
+                    ${specialBadge}
+                </div>
+                
+                <img src="${dog.img}" class="w-full h-full object-cover select-none pointer-events-none">
+                
+                <div class="absolute bottom-0 w-full p-5 text-white card-gradient pb-6 pt-20">
+                    <div class="flex justify-between items-end mb-1">
+                        <div>
+                            <h2 class="text-2xl font-bold leading-tight drop-shadow-md">${dog.name}, <span class="text-xl font-normal">${dog.age}</span></h2>
+                            <p class="flex items-center text-xs font-medium mt-0.5 text-gray-200 drop-shadow">
+                                <i class="ph-fill ph-paw-print mr-1"></i> ${dog.breed} • ${dog.castrated ? 'Castrado' : 'Não castrado'}
+                            </p>
+                        </div>
+                        <button class="bg-white/20 p-2 rounded-full backdrop-blur-md border border-white/30">
+                            <i class="ph-bold ph-info text-xl"></i>
+                        </button>
+                    </div>
+                    <p class="flex items-center text-xs font-bold mb-2 text-orange-300 drop-shadow-md">
+                        <i class="ph-fill ph-map-pin mr-1"></i> ${dog.city}
+                    </p>
+                    <p class="text-xs line-clamp-2 text-gray-100 bg-black/40 p-3 rounded-xl border border-white/10 backdrop-blur-sm">${dog.desc}</p>
+                </div>
+            `;
+            return card;
+        }
+
+        function renderCards() {
+            cardsContainer.innerHTML = '';
+
+            if (dogsList.length === 0) {
+                emptyState.classList.remove('hidden');
+                return;
+            } else {
+                emptyState.classList.add('hidden');
+            }
+
+            const visibleDogs = dogsList.slice(0, 3);
+            [...visibleDogs].reverse().forEach((dog, reversedIndex) => {
+                const index = visibleDogs.length - 1 - reversedIndex;
+                const card = createCardElement(dog, index);
+                cardsContainer.appendChild(card);
+            });
+
+            topCard = cardsContainer.lastElementChild;
+            if (topCard) {
+                setupDragEvents(topCard);
+            }
+        }
+
+        let dragActivatedOnCard = false;
+
+        function setupDragEvents(card) {
+            card.addEventListener('mousedown', handleDragStart);
+            document.addEventListener('mousemove', handleDragMove);
+            document.addEventListener('mouseup', handleDragEnd);
+
+            card.addEventListener('touchstart', handleDragStart, { passive: false });
+            document.addEventListener('touchmove', handleDragMove, { passive: false });
+            document.addEventListener('touchend', handleDragEnd);
+        }
+
+        function removeDragEvents() {
+            document.removeEventListener('mousemove', handleDragMove);
+            document.removeEventListener('mouseup', handleDragEnd);
+            document.removeEventListener('touchmove', handleDragMove);
+            document.removeEventListener('touchend', handleDragEnd);
+        }
+
+        function handleDragStart(e) {
+            if (!topCard) return;
+            if (!topCard.contains(e.target)) {
+                dragActivatedOnCard = false;
+                return;
+            }
+
+            dragActivatedOnCard = true;
+            isDragging = false;
+
+            const clientX = e.type.includes('mouse') ? e.clientX : e.touches[0].clientX;
+            const clientY = e.type.includes('mouse') ? e.clientY : e.touches[0].clientY;
+
+            startX = clientX;
+            startY = clientY;
+            topCard.style.transition = 'none';
+            e.stopPropagation();
+        }
+
+        function handleDragMove(e) {
+            if (!topCard || !dragActivatedOnCard) return;
+
+            const clientX = e.type.includes('mouse') ? e.clientX : e.touches[0].clientX;
+            const clientY = e.type.includes('mouse') ? e.clientY : e.touches[0].clientY;
+
+            currentX = clientX - startX;
+            currentY = clientY - startY;
+
+            if (Math.abs(currentX) > 10 || Math.abs(currentY) > 10) {
+                isDragging = true;
+                if (e.type.includes('touch')) e.preventDefault();
+            }
+
+            if (!isDragging) return;
+
+            const rotate = currentX * 0.08;
+            topCard.style.transform = `translate(${currentX}px, ${currentY}px) rotate(${rotate}deg)`;
+
+            const likeStamp = topCard.querySelector('.stamp-like');
+            const nopeStamp = topCard.querySelector('.stamp-nope');
+            const opacity = Math.min(Math.abs(currentX) / 100, 1);
+
+            if (currentX > 0) {
+                likeStamp.style.opacity = opacity;
+                nopeStamp.style.opacity = 0;
+            } else {
+                nopeStamp.style.opacity = opacity;
+                likeStamp.style.opacity = 0;
+            }
+        }
+
+        function handleDragEnd() {
+            if (!topCard || !dragActivatedOnCard) return;
+            dragActivatedOnCard = false;
+
+            if (!isDragging) {
+                resetCardPosition();
+                return;
+            }
+
+            topCard.style.transition = 'transform 0.3s ease-out';
+            const threshold = window.innerWidth * 0.25;
+
+            if (currentX > threshold) {
+                executeSwipe('right');
+            } else if (currentX < -threshold) {
+                executeSwipe('left');
+            } else {
+                resetCardPosition();
+            }
+
+            setTimeout(() => { isDragging = false; }, 50);
+            currentX = 0;
+            currentY = 0;
+        }
+
+        function resetCardPosition() {
+            topCard.style.transform = 'translate(0px, 0px) rotate(0deg)';
+            topCard.querySelector('.stamp-like').style.opacity = 0;
+            topCard.querySelector('.stamp-nope').style.opacity = 0;
+        }
+
+        function executeSwipe(direction) {
+            removeDragEvents();
+
+            const cardToSwipe = topCard;
+            const currentDog = dogsList[0];
+
+            cardToSwipe.classList.add('animating');
+            if (direction !== 'up') {
+                cardToSwipe.classList.add(`swipe-${direction}`);
+            }
+
+            if (direction === 'right' || direction === 'up') {
+                addToLiked(currentDog);
+            }
+
+            dogsList.shift();
+
+            setTimeout(() => {
+                if (cardToSwipe.parentNode) cardToSwipe.parentNode.removeChild(cardToSwipe);
+                renderCards();
+            }, 300);
+        }
+
+        // --- MATCHES, INTERFACE & NAVEGAÇÃO ---
+
+        function addToLiked(dog) {
+            likedDogs.push(dog);
+            updateLikedView();
+            updateBadge();
+        }
+
+        function updateBadge() {
+            if (likedDogs.length > 0) {
+                likedBadge.textContent = likedDogs.length;
+                likedBadge.classList.remove('hidden');
+            } else {
+                likedBadge.classList.add('hidden');
+            }
+        }
+
+        function updateLikedView() {
+            if (likedDogs.length === 0) {
+                noLikesMsg.classList.remove('hidden');
+                likedGrid.innerHTML = '';
+            } else {
+                noLikesMsg.classList.add('hidden');
+                likedGrid.innerHTML = likedDogs.map(dog => `
+                    <div onclick="openMatchedPetDetails(${dog.id})" class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden cursor-pointer hover:shadow-md transition-all active:scale-95">
+                        <div class="h-32 relative">
+                            <img src="${dog.img}" class="w-full h-full object-cover">
+                            <div class="absolute bottom-2 left-2 bg-white/95 backdrop-blur text-[10px] font-bold px-2 py-0.5 rounded-full text-green-600 flex items-center shadow-sm">
+                                <i class="ph-fill ph-check-circle mr-0.5"></i> Match
+                            </div>
+                        </div>
+                        <div class="p-3">
+                            <h3 class="font-bold text-gray-800 text-sm truncate">${dog.name}</h3>
+                            <p class="text-[11px] text-gray-500 truncate mt-0.5"><i class="ph-fill ph-paw-print"></i> ${dog.breed}</p>
+                            <button onclick="event.stopPropagation(); fakeAdoptionAction();" class="mt-2 w-full bg-orange-50 text-orange-600 text-xs font-bold py-2 rounded-xl flex justify-center items-center hover:bg-orange-100 transition-colors">
+                                Contatar ONG
+                            </button>
+                        </div>
+                    </div>
+                `).join('');
+            }
+        }
+
+        function openMatchedPetDetails(id) {
+            const pet = dbDogs.find(d => d.id === id);
+            if (pet) showDetails(enrichPet(pet));
+        }
+
+        function showDetails(dog) {
+            document.getElementById('modal-img').src = dog.img;
+            document.getElementById('modal-name').textContent = dog.name;
+            document.getElementById('modal-breed').textContent = dog.breed;
+            document.getElementById('modal-age').innerHTML = `<i class="ph-fill ph-clock"></i> ${dog.age}`;
+            document.getElementById('modal-city').innerHTML = `<i class="ph-fill ph-map-pin"></i> ${dog.city}`;
+            document.getElementById('modal-size').textContent = dog.size;
+            document.getElementById('modal-castrated').textContent = dog.castrated ? "Castrado" : "Não castrado";
+            document.getElementById('modal-medical').textContent = dog.medical;
+            document.getElementById('modal-past').textContent = dog.past || "Sem histórico registrado.";
+            document.getElementById('modal-desc').textContent = dog.desc;
+
+            document.getElementById('pet-modal').classList.remove('hidden');
+            document.getElementById('pet-modal').classList.add('flex');
+        }
+
+        function closeModal() {
+            document.getElementById('pet-modal').classList.add('hidden');
+            document.getElementById('pet-modal').classList.remove('flex');
+        }
+
+        function fakeAdoptionAction() {
+            closeModal();
+            alert("Interesse enviado! 🧡 A ONG parceira revisará seus dados (Documento de identidade e Perfil financeiro pré-aprovados) para segurança do animal. Retorno em breve via WhatsApp!");
+        }
+
+        function switchTab(tab) {
+            // Esconde todas as views
+            document.getElementById('view-swipe').classList.add('hidden');
+            document.getElementById('view-liked').classList.add('hidden');
+            document.getElementById('view-settings-tab').classList.add('hidden'); // Ajuste este ID se necessário
+
+            // Remove destaque dos botões da navbar
+            document.getElementById('nav-tab-swipe').classList.remove('text-orange-500');
+            document.getElementById('nav-tab-swipe').classList.add('text-gray-400');
+            document.getElementById('nav-tab-liked').classList.remove('text-orange-500');
+            document.getElementById('nav-tab-liked').classList.add('text-gray-400');
+            document.getElementById('nav-tab-settings').classList.remove('text-orange-500');
+            document.getElementById('nav-tab-settings').classList.add('text-gray-400');
+
+            // Ativa a aba correta
+            if (tab === 'swipe') {
+                document.getElementById('view-swipe').classList.remove('hidden');
+                document.getElementById('nav-tab-swipe').classList.add('text-orange-500');
+            } else if (tab === 'liked') {
+                document.getElementById('view-liked').classList.remove('hidden');
+                document.getElementById('nav-tab-liked').classList.add('text-orange-500');
+                updateLikedView();
+            } else if (tab === 'settings') {
+                document.getElementById('view-settings-tab').classList.remove('hidden');
+                document.getElementById('nav-tab-settings').classList.add('text-orange-500');
+            }
+        }
+
+        function calculateMatchScore(user, pet) {
+            if (!user) return 20;
+            let score = 20;
+
+            if (user.species === "" || user.species === pet.species) score += 25;
+            if (user.purpose === pet.purpose) score += 15;
+
+            if (user.housing === "apartamento" && pet.size === "pequeno") score += 15;
+            else if (user.housing === "casa_quintal" && pet.size === "grande") score += 15;
+            else if (user.size === pet.size) score += 15;
+            else score += 5;
+
+            if (user.activity === "ativo" && pet.temperament === "brincalhão") score += 15;
+            else if (user.activity === "sedentario" && pet.temperament === "calmo") score += 15;
+            else score += 10;
+
+            if (user.kids === "sim" && pet.goodWithKids) score += 10;
+            if (user.otherPets === "sim" && pet.goodWithPets) score += 10;
+
+            if (user.acceptSpecial === "sim" && pet.specialNeed) score += 20;
+
+            if (user.age === "" || user.age === pet.ageCategory) score += 5;
+
+            return Math.min(score, 100);
+        }
+
+        function enrichWithMatch(user, pet) {
+            const score = calculateMatchScore(user, pet);
+            return { ...pet, matchScore: score };
+        }
+
+        function resetApp() {
+            isDragging = false;
+            dragActivatedOnCard = false;
+            currentX = 0;
+            currentY = 0;
+            topCard = null;
+
+            const activeUser = localStorage.getItem('currentUser') || 'visitante';
+
+            // 1. Mapeia e enriquece todos os cachorros com os dados de compatibilidade
+            let processedDogs = dbDogs.map(dog => {
+                const enriched = enrichPet(dog);
+                return enrichWithMatch(userProfile, enriched);
+            });
+
+            // 2. Filtra para remover os pets que já estão na lista de curtidos (likedDogs)
+            // Usamos o .some() para checar se o ID do pet já foi curtido por este usuário
+            dogsList = processedDogs.filter(dog => {
+                return !likedDogs.some(liked => liked.id === dog.id);
+            });
+
+            // 3. Aplica também a regra do perfil (se não aceita PCD, remove da lista)
+            if (userProfile && userProfile.acceptSpecial === "não") {
+                dogsList = dogsList.filter(pet => !pet.specialNeed);
+            }
+
+            // 4. Ordena os pets restantes pela maior pontuação de Match
+            dogsList.sort((a, b) => b.matchScore - a.matchScore);
+
+            // 5. Se após o filtro a lista continuar vazia, avisa o usuário
+            if (dogsList.length === 0) {
+                alert("Todos os pets disponíveis já foram favoritados por você! Confira a aba de Matches.");
+                switchTab('liked');
+                return;
+            }
+
+            // 6. Atualiza a interface mantendo o histórico visual intacto
+            updateLikedView();
+            updateBadge();
+            emptyState.classList.add('hidden');
+            switchTab('swipe');
+            renderCards();
+        }
+
+    </script>
+</body>
+
+</html>
