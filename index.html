@@ -124,13 +124,15 @@
 
             <div id="form-login">
                 <input id="login-email" type="email" placeholder="Email"
-                    class="w-full mb-3 p-3 border rounded-xl bg-gray-50 focus:outline-none focus:ring-2 focus:ring-orange-500">
+                    class="w-full mb-3 p-3 border rounded-xl bg-gray-50 focus:outline-none focus:ring-2 focus:ring-orange-500 text-sm">
                 <input id="login-password" type="password" placeholder="Senha"
-                    class="w-full mb-4 p-3 border rounded-xl bg-gray-50 focus:outline-none focus:ring-2 focus:ring-orange-500">
+                    class="w-full mb-4 p-3 border rounded-xl bg-gray-50 focus:outline-none focus:ring-2 focus:ring-orange-500 text-sm">
                 <button onclick="login()"
                     class="w-full bg-orange-500 text-white py-3 rounded-xl font-bold active:scale-95 transition-transform">
                     Entrar
                 </button>
+                <p class="text-xs text-gray-500 text-center mt-3">Para testar como ONG: <strong>admin@gmail.com</strong>
+                    / <strong>1234</strong></p>
                 <p class="text-sm text-center mt-4">
                     Não tem conta?
                     <span onclick="toggleAuth('register')"
@@ -140,9 +142,9 @@
 
             <div id="form-register" class="hidden">
                 <input id="register-email" type="email" placeholder="Email"
-                    class="w-full mb-3 p-3 border rounded-xl bg-gray-50 focus:outline-none focus:ring-2 focus:ring-orange-500">
+                    class="w-full mb-3 p-3 border rounded-xl bg-gray-50 focus:outline-none focus:ring-2 focus:ring-orange-500 text-sm">
                 <input id="register-password" type="password" placeholder="Senha"
-                    class="w-full mb-4 p-3 border rounded-xl bg-gray-50 focus:outline-none focus:ring-2 focus:ring-orange-500">
+                    class="w-full mb-4 p-3 border rounded-xl bg-gray-50 focus:outline-none focus:ring-2 focus:ring-orange-500 text-sm">
                 <button onclick="register()"
                     class="w-full bg-green-500 text-white py-3 rounded-xl font-bold active:scale-95 transition-transform">
                     Cadastrar
@@ -153,6 +155,52 @@
                 </p>
             </div>
         </div>
+    </div>
+
+    <div id="view-admin"
+        class="hidden relative w-full max-w-md h-[100dvh] sm:h-[90vh] sm:rounded-3xl bg-white shadow-2xl flex flex-col overflow-hidden sm:border sm:border-gray-200">
+        <header
+            class="flex justify-between items-center px-5 py-4 border-b border-gray-100 bg-white z-20 flex-shrink-0">
+            <div class="flex items-center gap-2 text-orange-500 font-bold text-lg">
+                <i class="ph-fill ph-shield-check text-2xl"></i>
+                <span>Painel ONG</span>
+            </div>
+            <button onclick="logout()" class="text-xs font-bold text-red-500 bg-red-50 px-3 py-1.5 rounded-lg">
+                <i class="ph-bold ph-sign-out mr-1"></i>Sair
+            </button>
+        </header>
+
+        <div class="flex border-b border-gray-100 bg-gray-50 flex-shrink-0">
+            <button id="admin-tab-btn-pets" onclick="switchAdminTab('pets')"
+                class="flex-1 py-3 text-xs font-bold text-orange-500 border-b-2 border-orange-500 transition-colors flex items-center justify-center gap-1">
+                <i class="ph-fill ph-paw-print text-base"></i> Animais
+            </button>
+            <button id="admin-tab-btn-interests" onclick="switchAdminTab('interests')"
+                class="flex-1 py-3 text-xs font-bold text-gray-400 border-b-2 border-transparent transition-colors flex items-center justify-center gap-1 relative">
+                <i class="ph-fill ph-users text-base"></i> Interessados
+                <span id="admin-interest-badge"
+                    class="bg-red-500 text-white text-[9px] font-bold px-1.5 py-0.5 rounded-full hidden">0</span>
+            </button>
+        </div>
+
+        <main id="admin-tab-pets" class="flex-1 overflow-y-auto p-4 space-y-4 no-scrollbar">
+            <div class="flex justify-between items-center mb-1">
+                <h2 class="text-sm font-bold text-gray-700">Animais Cadastrados</h2>
+                <button onclick="openPetFormModal()"
+                    class="bg-orange-500 text-white text-xs font-bold px-3 py-2 rounded-xl flex items-center gap-1 shadow-sm active:scale-95 transition-transform">
+                    <i class="ph-bold ph-plus text-sm"></i> Novo Pet
+                </button>
+            </div>
+
+            <div id="admin-pets-grid" class="grid grid-cols-2 gap-3 pb-6">
+            </div>
+        </main>
+
+        <main id="admin-tab-interests" class="flex-1 overflow-y-auto p-4 hidden space-y-3 no-scrollbar">
+            <h2 class="text-sm font-bold text-gray-700 mb-2">Interesses Demonstrados por Adotantes</h2>
+            <div id="admin-interests-list" class="space-y-3 pb-6">
+            </div>
+        </main>
     </div>
 
     <div id="view-profile" class="fixed inset-0 bg-white hidden z-50 flex-col overflow-hidden w-full h-full">
@@ -676,1329 +724,937 @@
                     </div>
                 </div>
 
-                <button onclick="fakeAdoptionAction()"
-                    class="w-full mt-2 bg-orange-500 text-white py-3.5 rounded-xl font-bold shadow-lg shadow-orange-200 active:scale-95 transition-transform flex justify-center items-center gap-2 text-sm">
-                    Tenho interesse em adotar <i class="ph-fill ph-paw-print"></i>
-                </button>
+                <div id="modal-user-actions">
+                    <button onclick="fakeAdoptionAction()"
+                        class="w-full mt-2 bg-orange-500 text-white py-3.5 rounded-xl font-bold shadow-lg shadow-orange-200 active:scale-95 transition-transform flex justify-center items-center gap-2 text-sm">
+                        Tenho interesse em adotar <i class="ph-fill ph-paw-print"></i>
+                    </button>
+                </div>
+
+                <div id="modal-admin-actions" class="hidden grid grid-cols-2 gap-3 pt-2">
+                    <button id="btn-modal-edit" onclick=""
+                        class="bg-blue-500 text-white py-3 rounded-xl font-bold text-xs flex justify-center items-center gap-1.5 shadow-sm active:scale-95">
+                        <i class="ph-bold ph-pencil-simple text-base"></i> Editar Animal
+                    </button>
+                    <button id="btn-modal-delete" onclick=""
+                        class="bg-red-500 text-white py-3 rounded-xl font-bold text-xs flex justify-center items-center gap-1.5 shadow-sm active:scale-95">
+                        <i class="ph-bold ph-trash text-base"></i> Excluir Animal
+                    </button>
+                </div>
             </div>
         </div>
     </div>
 
+    <div id="pet-form-modal"
+        class="fixed inset-0 bg-black/70 hidden items-center justify-center z-50 backdrop-blur-sm p-4">
+        <div class="bg-white w-full max-w-md rounded-3xl overflow-hidden shadow-2xl flex flex-col max-h-[90vh]">
+            <div class="p-4 border-b border-gray-100 flex justify-between items-center bg-gray-50">
+                <h3 id="pet-form-title" class="font-bold text-gray-800 text-base">Cadastrar Novo Pet</h3>
+                <button onclick="closePetFormModal()" class="text-gray-400 hover:text-gray-600 p-1">
+                    <i class="ph-bold ph-x text-lg"></i>
+                </button>
+            </div>
+
+            <form id="form-pet-editor" onsubmit="savePetForm(event)"
+                class="p-5 overflow-y-auto space-y-3 no-scrollbar text-xs">
+                <input type="hidden" id="pet-form-id">
+
+                <div>
+                    <label class="font-bold text-gray-600 block mb-1">Nome do Pet*</label>
+                    <input type="text" id="pet-form-name" required
+                        class="w-full p-2.5 border rounded-xl bg-gray-50 focus:outline-none focus:ring-2 focus:ring-orange-500">
+                </div>
+
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="font-bold text-gray-600 block mb-1">Sexo*</label>
+                        <select id="pet-form-sex" required
+                            class="w-full p-2.5 border rounded-xl bg-gray-50 focus:outline-none focus:ring-2 focus:ring-orange-500">
+                            <option value="Macho">Macho</option>
+                            <option value="Fêmea">Fêmea</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="font-bold text-gray-600 block mb-1">Espécie*</label>
+                        <select id="pet-form-species" required
+                            class="w-full p-2.5 border rounded-xl bg-gray-50 focus:outline-none focus:ring-2 focus:ring-orange-500">
+                            <option value="cão">Cão</option>
+                            <option value="gato">Gato</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="font-bold text-gray-600 block mb-1">Data de Nascimento*</label>
+                        <input type="date" id="pet-form-birthdate" required onchange="previewPetAge()"
+                            class="w-full p-2.5 border rounded-xl bg-gray-50 focus:outline-none focus:ring-2 focus:ring-orange-500">
+                        <span id="pet-age-preview" class="text-[10px] text-orange-600 font-bold block mt-1"></span>
+                    </div>
+                    <div>
+                        <label class="font-bold text-gray-600 block mb-1">Porte*</label>
+                        <select id="pet-form-size" required
+                            class="w-full p-2.5 border rounded-xl bg-gray-50 focus:outline-none focus:ring-2 focus:ring-orange-500">
+                            <option value="pequeno">Pequeno</option>
+                            <option value="médio">Médio</option>
+                            <option value="grande">Grande</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="font-bold text-gray-600 block mb-1">Raça*</label>
+                        <input type="text" id="pet-form-breed" placeholder="Ex: Sem Raça Definida" required
+                            class="w-full p-2.5 border rounded-xl bg-gray-50 focus:outline-none focus:ring-2 focus:ring-orange-500">
+                    </div>
+                    <div>
+                        <label class="font-bold text-gray-600 block mb-1">Cidade*</label>
+                        <input type="text" id="pet-form-city" placeholder="Ex: Itapetininga" required
+                            class="w-full p-2.5 border rounded-xl bg-gray-50 focus:outline-none focus:ring-2 focus:ring-orange-500">
+                    </div>
+                </div>
+
+                <!-- Opções de Imagem -->
+                <div>
+                    <label class="font-bold text-gray-600 block mb-1">Foto do Pet*</label>
+                    <div class="flex gap-2 mb-2">
+                        <button type="button" onclick="setImgSourceMode('file')" id="btn-mode-file"
+                            class="flex-1 py-1.5 px-2 bg-orange-500 text-white rounded-lg font-bold text-[11px] flex items-center justify-center gap-1">
+                            <i class="ph-bold ph-upload-simple"></i> Arquivo
+                        </button>
+                        <button type="button" onclick="setImgSourceMode('camera')" id="btn-mode-camera"
+                            class="flex-1 py-1.5 px-2 bg-gray-100 text-gray-600 rounded-lg font-bold text-[11px] flex items-center justify-center gap-1">
+                            <i class="ph-bold ph-camera"></i> Câmera
+                        </button>
+                        <button type="button" onclick="setImgSourceMode('url')" id="btn-mode-url"
+                            class="flex-1 py-1.5 px-2 bg-gray-100 text-gray-600 rounded-lg font-bold text-[11px] flex items-center justify-center gap-1">
+                            <i class="ph-bold ph-link"></i> Link
+                        </button>
+                    </div>
+
+                    <input type="hidden" id="pet-form-img-value">
+
+                    <!-- Modos de upload -->
+                    <div id="img-input-file" class="block">
+                        <input type="file" id="pet-file-input" accept="image/*" onchange="handleImageFileSelect(event)"
+                            class="w-full p-2 border rounded-xl bg-gray-50 text-xs">
+                    </div>
+
+                    <div id="img-input-camera" class="hidden">
+                        <input type="file" id="pet-camera-input" accept="image/*" capture="environment"
+                            onchange="handleImageFileSelect(event)"
+                            class="w-full p-2 border rounded-xl bg-gray-50 text-xs">
+                    </div>
+
+                    <div id="img-input-url" class="hidden">
+                        <input type="url" id="pet-form-img-url" placeholder="https://..."
+                            onchange="document.getElementById('pet-form-img-value').value = this.value; updateImgPreview(this.value)"
+                            class="w-full p-2.5 border rounded-xl bg-gray-50 focus:outline-none focus:ring-2 focus:ring-orange-500">
+                    </div>
+
+                    <!-- Preview da imagem -->
+                    <div id="img-preview-container"
+                        class="mt-2 hidden flex-col items-center justify-center border p-2 rounded-xl bg-gray-50">
+                        <img id="img-preview" class="h-28 w-28 object-cover rounded-lg shadow-sm">
+                        <span class="text-[10px] text-green-600 font-bold mt-1">✓ Imagem Selecionada</span>
+                    </div>
+                </div>
+
+                <div>
+                    <label class="font-bold text-gray-600 block mb-1">Saúde e Cuidados Médico</label>
+                    <input type="text" id="pet-form-medical" placeholder="Ex: Vacinado, vermifugado"
+                        class="w-full p-2.5 border rounded-xl bg-gray-50 focus:outline-none focus:ring-2 focus:ring-orange-500">
+                </div>
+
+                <div>
+                    <label class="font-bold text-gray-600 block mb-1">Histórico do Resgate</label>
+                    <textarea id="pet-form-past" rows="2"
+                        class="w-full p-2.5 border rounded-xl bg-gray-50 focus:outline-none focus:ring-2 focus:ring-orange-500"></textarea>
+                </div>
+
+                <div>
+                    <label class="font-bold text-gray-600 block mb-1">Descrição / Sobre</label>
+                    <textarea id="pet-form-desc" rows="2"
+                        class="w-full p-2.5 border rounded-xl bg-gray-50 focus:outline-none focus:ring-2 focus:ring-orange-500"></textarea>
+                </div>
+
+                <div class="flex items-center gap-4 pt-1">
+                    <label class="flex items-center gap-1.5 cursor-pointer font-bold text-gray-700">
+                        <input type="checkbox" id="pet-form-castrated"
+                            class="rounded text-orange-500 focus:ring-orange-500"> Castrado
+                    </label>
+                    <label class="flex items-center gap-1.5 cursor-pointer font-bold text-gray-700">
+                        <input type="checkbox" id="pet-form-specialNeed"
+                            class="rounded text-orange-500 focus:ring-orange-500"> Necessidade Especial/PCD
+                    </label>
+                </div>
+
+                <div class="pt-3">
+                    <button type="submit"
+                        class="w-full bg-orange-500 text-white py-3 rounded-xl font-bold text-sm active:scale-95 transition-transform shadow-md">
+                        Salvar Animal
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
     <script>
+        // Dados Base Iniciais
+        const initialDogs = [
+            { id: 1, name: "Caramelo", sex: "Macho", age: "2 anos", breed: "Sem Raça Definida", city: "Itapetininga", img: "https://revistaoeste.com/oestegeral/wp-content/uploads/2025/06/cachorro-caramelo_1749242700989.jpg", desc: "Clássico brasileiro. Cheio de energia, muito carinhoso e amigável.", size: "médio", species: "cão", medical: "Totalmente vacinado, V10 e Raiva em dia.", castrated: true, specialNeed: false, singlePet: false, purpose: "companhia", past: "Encontrado abandonado próximo à rodovia, estava desnutrido mas hoje goza de saúde perfeita." },
+            { id: 2, name: "Luna", sex: "Fêmea", age: "6 meses", breed: "Labrador Mix", city: "Tatuí", species: "cão", size: "grande", medical: "Vacinada, vermifugada.", castrated: false, specialNeed: false, singlePet: false, purpose: "companhia", img: "https://images.unsplash.com/photo-1552053831-71594a27632d?q=80&w=600&auto=format&fit=crop", desc: "Filhote aprendendo a fazer xixi no lugar certo. Muito dócil e se dá bem com crianças.", past: "Nascida em uma ninhada de rua resgatada em um terreno baldio." },
+            { id: 3, name: "Thor", sex: "Macho", age: "4 anos", breed: "Pitbull", city: "Itararé", species: "cão", size: "grande", medical: "Castrado, vacinado, exames cardíacos ok.", castrated: true, specialNeed: false, singlePet: true, purpose: "guarda", img: "https://media.istockphoto.com/id/1370010790/photo/pit-bull-dog-playing-and-having-fun-in-the-park-green-grass-wooden-stakes-around-selective.jpg?s=612x612&w=0&k=20&c=2BhKHzjGSTauuMVtrjEx6aDQrACAPV7iZ2ExQtxArzs=", desc: "Um gigante bobão. Excelente para guarda de território, porém muito amoroso com os donos.", past: "Retirado de situação de maus-tratos e negligência." },
+            { id: 4, name: "Soneca", sex: "Macho", age: "5 anos", breed: "Gato Siamês", city: "Itapetininga", species: "gato", size: "pequeno", medical: "FIV/FELV negativo, amputação de uma patinha traseira (PCD).", castrated: true, specialNeed: true, singlePet: false, purpose: "companhia", img: "https://images.unsplash.com/photo-1514888286974-6c03e2ca1dba?q=80&w=600&auto=format&fit=crop", desc: "Gatinho de três patinhas extremamente carinhoso. Sua deficiência não impede de pular e brincar.", past: "Resgatado após atropelamento. Passou por cirurgia de amputação e está 100% recuperado." },
+            { id: 5, name: "Bidu", sex: "Macho", age: "3 anos", breed: "Beagle", city: "Alambari", species: "cão", size: "médio", medical: "Vacinado e ativo.", castrated: true, specialNeed: false, singlePet: false, purpose: "companhia", img: "https://www.zooplus.pt/magazine/wp-content/uploads/2018/06/beagle_2.webp", desc: "Curioso e fujão. Precisa de uma casa com muros altos. Excelente companheiro.", past: "Entregue pela antiga família por falta de espaço no apartamento." },
+            { id: 6, name: "Mimi", sex: "Fêmea", age: "2 anos", breed: "Siamês", city: "Itapetininga", species: "gato", size: "pequeno", medical: "Vacinada e castrada", castrated: true, specialNeed: false, singlePet: false, purpose: "companhia", img: "https://images.unsplash.com/photo-1573865526739-10659fec78a5?q=80&w=600&auto=format&fit=crop", desc: "Carinhosa e tranquila. Ideal para apartamentos e pessoas que buscam companhia calma.", past: "Encontrada ainda filhote em uma caixa de papelão, criada em lar temporário com muito amor." }
+        ];
+
+        // Estado do LocalStorage
+        let dbDogs = JSON.parse(localStorage.getItem('dbDogs')) || initialDogs;
         let users = JSON.parse(localStorage.getItem("users")) || [];
         let userProfile = JSON.parse(localStorage.getItem('profile')) || null;
-        let likedDogs = [];
+        let likedDogs = JSON.parse(localStorage.getItem('likedDogs')) || [];
+        let adoptionInterests = JSON.parse(localStorage.getItem('adoptionInterests')) || [
+            { petId: 1, petName: "Caramelo", userEmail: "joao.adotante@gmail.com", date: "28/08/2026" }
+        ];
+
+        let currentUser = null;
+        let currentModalPetId = null;
+
+        let dogsList = [];
         let isDragging = false;
         let startX = 0, startY = 0, currentX = 0, currentY = 0;
         let topCard = null;
 
-        // Base enriquecida com os pedidos de feedback dos usuários
-        const dbDogs = [
-            {
-                id: 1,
-                name: "Caramelo",
-                age: "2 anos",
-                breed: "Sem Raça Definida",
-                city: "Itapetininga",
-                img: "https://revistaoeste.com/oestegeral/wp-content/uploads/2025/06/cachorro-caramelo_1749242700989.jpg",
-                desc: "Clássico brasileiro. Cheio de energia, muito carinhoso e amigável.",
-                size: "médio",
-                species: "cão",
-                medical: "Totalmente vacinado, V10 e Raiva em dia.",
-                castrated: true,
-                specialNeed: false,
-                singlePet: false,
-                purpose: "companhia",
-                past: "Encontrado abandonado próximo à rodovia, estava desnutrido mas hoje goza de saúde perfeita."
-            },
-            {
-                id: 2,
-                name: "Luna",
-                age: "6 meses",
-                breed: "Labrador Mix",
-                city: "Tatuí",
-                species: "cão",
-                size: "grande",
-                medical: "Vacinada, vermifugada.",
-                castrated: false,
-                specialNeed: false,
-                singlePet: false,
-                purpose: "companhia",
-                img: "https://images.unsplash.com/photo-1552053831-71594a27632d?q=80&w=600&auto=format&fit=crop",
-                desc: "Filhote aprendendo a fazer xixi no lugar certo. Muito dócil e se dá bem com crianças.",
-                past: "Nascida em uma ninhada de rua resgatada em um terreno baldio."
-            },
-            {
-                id: 3,
-                name: "Thor",
-                age: "4 anos",
-                breed: "Pitbull",
-                city: "Itararé",
-                species: "cão",
-                size: "grande",
-                medical: "Castrado, vacinado, exames cardíacos ok.",
-                castrated: true,
-                specialNeed: false,
-                singlePet: true,
-                purpose: "guarda",
-                img: "https://media.istockphoto.com/id/1370010790/photo/pit-bull-dog-playing-and-having-fun-in-the-park-green-grass-wooden-stakes-around-selective.jpg?s=612x612&w=0&k=20&c=2BhKHzjGSTauuMVtrjEx6aDQrACAPV7iZ2ExQtxArzs=",
-                desc: "Um gigante bobão. Excelente para guarda de território, porém muito amoroso com os donos.",
-                past: "Retirado de situação de maus-tratos e negligência."
-            },
-            {
-                id: 4,
-                name: "Soneca",
-                age: "5 anos",
-                breed: "Gato Siamês",
-                city: "Itapetininga",
-                species: "gato",
-                size: "pequeno",
-                medical: "FIV/FELV negativo, amputação de uma patinha traseira (PCD).",
-                castrated: true,
-                specialNeed: true,
-                singlePet: false,
-                purpose: "companhia",
-                img: "https://images.unsplash.com/photo-1514888286974-6c03e2ca1dba?q=80&w=600&auto=format&fit=crop",
-                desc: "Gatinho de três patinhas extremamente carinhoso. Sua deficiência não impede de pular e brincar.",
-                past: "Resgatado após atropelamento. Passou por cirurgia de amputação e está 100% recuperado."
-            },
-            {
-                id: 5,
-                name: "Bidu",
-                age: "3 anos",
-                breed: "Beagle",
-                city: "Alambari",
-                species: "cão",
-                size: "médio",
-                medical: "Vacinado e ativo.",
-                castrated: true,
-                specialNeed: false,
-                singlePet: false,
-                purpose: "companhia",
-                img: "https://www.zooplus.pt/magazine/wp-content/uploads/2018/06/beagle_2.webp",
-                desc: "Curioso e fujão. Precisa de uma casa com muros altos. Excelente companheiro.",
-                past: "Entregue pela antiga família por falta de espaço no apartamento."
-            },
-            {
-                "id": 6,
-                "name": "Mimi",
-                "age": "2 anos",
-                "breed": "Siamês",
-                "city": "Itapetininga",
-                "species": "gato",
-                "size": "pequeno",
-                "medical": "Vacinada e castrada",
-                "castrated": true,
-                "specialNeed": false,
-                "singlePet": false,
-                "purpose": "companhia",
-                "img": "https://static.wikia.nocookie.net/gatopedia/images/3/3a/Gato_Siam%C3%AAs.png/revision/latest?cb=20140429132749&path-prefix=pt-br",
-                "desc": "Carinhosa e tranquila. Ideal para apartamentos e pessoas que buscam companhia calma.",
-                "past": "Encontrada ainda filhote em uma caixa de papelão, criada em lar temporário com muito amor."
-            },
-            {
-                "id": 7,
-                "name": "Rex",
-                "age": "5 anos",
-                "breed": "Pastor Alemão",
-                "city": "Tatuí",
-                "species": "cão",
-                "size": "grande",
-                "medical": "Vacinado, castrado",
-                "castrated": true,
-                "specialNeed": false,
-                "singlePet": true,
-                "purpose": "guarda e companhia",
-                "img": "https://www.caesparaadocao.com.br/themes/caesparaadocao.com.br/uploads/caes/galeria/12062018111623__MG_3301-Editar.jpg",
-                "desc": "Protetor e leal. Indicado para casas com espaço e donos com experiência.",
-                "past": "Sua antiga família mudou-se para um local menor e não pôde levá-lo. É muito obediente."
-            },
-            {
-                "id": 8,
-                "name": "Mel",
-                "age": "1 ano",
-                "breed": "Sem Raça Definida",
-                "city": "Sarapuí",
-                "species": "cão",
-                "size": "pequeno",
-                "medical": "Vacinada",
-                "castrated": false,
-                "specialNeed": false,
-                "singlePet": false,
-                "purpose": "companhia",
-                "img": "https://www.pedigree.com.br/cdn-cgi/image/format=auto,q=90/sites/g/files/fnmzdf2401/files/2023-09/dia-do-vira-lata.png",
-                "desc": "Muito dócil e brincalhona. Se adapta bem com crianças e ambientes menores.",
-                "past": "Resgatada das ruas ainda bebê. Adora correr atrás de bolinhas e convive bem com outros cães."
-            },
-            {
-                "id": 9,
-                "name": "Simba",
-                "age": "3 anos",
-                "breed": "Laranja SRD",
-                "city": "Itapeva",
-                "species": "gato",
-                "size": "médio",
-                "medical": "Castrado e saudável",
-                "castrated": true,
-                "specialNeed": false,
-                "singlePet": true,
-                "purpose": "companhia",
-                "img": "https://cobasiblog.blob.core.windows.net/production-ofc/2021/08/gato-laranja-conheca-6-racas-com-essa-caracteristica-2.webp",
-                "desc": "Independente e curioso. Ideal para quem já tem experiência com gatos.",
-                "past": "Vivias nas redondezas de um comércio local onde era alimentado, até ser recolhido para adoção responsável."
-            },
-            {
-                "id": 10,
-                "name": "Bolinha",
-                "age": "4 anos",
-                "breed": "Sem Raça Definida",
-                "city": "Boituva",
-                "species": "cão",
-                "size": "pequeno",
-                "medical": "Vacinado",
-                "castrated": false,
-                "specialNeed": false,
-                "singlePet": false,
-                "purpose": "companhia",
-                "img": "https://s2-g1.glbimg.com/TdPTg4jg3ZqtmZtyFnuHehXLgmk=/0x314:720x1073/984x0/smart/filters:strip_icc()/i.s3.glbimg.com/v1/AUTH_59edd422c0c84a879bd37670ae4f538a/internal_photos/bs/2019/B/x/gU7r6UTvyFwLn5G5FlUg/whatsapp-image-2019-02-22-at-14.53.02.jpeg",
-                "desc": "Calmo e companheiro. Perfeito para apartamentos e rotina tranquila.",
-                "past": "Deixado em uma clínica veterinária por pessoas que o encontraram perdido. Ninguém reivindicou sua posse."
-            },
-            {
-                "id": 11,
-                "name": "Bidu",
-                "age": "8 meses",
-                "breed": "Vira-lata",
-                "city": "Capão Bonito",
-                "species": "cão",
-                "size": "médio",
-                "medical": "Vacinado. Diagnosticado com Megaesôfago (necessita comer em comedouro elevado/cadeira de Bailey).",
-                "castrated": false,
-                "specialNeed": true,
-                "singlePet": false,
-                "purpose": "companhia",
-                "img": "https://extra.globo.com/incoming/23952663-75f-7e9/w976h550-PROP/simba-.jpg",
-                "desc": "Filhote cheio de energia e curiosidade. Precisa de atenção e espaço para brincar.",
-                "past": "Resgatado desnutrido devido à sua condição crônica não tratada. Hoje está estável e se alimenta muito bem com os cuidados certos."
-            },
-            {
-                "id": 12,
-                "name": "Fred",
-                "age": "6 anos",
-                "breed": "Sem Raça Definida",
-                "city": "Sorocaba",
-                "species": "cão",
-                "size": "médio",
-                "medical": "Castrado e vacinado",
-                "castrated": true,
-                "specialNeed": false,
-                "singlePet": false,
-                "purpose": "companhia",
-                "img": "https://www.patasdacasa.com.br/sites/default/files/styles/gallery_crop/public/vira-latas-peludos-deysi-aaano.JPG.webp?itok=sKOIzVnb",
-                "desc": "Tranquilo e muito apegado ao dono. Ideal para ambientes internos.",
-                "past": "Resgatado após o falecimento de seu antigo tutor idoso. Busca um recomeço em um lar calmo."
-            },
-            {
-                "id": 13,
-                "name": "Nina",
-                "age": "2 anos",
-                "breed": "Sem Raça Definida",
-                "city": "Itapetininga",
-                "species": "gato",
-                "size": "pequeno",
-                "medical": "Vacinada e castrada",
-                "castrated": true,
-                "specialNeed": false,
-                "singlePet": false,
-                "purpose": "companhia",
-                "img": "https://blog.cobasi.com.br/wp-content/uploads/2018/10/raca-de-gato-1.jpg",
-                "desc": "Calma e silenciosa. Prefere ambientes tranquilos e sem muito movimento.",
-                "past": "Nasceu em uma colônia de gatos comunitários. Foi socializada e se adaptou perfeitamente à vida dentro de casa."
-            },
-            {
-                "id": 14,
-                "name": "Max",
-                "age": "3 anos",
-                "breed": "Rottweiler",
-                "city": "Tatuí",
-                "species": "cão",
-                "size": "grande",
-                "medical": "Vacinado",
-                "castrated": false,
-                "specialNeed": false,
-                "singlePet": true,
-                "purpose": "guarda",
-                "img": "https://objectstorage.sa-vinhedo-1.oraclecloud.com/n/axuh3s32sabm/b/cobasi-institutional-cms-bucket/o/prod/rottweiler_02.webp",
-                "desc": "Forte e protetor. Requer dono experiente e ambiente seguro.",
-                "past": "Entregue a uma ONG após o tutor não conseguir controlar seu tamanho e força por falta de espaço físico."
-            },
-            {
-                "id": 15,
-                "name": "Pipoca",
-                "age": "1 ano",
-                "breed": "Sem Raça Definida",
-                "city": "Alambari",
-                "species": "cão",
-                "size": "pequeno",
-                "medical": "Vacinada",
-                "castrated": false,
-                "specialNeed": false,
-                "singlePet": false,
-                "purpose": "companhia",
-                "img": "https://cdn.folhape.com.br/upload/dn_arquivo/2023/07/sem-titulo_15.jpg",
-                "desc": "Brincalhona e sociável. Se adapta bem com outros animais.",
-                "past": "Encontrada correndo em uma estrada rural. É extremamente alegre e dócil com qualquer pessoa."
-            },
-            {
-                "id": 16,
-                "name": "Bolinha",
-                "age": "4 anos",
-                "breed": "Sem Raça Definida",
-                "city": "Itapetininga",
-                "species": "cão",
-                "size": "pequeno",
-                "medical": "Castrado, vacinado e cardiopata (necessita de medicação diária contínua).",
-                "castrated": true,
-                "specialNeed": true,
-                "singlePet": false,
-                "purpose": "companhia",
-                "img": "https://www.bemparana.com.br/wp-content/uploads/2023/07/hugo-papo-pet-vira-lata-e1690834033757.webp",
-                "desc": "Pequeno e tranquilo, ideal para quem mora em apartamento.",
-                "past": "Resgatado de uma situação de negligência. Seu sopro no coração foi descoberto nos exames de rotina da ONG e já está controlado."
-            },
-            {
-                "id": 17,
-                "name": "Rajado",
-                "age": "2 anos",
-                "breed": "Gato SRD",
-                "city": "Tatuí",
-                "species": "gato",
-                "size": "pequeno",
-                "medical": "Castrado",
-                "castrated": true,
-                "specialNeed": false,
-                "singlePet": false,
-                "purpose": "companhia",
-                "img": "https://cdn6.campograndenews.com.br/uploads/noticias/2026/01/20/2a647e6b3a8cec9f3954dd1e36a9d311dcc0315c.jpeg",
-                "desc": "Independente, mas gosta de companhia no fim do dia.",
-                "past": "Resgatado do telhado de uma fábrica desativada. Demora alguns dias para confiar, mas depois se torna muito companheiro."
-            },
-            {
-                "id": 18,
-                "name": "Pretinha",
-                "age": "3 anos",
-                "breed": "Gato SRD",
-                "city": "Alambari",
-                "species": "gato",
-                "size": "pequeno",
-                "medical": "Vacinada",
-                "castrated": false,
-                "specialNeed": false,
-                "singlePet": false,
-                "purpose": "companhia",
-                "img": "https://images.amigonaosecompra.com.br/unsafe/1176x0/d40a9676-ac8b-4f2e-a414-46a098a09559/2655fac0-d719-4fa6-a168-eb2045cb343d/2655fac0-d719-4fa6-a168-eb2045cb343d.jpg",
-                "desc": "Muito calma e silenciosa, ótima para ambientes tranquilos.",
-                "past": "Seguiu um morador até sua casa em uma noite de chuva. Foi acolhida temporariamente para encontrar um lar definitivo."
-            },
-            {
-                "id": 19,
-                "name": "Fred",
-                "age": "5 anos",
-                "breed": "Sem Raça Definida",
-                "city": "Itararé",
-                "species": "cão",
-                "size": "médio",
-                "medical": "Castrado e saudável",
-                "castrated": true,
-                "specialNeed": false,
-                "singlePet": false,
-                "purpose": "companhia",
-                "img": "https://adotar.com.br/upload/2021-01/animais_imagem660988.jpg?w=700&format=webp",
-                "desc": "Mais velho e tranquilo, gosta de descanso e passeios leves.",
-                "past": "Viveu em um abrigo comunitário regional por 2 anos. É muito sociável com outros cães idosos."
-            },
-            {
-                "id": 20,
-                "name": "Lili",
-                "age": "8 meses",
-                "breed": "Pinscher",
-                "city": "Itapetininga",
-                "species": "cão",
-                "size": "pequeno",
-                "medical": "Vacinada",
-                "castrated": false,
-                "specialNeed": false,
-                "singlePet": true,
-                "purpose": "companhia",
-                "img": "https://img.olx.com.br/images/38/389612632615510.jpg",
-                "desc": "Pequena e alerta, ótima para companhia constante.",
-                "past": "Resgatada de um criador clandestino. Superou o medo inicial e agora é extremamente apegada a humanos."
-            },
-            {
-                "id": 21,
-                "name": "Tom",
-                "age": "1 ano",
-                "breed": "Gato SRD",
-                "city": "Capão Bonito",
-                "species": "gato",
-                "size": "pequeno",
-                "medical": "Vacinado e castrado",
-                "castrated": true,
-                "specialNeed": false,
-                "singlePet": false,
-                "purpose": "companhia",
-                "img": "https://blog-static.petlove.com.br/wp-content/uploads/2024/03/28195636/gato-peludo-Petlove.jpg",
-                "desc": "Brincalhão e curioso, gosta de explorar a casa.",
-                "past": "Encontrado em um motor de carro quando era recém-nascido. Foi amamentado na mamadeira e adora colo."
-            },
-            {
-                "id": 22,
-                "name": "Bela",
-                "age": "2 anos",
-                "breed": "Sem Raça Definida",
-                "city": "Angatuba",
-                "species": "cão",
-                "size": "médio",
-                "medical": "Castrada",
-                "castrated": true,
-                "specialNeed": false,
-                "singlePet": false,
-                "purpose": "companhia",
-                "img": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSPIRiwLl-eEq0LRUoJg5f0sQkeJ2mHNMK8Uw&s",
-                "desc": "Carinhosa e companheira, se adapta fácil a rotina.",
-                "past": "Vivendo em uma guarita de condomínio onde os moradores cuidavam coletivamente. Entrou para a ONG para ganhar uma família real."
-            },
-            {
-                "id": 23,
-                "name": "Chico",
-                "age": "6 anos",
-                "breed": "Sem Raça Definida",
-                "city": "Tatuí",
-                "species": "cão",
-                "size": "médio",
-                "medical": "Vacinado. Cego de um olho devido a trauma antigo (não necessita colírios atuais).",
-                "castrated": false,
-                "specialNeed": true,
-                "singlePet": false,
-                "purpose": "companhia",
-                "img": "https://adotar.com.br/upload/2024-01/animais_imagem1080250.jpg?w=700&format=webp",
-                "desc": "Mais velho, calmo e muito fiel.",
-                "past": "Vítima de maus-tratos no passado, de onde resultou a lesão ocular. Foi reabilitado fisicamente e psicologicamente."
-            },
-            {
-                "id": 24,
-                "name": "Mimi",
-                "age": "3 anos",
-                "breed": "Gato SRD",
-                "city": "Itapetininga",
-                "species": "gato",
-                "size": "pequeno",
-                "medical": "Castrada",
-                "castrated": true,
-                "specialNeed": false,
-                "singlePet": false,
-                "purpose": "companhia",
-                "img": "https://cdn.shopify.com/s/files/1/0500/8965/6473/files/pexels-arina-krasnikova-7726295_480x480.jpg?v=1663249037",
-                "desc": "Carinhosa, adora colo e ambientes calmos.",
-                "past": "Resgatada após entrar no quintal de uma protetora pedindo comida. Muito mansa e sociável."
-            },
-            {
-                "id": 25,
-                "name": "Thor",
-                "age": "2 anos",
-                "breed": "Sem Raça Definida",
-                "city": "Alambari",
-                "species": "cão",
-                "size": "grande",
-                "medical": "Vacinado",
-                "castrated": false,
-                "specialNeed": false,
-                "singlePet": true,
-                "purpose": "guarda e companhia",
-                "img": "https://images.unsplash.com/photo-1507146426996-ef05306b995a?q=80&w=600",
-                "desc": "Forte e protetor, precisa de espaço.",
-                "past": "Visto vagando por chácaras da região. É dócil com as pessoas da casa, mas impõe respeito no quintal."
-            },
-            {
-                "id": 26,
-                "name": "Nino",
-                "age": "1 ano",
-                "breed": "Fox Paulistinha",
-                "city": "Itararé",
-                "species": "cão",
-                "size": "pequeno",
-                "medical": "Vacinado",
-                "castrated": false,
-                "specialNeed": false,
-                "singlePet": false,
-                "purpose": "companhia",
-                "img": "https://cdn.folhape.com.br/upload/dn_arquivo/2023/12/terrier-brasileiro-01.jpg",
-                "desc": "Ativo e brincalhão, ideal para quem gosta de energia.",
-                "past": "Perdido na área urbana, não foi chipado e os donos originais nunca apareceram. Adora brincar com crianças."
-            },
-            {
-                "id": 27,
-                "name": "Luna",
-                "age": "4 anos",
-                "breed": "Gato SRD",
-                "city": "Capão Bonito",
-                "species": "gato",
-                "size": "pequeno",
-                "medical": "Castrada e vacinada",
-                "castrated": true,
-                "specialNeed": false,
-                "singlePet": false,
-                "purpose": "companhia",
-                "img": "https://cdn.shopify.com/s/files/1/0500/8965/6473/files/cat-g4aa970acc_1920_480x480.jpg?v=1663249197",
-                "desc": "Tranquila, gosta de observar tudo de longe.",
-                "past": "Resgatada de uma casa abandonada junto com suas ninhadas, que já foram todas adotadas."
-            },
-            {
-                "id": 28,
-                "name": "Spike",
-                "age": "3 anos",
-                "breed": "Sem Raça Definida",
-                "city": "Angatuba",
-                "species": "cão",
-                "size": "grande",
-                "medical": "Castrado. Possui Displasia Coxofemoral leve (controlada com condroprotetores periódicos).",
-                "castrated": true,
-                "specialNeed": true,
-                "singlePet": false,
-                "purpose": "companhia",
-                "img": "https://adotar.com.br/upload/2026-03/animais_imagem1337129.jpg?w=700&format=webp0",
-                "desc": "Companheiro ideal para caminhadas.",
-                "past": "Resgatado de uma vala na beira da estrada. Apesar da displasia leve, mantém boa mobilidade e ama passear sem exageros."
-            },
-            {
-                "id": 29,
-                "name": "Amora",
-                "age": "2 anos",
-                "breed": "Gato SRD",
-                "city": "Itapetininga",
-                "species": "gato",
-                "size": "pequeno",
-                "medical": "Vacinada",
-                "castrated": false,
-                "specialNeed": false,
-                "singlePet": false,
-                "purpose": "companhia",
-                "img": "https://images.unsplash.com/photo-1573865526739-10659fec78a5?q=80&w=600",
-                "desc": "Muito dócil, perfeita para famílias.",
-                "past": "Entregue na clínica veterinária por uma pessoa que a encontrou em um terreno baldio."
-            },
-            {
-                "id": 30,
-                "name": "Rex",
-                "age": "5 anos",
-                "breed": "Sem Raça Definida",
-                "city": "Tatuí",
-                "species": "cão",
-                "size": "grande",
-                "medical": "Castrado e vacinado",
-                "castrated": true,
-                "specialNeed": false,
-                "singlePet": false,
-                "purpose": "guarda e companhia",
-                "img": "https://i0.wp.com/petcaramelo.com/wp-content/uploads/2019/02/cachorros-grandes-e-doceis.jpg?fit=645%2C380&ssl=1",
-                "desc": "Calmo e obediente, ótimo para guarda e companhia.",
-                "past": "Ex-cão de firma que faliu. Ficou para trás no terreno e foi resgatado pela equipe voluntária."
+        function saveStorage() {
+            localStorage.setItem('dbDogs', JSON.stringify(dbDogs));
+            localStorage.setItem('users', JSON.stringify(users));
+            localStorage.setItem('profile', JSON.stringify(userProfile));
+            localStorage.setItem('likedDogs', JSON.stringify(likedDogs));
+            localStorage.setItem('adoptionInterests', JSON.stringify(adoptionInterests));
+        }
+        function calculateAgeString(birthdateStr) {
+            if (!birthdateStr) return "Idade não informada";
+
+            const birth = new Date(birthdateStr);
+            const now = new Date();
+
+            if (isNaN(birth.getTime())) return birthdateStr; // Caso seja texto antigo como "2 anos"
+
+            let years = now.getFullYear() - birth.getFullYear();
+            let months = now.getMonth() - birth.getMonth();
+
+            if (now.getDate() < birth.getDate()) {
+                months--;
             }
-        ];
 
-        let dogsList = [];
+            if (months < 0) {
+                years--;
+                months += 12;
+            }
 
-        function seededRandom(seed) {
-            let x = Math.sin(seed) * 10000;
-            return x - Math.floor(x);
+            if (years === 0 && months === 0) {
+                return "Recém-nascido";
+            }
+
+            let result = [];
+            if (years > 0) result.push(`${years} ${years === 1 ? 'ano' : 'anos'}`);
+            if (months > 0) result.push(`${months} ${months === 1 ? 'mês' : 'meses'}`);
+
+            return result.join(" e ");
         }
-
-        function enrichPet(pet) {
-            const ageNumber = parseInt(pet.age);
-            let ageCategory = "adulto";
-            if (pet.age.includes("mes")) ageCategory = "filhote";
-            if (ageNumber >= 7) ageCategory = "idoso";
-
-            const rng = seededRandom(pet.id);
-
-            return {
-                ...pet,
-                ageCategory,
-                goodWithPets: !pet.singlePet,
-                goodWithKids: seededRandom(pet.id * 3) > 0.3,
-                temperament: pet.temperament || (rng > 0.5 ? "brincalhão" : "calmo")
-            };
+        function previewPetAge() {
+            const val = document.getElementById('pet-form-birthdate').value;
+            const preview = document.getElementById('pet-age-preview');
+            if (val) {
+                preview.innerText = `Idade calculada: ${calculateAgeString(val)}`;
+            } else {
+                preview.innerText = '';
+            }
         }
-
-        const cardsContainer = document.getElementById('cards-container');
-        const emptyState = document.getElementById('empty-state');
-        const likedGrid = document.getElementById('liked-grid');
-        const noLikesMsg = document.getElementById('no-likes');
-        const likedBadge = document.getElementById('liked-badge');
-        const viewSwipe = document.getElementById('view-swipe');
-        const viewLiked = document.getElementById('view-liked');
-        const viewSettingsTab = document.getElementById('view-settings-tab');
-
-        document.addEventListener("DOMContentLoaded", () => {
-            initApp();
-            checkAutoLogin();
-        });
-
-        function updateFileLabel(inputId, labelId) {
-            const input = document.getElementById(inputId);
-            const label = document.getElementById(labelId);
-            if (input.files.length > 0) {
-                label.textContent = "✓ Arquivo pronto";
-                label.classList.add("text-green-600");
+        function setImgSourceMode(mode) {
+            const modes = ['file', 'camera', 'url'];
+            modes.forEach(m => {
+                document.getElementById(`img-input-${m}`).classList.toggle('hidden', m !== mode);
+                const btn = document.getElementById(`btn-mode-${m}`);
+                if (m === mode) {
+                    btn.className = "flex-1 py-1.5 px-2 bg-orange-500 text-white rounded-lg font-bold text-[11px] flex items-center justify-center gap-1";
+                } else {
+                    btn.className = "flex-1 py-1.5 px-2 bg-gray-100 text-gray-600 rounded-lg font-bold text-[11px] flex items-center justify-center gap-1";
+                }
+            });
+        }
+        function handleImageFileSelect(event) {
+            const file = event.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function (e) {
+                    const base64Img = e.target.result;
+                    document.getElementById('pet-form-img-value').value = base64Img;
+                    updateImgPreview(base64Img);
+                };
+                reader.readAsDataURL(file);
+            }
+        }
+        function updateImgPreview(src) {
+            const container = document.getElementById('img-preview-container');
+            const img = document.getElementById('img-preview');
+            if (src) {
+                img.src = src;
+                container.classList.remove('hidden');
+                container.classList.add('flex');
+            } else {
+                container.classList.add('hidden');
+                container.classList.remove('flex');
             }
         }
 
-        function initApp() {
-            let processedDogs = dbDogs.map(enrichPet);
-            dogsList = [...processedDogs];
-        }
-
-        function checkAutoLogin() {
-            // Procure por esta verificação ao carregar a página e ajuste-a:
-            const activeUser = localStorage.getItem('currentUser');
-            if (activeUser) {
-                document.getElementById('view-auth').classList.add('hidden');
-                document.getElementById('app').classList.remove('hidden');
-                document.getElementById('profile-user-email').innerText = activeUser;
-
-                // GARANTE QUE OS MATCHE ATUAIS SÃO PUXADOS
-                likedDogs = JSON.parse(localStorage.getItem(`liked_${activeUser}`)) || [];
-                userProfile = JSON.parse(localStorage.getItem(`profile_${activeUser}`)) || null;
-
-                resetApp();
-            }
-        }
-
+        // --- SISTEMA DE AUTENTICAÇÃO E ROTEAMENTO ---
         function toggleAuth(type) {
-            document.getElementById('form-login').classList.toggle('hidden', type === 'register');
-            document.getElementById('form-register').classList.toggle('hidden', type === 'login');
+            document.getElementById('form-login').classList.toggle('hidden', type !== 'login');
+            document.getElementById('form-register').classList.toggle('hidden', type !== 'register');
         }
 
         function login() {
-            const emailInput = document.getElementById('login-email').value.trim();
-            const passwordInput = document.getElementById('login-password').value;
-            const agora = Date.now();
+            const email = document.getElementById('login-email').value.trim();
+            const pass = document.getElementById('login-password').value.trim();
 
-            // Cria as chaves de controle de segurança baseadas no e-mail digitado
-            const tentativasChave = `tentativas_${emailInput}`;
-            const bloqueioChave = `bloqueio_${emailInput}`;
+            if (!email || !pass) return alert("Preencha todos os campos!");
 
-            // RNFR-02.1: Verifica se a conta está atualmente bloqueada por 1 minuto
-            const tempoBloqueado = localStorage.getItem(bloqueioChave);
-            if (tempoBloqueado && agora - parseInt(tempoBloqueado) < 60000) {
-                const segundosRestantes = Math.ceil((60000 - (agora - parseInt(tempoBloqueado))) / 1000);
-                alert(`Conta temporariamente bloqueada. Tente novamente em ${segundosRestantes} segundos.`);
-                return;
-            }
-
-            // Procura o usuário cadastrado
-            const user = users.find(u => u.email === emailInput && u.password === passwordInput);
-
-            if (user) {
-                // Se acertou, limpa o histórico de falhas e faz o login
-                localStorage.removeItem(tentativasChave);
-                localStorage.removeItem(bloqueioChave);
-
-                // Código original de sucesso de login
-                localStorage.setItem("currentUser", JSON.stringify(user));
-                document.getElementById('profile-user-email').innerText = user.email;
+            // LOGIN DE ADMINISTRADOR / ONG
+            if (email === "admin@gmail.com" && pass === "1234") {
+                currentUser = { email: "admin@gmail.com", role: "admin" };
                 document.getElementById('view-auth').classList.add('hidden');
-
-                if (!userProfile) {
-                    document.getElementById('view-profile').classList.remove('hidden');
-                    document.getElementById('view-profile').classList.add('flex');
-                } else {
-                    document.getElementById('app').classList.remove('hidden');
-                    initApp();
-                }
-            } else {
-                // Se errou, recupera o histórico de erros do localStorage
-                let erros = JSON.parse(localStorage.getItem(tentativasChave)) || [];
-
-                // Mantém apenas as falhas ocorridas nos últimos 5 minutos (5 * 60 * 1000 = 300000ms)
-                erros = erros.filter(timestamp => agora - timestamp < 300000);
-
-                // Adiciona a tentativa atual errada
-                erros.push(agora);
-                localStorage.setItem(tentativasChave, JSON.stringify(erros));
-
-                // Se atingiu 5 tentativas incorretas em 5 minutos, ativa o bloqueio de 1 minuto
-                if (erros.length >= 5) {
-                    localStorage.setItem(bloqueioChave, agora.toString());
-                    alert("Conta bloqueada por 1 minuto devido a 5 tentativas incorretas de acesso.");
-                } else {
-                    alert(`Credenciais incorretas! Tentativa ${erros.length} de 5.`);
-                }
-            }
-        }
-        function register() {
-            const emailInput = document.getElementById('register-email').value.trim();
-            const passwordInput = document.getElementById('register-password').value;
-
-            // RNFR-01.3: O email informado deve ser válido
-            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-            if (!emailRegex.test(emailInput)) {
-                alert("Erro: O email informado deve ser válido.");
+                document.getElementById('view-admin').classList.remove('hidden');
+                renderAdminPets();
+                renderAdminInterests();
                 return;
             }
 
-            // RNFR-01.1: A senha deve ter no mínimo 8 caracteres
-            if (passwordInput.length < 8) {
-                alert("Erro: A senha deve ter no mínimo 8 caracteres.");
-                return;
+            // LOGIN DE USUÁRIO COMUM / ADOTANTE
+            let user = users.find(u => u.email === email && u.password === pass);
+            if (!user) {
+                user = { email, password: pass };
+                users.push(user);
+                saveStorage();
             }
 
-            // RNFR-01.2: A senha não pode ser composta apenas de letras
-            const apenasLetrasRegex = /^[a-zA-ZÀ-ÿ]+$/;
-            if (apenasLetrasRegex.test(passwordInput)) {
-                alert("Erro: A senha não pode ser composta apenas de letras.");
-                return;
-            }
-
-            const userExists = users.some(u => u.email === emailInput);
-            if (userExists) {
-                alert("Usuário já cadastrado!");
-                return;
-            }
-
-            // Cria e salva o novo usuário
-            const novoUsuario = { email: emailInput, password: passwordInput };
-            users.push(novoUsuario);
-            localStorage.setItem("users", JSON.stringify(users));
-
-            alert("Cadastro realizado com sucesso!");
-
-            // --- LOGIN AUTOMÁTICO INDO DIRETO PARA O QUESTIONÁRIO ---
-            // Limpa históricos de bloqueio antigos desse e-mail
-            localStorage.removeItem(`tentativas_${emailInput}`);
-            localStorage.removeItem(`bloqueio_${emailInput}`);
-
-            // Define como usuário atual do sistema
-            localStorage.setItem("currentUser", JSON.stringify(novoUsuario));
-            document.getElementById('profile-user-email').innerText = novoUsuario.email;
-
-            // Zera o perfil na memória para garantir que o sistema saiba que é um perfil novo
-            userProfile = null;
-
-            // Esconde a tela de autenticação (cadastro/login) e a tela do app principal
+            currentUser = { email, role: "user" };
+            document.getElementById('profile-user-email').innerText = email;
             document.getElementById('view-auth').classList.add('hidden');
-            document.getElementById('app').classList.add('hidden');
 
-            // Força a exibição correta e limpa da tela do Questionário (Perfil)
-            const viewProfile = document.getElementById('view-profile');
-            viewProfile.classList.remove('hidden');
-            viewProfile.classList.add('flex');
-
-            // Se o seu arquivo index.html tiver uma função para limpar/resetar os campos do questionário, 
-            // você pode chamá-la aqui (ex: resetProfileForm()), mas o código acima já garante a exibição da tela.
-        }
-
-        function logout() {
-            // Remove o usuário ativo da sessão
-            localStorage.removeItem('currentUser');
-
-            // Esconde o app principal e exibe a tela de login
-            document.getElementById('app').classList.add('hidden');
-            document.getElementById('view-auth').classList.remove('hidden');
-
-            // Limpa os campos de input de login por segurança
-            document.getElementById('login-email').value = '';
-            document.getElementById('login-password').value = '';
-
-            // Reseta a aba ativa para a de "Descobrir" (swipe) para o próximo login
-            switchTab('swipe');
-        }
-
-        function deleteAccount() {
-            const activeUser = localStorage.getItem('currentUser');
-            if (!activeUser) return;
-
-            // Confirmação de segurança
-            const confirmFirst = confirm("Tem certeza de que deseja excluir sua conta? Esta ação não pode ser desfeita.");
-            if (!confirmFirst) return;
-
-            const confirmSecond = confirm("Isso apagará permanentemente seu Perfil de Adoção e seus Matches. Deseja continuar?");
-            if (!confirmSecond) return;
-
-            // 1. Remover o usuário do array global e atualizar o localStorage
-            users = users.filter(u => u.email !== activeUser);
-            localStorage.setItem("users", JSON.stringify(users));
-
-            // 2. Limpar os dados vinculados a este e-mail específico
-            localStorage.removeItem(`profile_${activeUser}`);
-            localStorage.removeItem(`liked_${activeUser}`);
-
-            // 3. Dar feedback ao usuário e deslogar
-            alert("Sua conta e seus dados foram excluídos com sucesso. Até logo! 🐾");
-            logout();
-        }
-
-        function enterApp() {
-            document.getElementById('view-auth').classList.add('hidden');
-            const activeUser = localStorage.getItem('currentUser') || 'visitante';
-
-            // Buscar as preferências específicas deste e-mail cadastrado
-            const saved = localStorage.getItem(`profile_${activeUser}`);
-
-            if (saved) {
-                userProfile = JSON.parse(saved);
-                document.getElementById('app').classList.remove('hidden');
-
-                // Carrega também o histórico de curtidas deste usuário específico
-                const savedLikes = localStorage.getItem(`liked_${activeUser}`);
-                likedDogs = savedLikes ? JSON.parse(savedLikes) : [];
-                updateLikedView();
-                updateBadge();
-
-                applySmartFilters();
-            } else {
-                // Se for a primeira vez deste e-mail, limpa os dados da sessão anterior e abre o quiz
-                userProfile = null;
-                likedDogs = [];
-                updateLikedView();
-                updateBadge();
-
+            if (!userProfile) {
                 document.getElementById('view-profile').classList.remove('hidden');
-                document.getElementById('view-profile').classList.add('flex');
+            } else {
+                document.getElementById('app').classList.remove('hidden');
+                initApp();
             }
         }
 
-        function getRadioVal(name) {
-            const el = document.querySelector(`input[name="${name}"]:checked`);
-            return el ? el.value : "";
-        }
+        function register() {
+            const email = document.getElementById('register-email').value.trim();
+            const password = document.getElementById('register-password').value;
 
-        function setRadioVal(name, value) {
-            const el = document.querySelector(`input[name="${name}"][value="${value}"]`);
-            if (el) el.checked = true;
-        }
-
-        function openUserSettings() {
-            const email = localStorage.getItem('currentUser') || 'visitante@adotaai.com';
-            document.getElementById('profile-user-email').textContent = email;
-
-            viewUserSettings.classList.remove('hidden');
-            viewUserSettings.classList.add('flex');
-        }
-
-        function closeUserSettings() {
-            viewUserSettings.classList.add('hidden');
-            viewUserSettings.classList.remove('flex');
-        }
-
-        function triggerProfileEditFromSettings() {
-            closeUserSettings();
-            openProfileEdit();
-        }
-
-        function openProfileEdit() {
-            if (userProfile) {
-                setRadioVal('p-housing', userProfile.housing || "casa");
-                setRadioVal('p-activity', userProfile.activity || "moderado");
-                setRadioVal('p-species', userProfile.species || "");
-                setRadioVal('p-size', userProfile.size || "");
-
-                const ageEl = document.getElementById('p-age');
-                const tempEl = document.getElementById('p-temperament');
-                const routineEl = document.getElementById('p-routine');
-                const experienceEl = document.getElementById('p-experience');
-                const allergyEl = document.getElementById('p-allergy');
-                const kidsEl = document.getElementById('p-kids');
-                const otherPetsEl = document.getElementById('p-otherPets');
-
-                if (ageEl) ageEl.value = userProfile.age || "";
-                if (tempEl) tempEl.value = userProfile.temperament || "";
-                if (routineEl) routineEl.value = userProfile.routine || "fica_em_casa";
-                if (experienceEl) experienceEl.value = userProfile.experience || "intermediario";
-                if (allergyEl) allergyEl.checked = (userProfile.allergy === "sim");
-                if (kidsEl) kidsEl.checked = (userProfile.kids === "sim");
-                if (otherPetsEl) otherPetsEl.checked = (userProfile.otherPets === "sim");
+            if (!email || !password) {
+                alert("Preencha todos os campos para se cadastrar.");
+                return;
             }
 
-            document.getElementById('filter-menu').classList.add('hidden');
-            document.getElementById('filter-icon').classList.replace('ph-caret-up', 'ph-caret-down');
-            document.getElementById('app').classList.add('hidden');
+            if (users.find(u => u.email === email)) {
+                alert("Este e-mail já está cadastrado.");
+                return;
+            }
 
+            // Cria o novo usuário com papel 'user'
+            const newUser = { email, password, role: 'user' };
+            users.push(newUser);
+
+            // Login automático
+            currentUser = newUser;
+            saveStorage();
+
+            alert("Conta criada com sucesso! Complete seu perfil a seguir.");
+
+            // Direciona direto para o Quiz/Perfil de adoção
+            document.getElementById('view-auth').classList.add('hidden');
             document.getElementById('view-profile').classList.remove('hidden');
             document.getElementById('view-profile').classList.add('flex');
         }
 
-        function saveProfile() {
-            const activeUser = localStorage.getItem('currentUser') || 'visitante';
-
-            const ageEl = document.getElementById('p-age');
-            const tempEl = document.getElementById('p-temperament');
-            const routineEl = document.getElementById('p-routine');
-            const experienceEl = document.getElementById('p-experience');
-            const allergyEl = document.getElementById('p-allergy');
-            const kidsEl = document.getElementById('p-kids');
-            const otherPetsEl = document.getElementById('p-otherPets');
-
-            const profile = {
-                housing: getRadioVal('p-housing'),
-                activity: getRadioVal('p-activity'),
-                species: getRadioVal('p-species'),
-                size: getRadioVal('p-size'),
-
-                age: ageEl ? ageEl.value : "",
-                temperament: tempEl ? tempEl.value : "",
-                routine: routineEl ? routineEl.value : "fica_em_casa",
-                experience: experienceEl ? experienceEl.value : "intermediario",
-
-                allergy: (allergyEl && allergyEl.checked) ? "sim" : "não",
-                kids: (kidsEl && kidsEl.checked) ? "sim" : "não",
-                otherPets: (otherPetsEl && otherPetsEl.checked) ? "sim" : "não"
-            };
-
-            // Salva o perfil com a chave exclusiva do usuário logado
-            localStorage.setItem(`profile_${activeUser}`, JSON.stringify(profile));
-            userProfile = profile;
-
+        function logout() {
+            currentUser = null;
+            document.getElementById('view-admin').classList.add('hidden');
+            document.getElementById('app').classList.add('hidden');
             document.getElementById('view-profile').classList.add('hidden');
-            document.getElementById('view-profile').classList.remove('flex');
-            document.getElementById('app').classList.remove('hidden');
-            applySmartFilters();
+            document.getElementById('view-auth').classList.remove('hidden');
         }
 
-        function applySmartFilters() {
-            const processedDogs = dbDogs.map(pet => {
-                const enriched = enrichPet(pet);
-                return enrichWithMatch(userProfile, enriched);
-            });
+        function deleteAccount() {
+            if (confirm("Tem certeza que deseja excluir sua conta?")) {
+                localStorage.clear();
+                location.reload();
+            }
+        }
 
-            // Se o usuário não aceita PCD/crônicos, filtramos fora automaticamente para evitar match indesejado
-            let results = processedDogs;
-            if (userProfile && userProfile.acceptSpecial === "não") {
-                results = results.filter(pet => !pet.specialNeed);
+        // --- PAINEL DA ONG (ADMINISTRATIVO) ---
+        function switchAdminTab(tab) {
+            const isPets = tab === 'pets';
+            document.getElementById('admin-tab-pets').classList.toggle('hidden', !isPets);
+            document.getElementById('admin-tab-interests').classList.toggle('hidden', isPets);
+
+            document.getElementById('admin-tab-btn-pets').className = isPets
+                ? "flex-1 py-3 text-xs font-bold text-orange-500 border-b-2 border-orange-500 transition-colors flex items-center justify-center gap-1"
+                : "flex-1 py-3 text-xs font-bold text-gray-400 border-b-2 border-transparent transition-colors flex items-center justify-center gap-1";
+
+            document.getElementById('admin-tab-btn-interests').className = !isPets
+                ? "flex-1 py-3 text-xs font-bold text-orange-500 border-b-2 border-orange-500 transition-colors flex items-center justify-center gap-1 relative"
+                : "flex-1 py-3 text-xs font-bold text-gray-400 border-b-2 border-transparent transition-colors flex items-center justify-center gap-1 relative";
+        }
+
+        function renderAdminPets() {
+            const grid = document.getElementById('admin-pets-grid');
+            grid.innerHTML = "";
+
+            dbDogs.forEach(pet => {
+                const sexIcon = pet.sex === "Fêmea" ? '<i class="ph-bold ph-gender-female text-pink-500"></i>' : '<i class="ph-bold ph-gender-male text-blue-500"></i>';
+
+                const card = document.createElement('div');
+                card.className = "bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden relative flex flex-col cursor-pointer group hover:shadow-md transition-shadow";
+                card.innerHTML = `
+                    <div class="relative h-32 w-full bg-gray-100" onclick="openModal(${pet.id})">
+                        <img src="${pet.img}" class="w-full h-full object-cover">
+                        <button onclick="event.stopPropagation(); openPetFormModal(${pet.id})" 
+                            class="absolute top-2 right-2 bg-white/90 text-gray-700 hover:text-orange-500 rounded-full w-7 h-7 flex items-center justify-center shadow backdrop-blur-sm transition-colors" title="Editar Pet">
+                            <i class="ph-bold ph-pencil-simple text-sm"></i>
+                        </button>
+                    </div>
+                    <div class="p-2.5 flex flex-col justify-between flex-1" onclick="openModal(${pet.id})">
+                        <div class="flex items-center justify-between">
+                            <h3 class="font-bold text-gray-800 text-xs truncate max-w-[80px]">${pet.name}</h3>
+                            <span class="text-xs flex items-center gap-0.5 font-semibold text-gray-600">${sexIcon} ${pet.sex || 'Macho'}</span>
+                        </div>
+                        <p class="text-[10px] text-gray-400 truncate mt-0.5">${pet.breed} • ${pet.age}</p>
+                    </div>
+                `;
+                grid.appendChild(card);
+            });
+        }
+
+        function renderAdminInterests() {
+            const list = document.getElementById('admin-interests-list');
+            const badge = document.getElementById('admin-interest-badge');
+            list.innerHTML = "";
+
+            if (adoptionInterests.length === 0) {
+                list.innerHTML = `<p class="text-xs text-gray-400 text-center py-8">Nenhum interesse registrado até o momento.</p>`;
+                badge.classList.add('hidden');
+                return;
             }
 
-            dogsList = results.sort((a, b) => b.matchScore - a.matchScore);
+            badge.innerText = adoptionInterests.length;
+            badge.classList.remove('hidden');
+
+            adoptionInterests.forEach((item, index) => {
+                const card = document.createElement('div');
+                card.className = "bg-white p-3.5 rounded-2xl border border-gray-100 shadow-sm flex items-center justify-between gap-3 text-xs";
+                card.innerHTML = `
+                    <div class="space-y-1 truncate">
+                        <div class="flex items-center gap-1.5">
+                            <span class="bg-orange-100 text-orange-600 font-bold px-2 py-0.5 rounded-md text-[10px]">Pet: ${item.petName}</span>
+                            <span class="text-[10px] text-gray-400">${item.date || 'Hoje'}</span>
+                        </div>
+                        <p class="font-bold text-gray-800 truncate"><i class="ph-fill ph-envelope mr-1 text-gray-400"></i>${item.userEmail}</p>
+                    </div>
+                    <button onclick="removeInterest(${index})" class="text-red-400 hover:text-red-600 p-1.5 rounded-lg hover:bg-red-50" title="Remover">
+                        <i class="ph-bold ph-trash text-base"></i>
+                    </button>
+                `;
+                list.appendChild(card);
+            });
+        }
+
+        function removeInterest(index) {
+            adoptionInterests.splice(index, 1);
+            saveStorage();
+            renderAdminInterests();
+        }
+
+        function openPetFormModal(petId = null) {
+            const modal = document.getElementById('pet-form-modal');
+            const title = document.getElementById('pet-form-title');
+            const form = document.getElementById('form-pet-editor');
+
+            form.reset();
+            document.getElementById('pet-age-preview').innerText = '';
+            updateImgPreview('');
+            setImgSourceMode('file');
+
+            if (petId) {
+                const pet = dbDogs.find(d => d.id === petId);
+                if (!pet) return;
+                title.innerText = "Editar Animal";
+                document.getElementById('pet-form-id').value = pet.id;
+                document.getElementById('pet-form-name').value = pet.name || '';
+                document.getElementById('pet-form-sex').value = pet.sex || 'Macho';
+                document.getElementById('pet-form-species').value = pet.species || 'cão';
+                document.getElementById('pet-form-birthdate').value = pet.birthdate || '';
+                document.getElementById('pet-form-size').value = pet.size || 'médio';
+                document.getElementById('pet-form-breed').value = pet.breed || '';
+                document.getElementById('pet-form-city').value = pet.city || '';
+
+                const imgSrc = pet.img || '';
+                document.getElementById('pet-form-img-value').value = imgSrc;
+                if (imgSrc.startsWith('http')) {
+                    setImgSourceMode('url');
+                    document.getElementById('pet-form-img-url').value = imgSrc;
+                }
+                updateImgPreview(imgSrc);
+
+                document.getElementById('pet-form-medical').value = pet.medical || '';
+                document.getElementById('pet-form-past').value = pet.past || '';
+                document.getElementById('pet-form-desc').value = pet.desc || '';
+                document.getElementById('pet-form-castrated').checked = !!pet.castrated;
+                document.getElementById('pet-form-specialNeed').checked = !!pet.specialNeed;
+                previewPetAge();
+            } else {
+                title.innerText = "Cadastrar Novo Pet";
+                document.getElementById('pet-form-id').value = "";
+            }
+
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+        }
+
+        function closePetFormModal() {
+            const modal = document.getElementById('pet-form-modal');
+            modal.classList.add('hidden');
+            modal.classList.remove('flex');
+        }
+
+        function savePetForm(e) {
+            e.preventDefault();
+
+            const idVal = document.getElementById('pet-form-id').value;
+            const imgVal = document.getElementById('pet-form-img-value').value;
+
+            if (!imgVal) {
+                alert("Por favor, selecione uma foto para o pet (arquivo, câmera ou link)!");
+                return;
+            }
+
+            const birthdate = document.getElementById('pet-form-birthdate').value;
+
+            const petData = {
+                id: idVal ? parseInt(idVal) : Date.now(),
+                name: document.getElementById('pet-form-name').value,
+                sex: document.getElementById('pet-form-sex').value,
+                species: document.getElementById('pet-form-species').value,
+                birthdate: birthdate,
+                age: calculateAgeString(birthdate),
+                size: document.getElementById('pet-form-size').value,
+                breed: document.getElementById('pet-form-breed').value,
+                city: document.getElementById('pet-form-city').value,
+                img: imgVal,
+                medical: document.getElementById('pet-form-medical').value,
+                past: document.getElementById('pet-form-past').value,
+                desc: document.getElementById('pet-form-desc').value,
+                castrated: document.getElementById('pet-form-castrated').checked,
+                specialNeed: document.getElementById('pet-form-specialNeed').checked,
+                singlePet: false,
+                purpose: "companhia"
+            };
+
+            if (idVal) {
+                const idx = dbDogs.findIndex(d => d.id === parseInt(idVal));
+                if (idx !== -1) dbDogs[idx] = petData;
+            } else {
+                dbDogs.unshift(petData);
+            }
+
+            saveStorage();
+            closePetFormModal();
+            if (typeof closeModal === 'function') closeModal();
+            if (typeof renderAdminPets === 'function') renderAdminPets();
+            if (typeof initApp === 'function') initApp();
+
+            alert("Pet salvo com sucesso!");
+        }
+
+        function deletePet(id) {
+            if (confirm("Tem certeza de que deseja excluir este animal da base de dados?")) {
+                dbDogs = dbDogs.filter(d => d.id !== id);
+                likedDogs = likedDogs.filter(d => d.id !== id);
+                saveStorage();
+                closeModal();
+                renderAdminPets();
+                alert("Pet excluído!");
+            }
+        }
+
+        // --- SISTEMA DE CORRESPONDÊNCIA / QUIZ ---
+        function updateFileLabel(inputId, labelId) {
+            const input = document.getElementById(inputId);
+            const label = document.getElementById(labelId);
+            if (input.files && input.files[0]) {
+                label.innerText = "✓ " + input.files[0].name;
+                label.classList.add("text-green-600", "font-bold");
+            }
+        }
+
+        function saveProfile() {
+            const species = document.querySelector('input[name="p-species"]:checked')?.value || "";
+            const size = document.querySelector('input[name="p-size"]:checked')?.value || "";
+            const age = document.getElementById('p-age').value;
+            const purpose = document.getElementById('p-purpose').value;
+            const housing = document.querySelector('input[name="p-housing"]:checked')?.value || "casa";
+            const activity = document.getElementById('p-activity-select').value;
+            const routine = document.getElementById('p-routine').value;
+            const kids = document.getElementById('p-kids').checked;
+            const otherPets = document.getElementById('p-otherPets').checked;
+            const acceptSpecial = document.getElementById('p-acceptSpecial').checked;
+            const finance = document.getElementById('p-finance').value;
+
+            userProfile = { species, size, age, purpose, housing, activity, routine, kids, otherPets, acceptSpecial, finance };
+            saveStorage();
+
+            document.getElementById('view-profile').classList.add('hidden');
+            document.getElementById('app').classList.remove('hidden');
+            initApp();
+        }
+
+        function openProfileEdit() {
+            document.getElementById('app').classList.add('hidden');
+            document.getElementById('view-profile').classList.remove('hidden');
+        }
+
+        function calculateMatch(profile, pet) {
+            if (!profile) return 85;
+            let score = 50;
+
+            if (!profile.acceptSpecial && pet.specialNeed) return 0;
+            if (profile.species && pet.species && profile.species === pet.species) score += 15;
+            if (profile.size && pet.size && profile.size === pet.size) score += 15;
+            if (profile.housing === 'apartamento' && pet.size === 'grande') score -= 10;
+            if (profile.housing === 'casa_quintal' && pet.size === 'grande') score += 10;
+
+            return Math.min(Math.max(score, 40), 99);
+        }
+
+        function enrichPet(pet) {
+            return {
+                ...pet,
+                sex: pet.sex || "Macho",
+                matchScore: calculateMatch(userProfile, pet)
+            };
+        }
+
+        // --- APPLICAÇÃO ADOTANTE (SWIPE & INTERFACE) ---
+        function initApp() {
+            dogsList = dbDogs
+                .map(enrichPet)
+                .filter(pet => !likedDogs.some(liked => liked.id === pet.id))
+                .sort((a, b) => b.matchScore - a.matchScore);
+
+            updateLikedView();
+            updateBadge();
             renderCards();
         }
 
-        function toggleFilterMenu() {
-            const menu = document.getElementById('filter-menu');
-            const icon = document.getElementById('filter-icon');
-            const isOpen = !menu.classList.contains('hidden');
+        function renderCards() {
+            const container = document.getElementById('cards-container');
+            const emptyState = document.getElementById('empty-state');
+            container.innerHTML = '';
 
-            if (isOpen) {
-                menu.classList.add('hidden');
-                icon.classList.replace('ph-caret-up', 'ph-caret-down');
-            } else {
-                menu.classList.remove('hidden');
-                icon.classList.replace('ph-caret-down', 'ph-caret-up');
+            if (dogsList.length === 0) {
+                emptyState.classList.remove('hidden');
+                return;
             }
+            emptyState.classList.add('hidden');
+
+            const petsToRender = dogsList.slice(0, 3).reverse();
+
+            petsToRender.forEach((pet, index) => {
+                const card = document.createElement('div');
+                card.className = 'swipe-card flex flex-col justify-between cursor-pointer';
+                card.dataset.id = pet.id;
+
+                const sexIcon = pet.sex === "Fêmea" ? '<i class="ph-bold ph-gender-female text-pink-400"></i>' : '<i class="ph-bold ph-gender-male text-blue-400"></i>';
+
+                card.innerHTML = `
+                    <div class="relative w-full h-full bg-cover bg-center" style="background-image: url('${pet.img}')">
+                        <div class="stamp stamp-like">AMEI</div>
+                        <div class="stamp stamp-nope">PASSO</div>
+                        
+                        <div class="absolute top-4 left-4 bg-orange-500 text-white font-bold text-xs px-3 py-1.5 rounded-full shadow-md flex items-center gap-1 z-10">
+                            <i class="ph-fill ph-sparkle"></i> ${pet.matchScore}% Match
+                        </div>
+
+                        <div class="absolute inset-0 card-gradient flex flex-col justify-end p-5 text-white">
+                            <div class="flex justify-between items-end mb-1">
+                                <div>
+                                    <h2 class="text-3xl font-bold leading-none flex items-center gap-2">${pet.name} <span class="text-xl font-normal opacity-90">${pet.age}</span> ${sexIcon}</h2>
+                                    <p class="text-sm font-medium text-gray-200 mt-1"><i class="ph-fill ph-map-pin"></i> ${pet.city} • ${pet.breed}</p>
+                                </div>
+                                <button onclick="event.stopPropagation(); openModal(${pet.id})" class="bg-white/20 backdrop-blur-md p-2.5 rounded-full hover:bg-white/30 transition-colors">
+                                    <i class="ph-bold ph-info text-xl"></i>
+                                </button>
+                            </div>
+                            <p class="text-xs text-gray-300 line-clamp-2 mt-2">${pet.desc}</p>
+                        </div>
+                    </div>
+                `;
+
+                container.appendChild(card);
+            });
+
+            setupDragEvents();
+        }
+
+        function setupDragEvents() {
+            const cards = document.querySelectorAll('.swipe-card');
+            if (cards.length === 0) return;
+
+            topCard = cards[cards.length - 1];
+
+            topCard.addEventListener('pointerdown', handleDragStart);
+            topCard.addEventListener('pointermove', handleDragMove);
+            topCard.addEventListener('pointerup', handleDragEnd);
+            topCard.addEventListener('pointercancel', handleDragEnd);
+
+            topCard.addEventListener('click', (e) => {
+                if (Math.abs(currentX) < 10 && Math.abs(currentY) < 10) {
+                    const id = parseInt(topCard.dataset.id);
+                    openModal(id);
+                }
+            });
+        }
+
+        function handleDragStart(e) {
+            isDragging = true;
+            startX = e.clientX;
+            startY = e.clientY;
+            topCard.style.transition = 'none';
+        }
+
+        function handleDragMove(e) {
+            if (!isDragging) return;
+            currentX = e.clientX - startX;
+            currentY = e.clientY - startY;
+
+            const rotate = currentX * 0.05;
+            topCard.style.transform = `translate(${currentX}px, ${currentY}px) rotate(${rotate}deg)`;
+
+            const likeStamp = topCard.querySelector('.stamp-like');
+            const nopeStamp = topCard.querySelector('.stamp-nope');
+
+            if (currentX > 50) {
+                likeStamp.style.opacity = Math.min(currentX / 100, 1);
+                nopeStamp.style.opacity = 0;
+            } else if (currentX < -50) {
+                nopeStamp.style.opacity = Math.min(Math.abs(currentX) / 100, 1);
+                likeStamp.style.opacity = 0;
+            } else {
+                likeStamp.style.opacity = 0;
+                nopeStamp.style.opacity = 0;
+            }
+        }
+
+        function handleDragEnd() {
+            if (!isDragging) return;
+            isDragging = false;
+
+            topCard.style.transition = 'transform 0.3s ease-out';
+
+            if (currentX > 100) {
+                swipeCard('right');
+            } else if (currentX < -100) {
+                swipeCard('left');
+            } else {
+                topCard.style.transform = 'translate(0px, 0px) rotate(0deg)';
+                const stamps = topCard.querySelectorAll('.stamp');
+                stamps.forEach(s => s.style.opacity = 0);
+            }
+
+            currentX = 0;
+            currentY = 0;
+        }
+
+        function swipeCard(direction) {
+            if (!topCard) return;
+
+            const petId = parseInt(topCard.dataset.id);
+            const pet = dbDogs.find(d => d.id === petId);
+
+            if (direction === 'right' && pet) {
+                likedDogs.push(pet);
+                saveStorage();
+                updateLikedView();
+                updateBadge();
+            }
+
+            topCard.classList.add('animating');
+            topCard.classList.add(direction === 'right' ? 'swipe-right' : 'swipe-left');
+
+            setTimeout(() => {
+                dogsList.shift();
+                renderCards();
+            }, 300);
+        }
+
+        // --- FILTROS ---
+        function toggleFilterMenu() {
+            document.getElementById('filter-menu').classList.toggle('hidden');
         }
 
         function applyFilters() {
             const species = document.getElementById('filter-species').value;
             const size = document.getElementById('filter-size').value;
-            const specialFilter = document.getElementById('filter-special').value;
-            const kidsOnly = document.getElementById('filter-kids').value === "true";
+            const special = document.getElementById('filter-special').value;
 
-            let filteredResults = dbDogs.filter(dog => {
-                const traits = enrichPet(dog);
-                const matchSpecies = !species || dog.species === species;
-                const matchSize = !size || dog.size === size;
-                const matchKids = !kidsOnly || traits.goodWithKids === true;
+            let filtered = dbDogs.map(enrichPet).filter(pet => !likedDogs.some(liked => liked.id === pet.id));
 
-                let matchSpecial = true;
-                if (specialFilter === "true") matchSpecial = dog.specialNeed === true;
-                if (specialFilter === "false") matchSpecial = dog.specialNeed === false;
+            if (species) filtered = filtered.filter(p => p.species === species);
+            if (size) filtered = filtered.filter(p => p.size === size);
+            if (special === 'true') filtered = filtered.filter(p => p.specialNeed);
+            if (special === 'false') filtered = filtered.filter(p => !p.specialNeed);
 
-                return matchSpecies && matchSize && matchKids && matchSpecial;
-            });
-
-            dogsList = filteredResults.map(dog => {
-                const enrichedTraits = enrichPet(dog);
-                return enrichWithMatch(userProfile || {}, enrichedTraits);
-            });
-
-            dogsList.sort((a, b) => b.matchScore - a.matchScore);
-            renderCards();
+            dogsList = filtered;
             toggleFilterMenu();
-        }
-
-        // --- SISTEMA SWIPE & GESTOS ---
-
-        function createCardElement(dog, index) {
-            const card = document.createElement('div');
-            card.className = 'swipe-card shadow-2xl border border-gray-100';
-            card.style.zIndex = dogsList.length - index;
-
-            card.addEventListener('click', (e) => {
-                if (!isDragging) showDetails(dog);
-            });
-
-            const matchColor = dog.matchScore >= 80 ? "bg-green-500" : dog.matchScore >= 60 ? "bg-yellow-400" : "bg-red-500";
-            const specialBadge = dog.specialNeed ? `<span class="bg-purple-600 text-white font-bold text-[10px] px-2 py-0.5 rounded-full ml-2">PCD/Crônico</span>` : '';
-
-            if (index > 0) {
-                card.style.transform = `scale(${1 - (index * 0.04)}) translateY(${index * 12}px)`;
-            }
-
-            card.innerHTML = `
-                <div class="stamp stamp-like border-green-500 text-green-500 bg-white/90 backdrop-blur-sm">Curti</div>
-                <div class="stamp stamp-nope border-red-500 text-red-500 bg-white/90 backdrop-blur-sm">Passei</div>
-                
-                <div class="absolute top-4 left-4 bg-black/50 text-white text-[11px] font-bold px-3 py-1.5 rounded-full backdrop-blur-md flex items-center border border-white/20 shadow-lg">
-                    <span class="w-2 h-2 rounded-full ${matchColor} mr-1.5"></span>
-                    ${dog.matchScore || 0}% Compatível
-                    ${specialBadge}
-                </div>
-                
-                <img src="${dog.img}" class="w-full h-full object-cover select-none pointer-events-none">
-                
-                <div class="absolute bottom-0 w-full p-5 text-white card-gradient pb-6 pt-20">
-                    <div class="flex justify-between items-end mb-1">
-                        <div>
-                            <h2 class="text-2xl font-bold leading-tight drop-shadow-md">${dog.name}, <span class="text-xl font-normal">${dog.age}</span></h2>
-                            <p class="flex items-center text-xs font-medium mt-0.5 text-gray-200 drop-shadow">
-                                <i class="ph-fill ph-paw-print mr-1"></i> ${dog.breed} • ${dog.castrated ? 'Castrado' : 'Não castrado'}
-                            </p>
-                        </div>
-                        <button class="bg-white/20 p-2 rounded-full backdrop-blur-md border border-white/30">
-                            <i class="ph-bold ph-info text-xl"></i>
-                        </button>
-                    </div>
-                    <p class="flex items-center text-xs font-bold mb-2 text-orange-300 drop-shadow-md">
-                        <i class="ph-fill ph-map-pin mr-1"></i> ${dog.city}
-                    </p>
-                    <p class="text-xs line-clamp-2 text-gray-100 bg-black/40 p-3 rounded-xl border border-white/10 backdrop-blur-sm">${dog.desc}</p>
-                </div>
-            `;
-            return card;
-        }
-
-        function renderCards() {
-            cardsContainer.innerHTML = '';
-
-            if (dogsList.length === 0) {
-                emptyState.classList.remove('hidden');
-                return;
-            } else {
-                emptyState.classList.add('hidden');
-            }
-
-            const visibleDogs = dogsList.slice(0, 3);
-            [...visibleDogs].reverse().forEach((dog, reversedIndex) => {
-                const index = visibleDogs.length - 1 - reversedIndex;
-                const card = createCardElement(dog, index);
-                cardsContainer.appendChild(card);
-            });
-
-            topCard = cardsContainer.lastElementChild;
-            if (topCard) {
-                setupDragEvents(topCard);
-            }
-        }
-
-        let dragActivatedOnCard = false;
-
-        function setupDragEvents(card) {
-            card.addEventListener('mousedown', handleDragStart);
-            document.addEventListener('mousemove', handleDragMove);
-            document.addEventListener('mouseup', handleDragEnd);
-
-            card.addEventListener('touchstart', handleDragStart, { passive: false });
-            document.addEventListener('touchmove', handleDragMove, { passive: false });
-            document.addEventListener('touchend', handleDragEnd);
-        }
-
-        function removeDragEvents() {
-            document.removeEventListener('mousemove', handleDragMove);
-            document.removeEventListener('mouseup', handleDragEnd);
-            document.removeEventListener('touchmove', handleDragMove);
-            document.removeEventListener('touchend', handleDragEnd);
-        }
-
-        function handleDragStart(e) {
-            if (!topCard) return;
-            if (!topCard.contains(e.target)) {
-                dragActivatedOnCard = false;
-                return;
-            }
-
-            dragActivatedOnCard = true;
-            isDragging = false;
-
-            const clientX = e.type.includes('mouse') ? e.clientX : e.touches[0].clientX;
-            const clientY = e.type.includes('mouse') ? e.clientY : e.touches[0].clientY;
-
-            startX = clientX;
-            startY = clientY;
-            topCard.style.transition = 'none';
-            e.stopPropagation();
-        }
-
-        function handleDragMove(e) {
-            if (!topCard || !dragActivatedOnCard) return;
-
-            const clientX = e.type.includes('mouse') ? e.clientX : e.touches[0].clientX;
-            const clientY = e.type.includes('mouse') ? e.clientY : e.touches[0].clientY;
-
-            currentX = clientX - startX;
-            currentY = clientY - startY;
-
-            if (Math.abs(currentX) > 10 || Math.abs(currentY) > 10) {
-                isDragging = true;
-                if (e.type.includes('touch')) e.preventDefault();
-            }
-
-            if (!isDragging) return;
-
-            const rotate = currentX * 0.08;
-            topCard.style.transform = `translate(${currentX}px, ${currentY}px) rotate(${rotate}deg)`;
-
-            const likeStamp = topCard.querySelector('.stamp-like');
-            const nopeStamp = topCard.querySelector('.stamp-nope');
-            const opacity = Math.min(Math.abs(currentX) / 100, 1);
-
-            if (currentX > 0) {
-                likeStamp.style.opacity = opacity;
-                nopeStamp.style.opacity = 0;
-            } else {
-                nopeStamp.style.opacity = opacity;
-                likeStamp.style.opacity = 0;
-            }
-        }
-
-        function handleDragEnd() {
-            if (!topCard || !dragActivatedOnCard) return;
-            dragActivatedOnCard = false;
-
-            if (!isDragging) {
-                resetCardPosition();
-                return;
-            }
-
-            topCard.style.transition = 'transform 0.3s ease-out';
-            const threshold = window.innerWidth * 0.25;
-
-            if (currentX > threshold) {
-                executeSwipe('right');
-            } else if (currentX < -threshold) {
-                executeSwipe('left');
-            } else {
-                resetCardPosition();
-            }
-
-            setTimeout(() => { isDragging = false; }, 50);
-            currentX = 0;
-            currentY = 0;
-        }
-
-        function resetCardPosition() {
-            topCard.style.transform = 'translate(0px, 0px) rotate(0deg)';
-            topCard.querySelector('.stamp-like').style.opacity = 0;
-            topCard.querySelector('.stamp-nope').style.opacity = 0;
-        }
-
-        function executeSwipe(direction) {
-            removeDragEvents();
-
-            const cardToSwipe = topCard;
-            const currentDog = dogsList[0];
-
-            cardToSwipe.classList.add('animating');
-            if (direction !== 'up') {
-                cardToSwipe.classList.add(`swipe-${direction}`);
-            }
-
-            if (direction === 'right' || direction === 'up') {
-                addToLiked(currentDog);
-            }
-
-            dogsList.shift();
-
-            setTimeout(() => {
-                if (cardToSwipe.parentNode) cardToSwipe.parentNode.removeChild(cardToSwipe);
-                renderCards();
-            }, 300);
-        }
-
-        // --- MATCHES, INTERFACE & NAVEGAÇÃO ---
-
-        function addToLiked(dog) {
-            likedDogs.push(dog);
-            updateLikedView();
-            updateBadge();
-        }
-
-        function updateBadge() {
-            if (likedDogs.length > 0) {
-                likedBadge.textContent = likedDogs.length;
-                likedBadge.classList.remove('hidden');
-            } else {
-                likedBadge.classList.add('hidden');
-            }
-        }
-
-        function updateLikedView() {
-            if (likedDogs.length === 0) {
-                noLikesMsg.classList.remove('hidden');
-                likedGrid.innerHTML = '';
-            } else {
-                noLikesMsg.classList.add('hidden');
-                likedGrid.innerHTML = likedDogs.map(dog => `
-                    <div onclick="openMatchedPetDetails(${dog.id})" class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden cursor-pointer hover:shadow-md transition-all active:scale-95">
-                        <div class="h-32 relative">
-                            <img src="${dog.img}" class="w-full h-full object-cover">
-                            <div class="absolute bottom-2 left-2 bg-white/95 backdrop-blur text-[10px] font-bold px-2 py-0.5 rounded-full text-green-600 flex items-center shadow-sm">
-                                <i class="ph-fill ph-check-circle mr-0.5"></i> Match
-                            </div>
-                        </div>
-                        <div class="p-3">
-                            <h3 class="font-bold text-gray-800 text-sm truncate">${dog.name}</h3>
-                            <p class="text-[11px] text-gray-500 truncate mt-0.5"><i class="ph-fill ph-paw-print"></i> ${dog.breed}</p>
-                            <button onclick="event.stopPropagation(); fakeAdoptionAction();" class="mt-2 w-full bg-orange-50 text-orange-600 text-xs font-bold py-2 rounded-xl flex justify-center items-center hover:bg-orange-100 transition-colors">
-                                Contatar ONG
-                            </button>
-                        </div>
-                    </div>
-                `).join('');
-            }
-        }
-
-        function openMatchedPetDetails(id) {
-            const pet = dbDogs.find(d => d.id === id);
-            if (pet) showDetails(enrichPet(pet));
-        }
-
-        function showDetails(dog) {
-            document.getElementById('modal-img').src = dog.img;
-            document.getElementById('modal-name').textContent = dog.name;
-            document.getElementById('modal-breed').textContent = dog.breed;
-            document.getElementById('modal-age').innerHTML = `<i class="ph-fill ph-clock"></i> ${dog.age}`;
-            document.getElementById('modal-city').innerHTML = `<i class="ph-fill ph-map-pin"></i> ${dog.city}`;
-            document.getElementById('modal-size').textContent = dog.size;
-            document.getElementById('modal-castrated').textContent = dog.castrated ? "Castrado" : "Não castrado";
-            document.getElementById('modal-medical').textContent = dog.medical;
-            document.getElementById('modal-past').textContent = dog.past || "Sem histórico registrado.";
-            document.getElementById('modal-desc').textContent = dog.desc;
-
-            document.getElementById('pet-modal').classList.remove('hidden');
-            document.getElementById('pet-modal').classList.add('flex');
-        }
-
-        function closeModal() {
-            document.getElementById('pet-modal').classList.add('hidden');
-            document.getElementById('pet-modal').classList.remove('flex');
-        }
-
-        function fakeAdoptionAction() {
-            closeModal();
-            alert("Interesse enviado! 🧡 A ONG parceira revisará seus dados (Documento de identidade e Perfil financeiro pré-aprovados) para segurança do animal. Retorno em breve via WhatsApp!");
-        }
-
-        function switchTab(tab) {
-            // Esconde todas as views
-            document.getElementById('view-swipe').classList.add('hidden');
-            document.getElementById('view-liked').classList.add('hidden');
-            document.getElementById('view-settings-tab').classList.add('hidden'); // Ajuste este ID se necessário
-
-            // Remove destaque dos botões da navbar
-            document.getElementById('nav-tab-swipe').classList.remove('text-orange-500');
-            document.getElementById('nav-tab-swipe').classList.add('text-gray-400');
-            document.getElementById('nav-tab-liked').classList.remove('text-orange-500');
-            document.getElementById('nav-tab-liked').classList.add('text-gray-400');
-            document.getElementById('nav-tab-settings').classList.remove('text-orange-500');
-            document.getElementById('nav-tab-settings').classList.add('text-gray-400');
-
-            // Ativa a aba correta
-            if (tab === 'swipe') {
-                document.getElementById('view-swipe').classList.remove('hidden');
-                document.getElementById('nav-tab-swipe').classList.add('text-orange-500');
-            } else if (tab === 'liked') {
-                document.getElementById('view-liked').classList.remove('hidden');
-                document.getElementById('nav-tab-liked').classList.add('text-orange-500');
-                updateLikedView();
-            } else if (tab === 'settings') {
-                document.getElementById('view-settings-tab').classList.remove('hidden');
-                document.getElementById('nav-tab-settings').classList.add('text-orange-500');
-            }
-        }
-
-        function calculateMatchScore(user, pet) {
-            if (!user) return 20;
-            let score = 20;
-
-            if (user.species === "" || user.species === pet.species) score += 25;
-            if (user.purpose === pet.purpose) score += 15;
-
-            if (user.housing === "apartamento" && pet.size === "pequeno") score += 15;
-            else if (user.housing === "casa_quintal" && pet.size === "grande") score += 15;
-            else if (user.size === pet.size) score += 15;
-            else score += 5;
-
-            if (user.activity === "ativo" && pet.temperament === "brincalhão") score += 15;
-            else if (user.activity === "sedentario" && pet.temperament === "calmo") score += 15;
-            else score += 10;
-
-            if (user.kids === "sim" && pet.goodWithKids) score += 10;
-            if (user.otherPets === "sim" && pet.goodWithPets) score += 10;
-
-            if (user.acceptSpecial === "sim" && pet.specialNeed) score += 20;
-
-            if (user.age === "" || user.age === pet.ageCategory) score += 5;
-
-            return Math.min(score, 100);
-        }
-
-        function enrichWithMatch(user, pet) {
-            const score = calculateMatchScore(user, pet);
-            return { ...pet, matchScore: score };
+            renderCards();
         }
 
         function resetApp() {
-            isDragging = false;
-            dragActivatedOnCard = false;
-            currentX = 0;
-            currentY = 0;
-            topCard = null;
-
-            const activeUser = localStorage.getItem('currentUser') || 'visitante';
-
-            // 1. Mapeia e enriquece todos os cachorros com os dados de compatibilidade
-            let processedDogs = dbDogs.map(dog => {
-                const enriched = enrichPet(dog);
-                return enrichWithMatch(userProfile, enriched);
-            });
-
-            // 2. Filtra para remover os pets que já estão na lista de curtidos (likedDogs)
-            // Usamos o .some() para checar se o ID do pet já foi curtido por este usuário
-            dogsList = processedDogs.filter(dog => {
-                return !likedDogs.some(liked => liked.id === dog.id);
-            });
-
-            // 3. Aplica também a regra do perfil (se não aceita PCD, remove da lista)
-            if (userProfile && userProfile.acceptSpecial === "não") {
-                dogsList = dogsList.filter(pet => !pet.specialNeed);
-            }
-
-            // 4. Ordena os pets restantes pela maior pontuação de Match
-            dogsList.sort((a, b) => b.matchScore - a.matchScore);
-
-            // 5. Se após o filtro a lista continuar vazia, avisa o usuário
-            if (dogsList.length === 0) {
-                alert("Todos os pets disponíveis já foram favoritados por você! Confira a aba de Matches.");
-                switchTab('liked');
-                return;
-            }
-
-            // 6. Atualiza a interface mantendo o histórico visual intacto
-            updateLikedView();
-            updateBadge();
-            emptyState.classList.add('hidden');
-            switchTab('swipe');
-            renderCards();
+            likedDogs = [];
+            saveStorage();
+            initApp();
         }
 
+        // --- NAVEGAÇÃO ENTRE ABAS DO USUÁRIO ---
+        function switchTab(tab) {
+            ['swipe', 'liked', 'settings'].forEach(t => {
+                const view = document.getElementById(`view-${t === 'settings' ? 'settings-tab' : t}`);
+                const navBtn = document.getElementById(`nav-tab-${t}`);
+                if (view) view.classList.toggle('hidden', t !== tab);
+                if (navBtn) navBtn.className = t === tab
+                    ? 'flex flex-col items-center justify-center text-orange-500 flex-1 h-full transition-all'
+                    : 'flex flex-col items-center justify-center text-gray-400 flex-1 h-full transition-all relative';
+            });
+        }
+
+        function updateLikedView() {
+            const grid = document.getElementById('liked-grid');
+            const noLikes = document.getElementById('no-likes');
+            grid.innerHTML = '';
+
+            if (likedDogs.length === 0) {
+                noLikes.classList.remove('hidden');
+                return;
+            }
+            noLikes.classList.add('hidden');
+
+            likedDogs.forEach(pet => {
+                const sexIcon = pet.sex === "Fêmea" ? '<i class="ph-bold ph-gender-female text-pink-500"></i>' : '<i class="ph-bold ph-gender-male text-blue-500"></i>';
+
+                const card = document.createElement('div');
+                card.className = "bg-white rounded-2xl overflow-hidden border border-gray-100 shadow-sm cursor-pointer hover:shadow-md transition-shadow";
+                card.onclick = () => openModal(pet.id);
+                card.innerHTML = `
+                    <div class="h-32 bg-cover bg-center" style="background-image: url('${pet.img}')"></div>
+                    <div class="p-3">
+                        <div class="flex justify-between items-center">
+                            <h3 class="font-bold text-gray-800 text-sm truncate">${pet.name}</h3>
+                            <span class="text-xs">${sexIcon}</span>
+                        </div>
+                        <p class="text-xs text-gray-400 truncate mt-0.5">${pet.city}</p>
+                    </div>
+                `;
+                grid.appendChild(card);
+            });
+        }
+
+        function updateBadge() {
+            const badge = document.getElementById('liked-badge');
+            if (likedDogs.length > 0) {
+                badge.innerText = likedDogs.length;
+                badge.classList.remove('hidden');
+            } else {
+                badge.classList.add('hidden');
+            }
+        }
+
+        // --- MODAL DE DETALHES ---
+        function openModal(petId) {
+            const pet = dbDogs.find(d => d.id === petId);
+            if (!pet) return;
+
+            currentModalPetId = pet.id;
+
+            document.getElementById('modal-img').src = pet.img;
+            document.getElementById('modal-name').innerText = pet.name;
+            document.getElementById('modal-breed').innerText = pet.breed;
+            document.getElementById('modal-age').innerHTML = `<i class="ph-fill ph-clock"></i> ${pet.age}`;
+            document.getElementById('modal-city').innerHTML = `<i class="ph-fill ph-map-pin"></i> ${pet.city}`;
+            document.getElementById('modal-size').innerText = pet.size;
+            document.getElementById('modal-castrated').innerText = pet.castrated ? "Castrado" : "Não castrado";
+            document.getElementById('modal-medical').innerText = pet.medical || "Saúde ok";
+            document.getElementById('modal-past').innerText = pet.past || "Sem detalhes informados.";
+            document.getElementById('modal-desc').innerText = pet.desc;
+
+            // Configurar botões com base no tipo de usuário logado
+            const userActions = document.getElementById('modal-user-actions');
+            const adminActions = document.getElementById('modal-admin-actions');
+
+            if (currentUser && currentUser.role === 'admin') {
+                userActions.classList.add('hidden');
+                adminActions.classList.remove('hidden');
+
+                document.getElementById('btn-modal-edit').onclick = () => {
+                    closeModal();
+                    openPetFormModal(pet.id);
+                };
+                document.getElementById('btn-modal-delete').onclick = () => {
+                    deletePet(pet.id);
+                };
+            } else {
+                userActions.classList.remove('hidden');
+                adminActions.classList.add('hidden');
+            }
+
+            const modal = document.getElementById('pet-modal');
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+        }
+
+        function closeModal() {
+            const modal = document.getElementById('pet-modal');
+            modal.classList.add('hidden');
+            modal.classList.remove('flex');
+            currentModalPetId = null;
+        }
+
+        function fakeAdoptionAction() {
+            if (!currentModalPetId) return;
+
+            const pet = dbDogs.find(d => d.id === currentModalPetId);
+            if (!pet) return;
+
+            const email = currentUser ? currentUser.email : "adotante@email.com";
+            const today = new Date().toLocaleDateString('pt-BR');
+
+            // Salva interesse para o painel da ONG
+            adoptionInterests.unshift({
+                petId: pet.id,
+                petName: pet.name,
+                userEmail: email,
+                date: today
+            });
+            saveStorage();
+
+            alert(`Parabéns! Seu interesse por ${pet.name} foi registrado. A ONG entrará em contato pelo seu e-mail (${email})!`);
+            closeModal();
+        }
     </script>
 </body>
 
