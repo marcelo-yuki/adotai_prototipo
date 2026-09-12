@@ -15,18 +15,18 @@
 
     <div id="view-auth" class="fixed inset-0 bg-white flex items-center justify-center z-50 px-4">
         <div class="w-full max-w-sm p-6">
-            <h1 class="text-3xl font-bold text-center text-orange-500 mb-6 flex items-center justify-center gap-2">
+            <h1 class="text-3xl font-bold text-center text-teal-600 mb-6 flex items-center justify-center gap-2">
                 <i class="ph-fill ph-paw-print text-3xl"></i>
                 Adota Aí
             </h1>
 
             <div id="form-login">
                 <input id="login-email" type="email" placeholder="Email"
-                    class="w-full mb-3 p-3 border rounded-xl bg-gray-50 focus:outline-none focus:ring-2 focus:ring-orange-500 text-sm">
+                    class="w-full mb-3 p-3 border rounded-xl bg-gray-50 focus:outline-none focus:ring-2 focus:ring-teal-600 text-sm">
                 <input id="login-password" type="password" placeholder="Senha"
-                    class="w-full mb-4 p-3 border rounded-xl bg-gray-50 focus:outline-none focus:ring-2 focus:ring-orange-500 text-sm">
+                    class="w-full mb-4 p-3 border rounded-xl bg-gray-50 focus:outline-none focus:ring-2 focus:ring-teal-600 text-sm">
                 <button onclick="login()"
-                    class="w-full bg-orange-500 text-white py-3 rounded-xl font-bold active:scale-95 transition-transform">
+                    class="w-full bg-teal-600 text-white py-3 rounded-xl font-bold active:scale-95 transition-transform">
                     Entrar
                 </button>
                 <p class="text-xs text-gray-500 text-center mt-3">Para testar como ONG: <strong>admin@gmail.com</strong>
@@ -34,19 +34,25 @@
                 <p class="text-sm text-center mt-4">
                     Não tem conta?
                     <span onclick="toggleAuth('register')"
-                        class="text-orange-500 cursor-pointer font-bold">Cadastre-se</span>
+                        class="text-teal-600 cursor-pointer font-bold">Cadastre-se</span>
                 </p>
             </div>
 
             <div id="form-register" class="hidden">
                 <input id="register-email" type="email" placeholder="Email"
-                    class="w-full mb-3 p-3 border rounded-xl bg-gray-50 focus:outline-none focus:ring-2 focus:ring-orange-500 text-sm">
+                    class="w-full mb-3 p-3 border rounded-xl bg-gray-50 focus:outline-none focus:ring-2 focus:ring-teal-600 text-sm">
+
+                <input id="register-phone" type="tel" placeholder="Telefone"
+                    class="w-full mb-3 p-3 border rounded-xl bg-gray-50 focus:outline-none focus:ring-2 focus:ring-teal-600 text-sm">
+
                 <input id="register-password" type="password" placeholder="Senha"
-                    class="w-full mb-4 p-3 border rounded-xl bg-gray-50 focus:outline-none focus:ring-2 focus:ring-orange-500 text-sm">
+                    class="w-full mb-4 p-3 border rounded-xl bg-gray-50 focus:outline-none focus:ring-2 focus:ring-teal-600 text-sm">
+
                 <button onclick="register()"
                     class="w-full bg-green-500 text-white py-3 rounded-xl font-bold active:scale-95 transition-transform">
                     Cadastrar
                 </button>
+
                 <p class="text-sm text-center mt-4">
                     Já tem conta?
                     <span onclick="toggleAuth('login')" class="text-green-500 cursor-pointer font-bold">Entrar</span>
@@ -59,7 +65,7 @@
         class="hidden relative w-full max-w-md h-[100dvh] sm:h-[90vh] sm:rounded-3xl bg-white shadow-2xl flex flex-col overflow-hidden sm:border sm:border-gray-200">
         <header
             class="flex justify-between items-center px-5 py-4 border-b border-gray-100 bg-white z-20 flex-shrink-0">
-            <div class="flex items-center gap-2 text-orange-500 font-bold text-lg">
+            <div class="flex items-center gap-2 text-teal-600 font-bold text-lg">
                 <i class="ph-fill ph-shield-check text-2xl"></i>
                 <span>Painel ONG</span>
             </div>
@@ -70,7 +76,7 @@
 
         <div class="flex border-b border-gray-100 bg-gray-50 flex-shrink-0">
             <button id="admin-tab-btn-pets" onclick="switchAdminTab('pets')"
-                class="flex-1 py-3 text-xs font-bold text-orange-500 border-b-2 border-orange-500 transition-colors flex items-center justify-center gap-1">
+                class="flex-1 py-3 text-xs font-bold text-teal-600 border-b-2 border-teal-600 transition-colors flex items-center justify-center gap-1">
                 <i class="ph-fill ph-paw-print text-base"></i> Animais
             </button>
             <button id="admin-tab-btn-interests" onclick="switchAdminTab('interests')"
@@ -85,7 +91,7 @@
             <div class="flex justify-between items-center mb-1">
                 <h2 class="text-sm font-bold text-gray-700">Animais Cadastrados</h2>
                 <button onclick="openPetFormModal()"
-                    class="bg-orange-500 text-white text-xs font-bold px-3 py-2 rounded-xl flex items-center gap-1 shadow-sm active:scale-95 transition-transform">
+                    class="bg-teal-600 text-white text-xs font-bold px-3 py-2 rounded-xl flex items-center gap-1 shadow-sm active:scale-95 transition-transform">
                     <i class="ph-bold ph-plus text-sm"></i> Novo Pet
                 </button>
             </div>
@@ -104,7 +110,7 @@
     <div id="view-profile" class="fixed inset-0 bg-white hidden z-50 flex-col overflow-hidden w-full h-full">
         <div class="bg-white/90 backdrop-blur-md z-10 px-6 py-5 border-b border-gray-100 shadow-sm flex-shrink-0">
             <h2 class="text-2xl font-bold text-gray-800 flex items-center gap-2">
-                <i class="ph-fill ph-magic-wand text-orange-500"></i> Seu Perfil de Adoção
+                <i class="ph-fill ph-magic-wand text-teal-600"></i> Seu Perfil de Adoção
             </h2>
             <p class="text-gray-500 text-sm mt-1">Responda para encontrarmos o match perfeito e seguro!</p>
         </div>
@@ -115,7 +121,7 @@
             <div class="space-y-6">
                 <div class="flex items-center gap-3 border-b border-gray-100 pb-2">
                     <span
-                        class="bg-orange-100 text-orange-600 w-8 h-8 rounded-full flex items-center justify-center font-bold text-sm">1</span>
+                        class="bg-teal-100 text-teal-700 w-8 h-8 rounded-full flex items-center justify-center font-bold text-sm">1</span>
                     <h3 class="text-lg font-bold text-gray-800">O Pet Ideal</h3>
                 </div>
 
@@ -126,7 +132,7 @@
                         <label class="cursor-pointer">
                             <input type="radio" name="p-species" value="cão" class="peer hidden">
                             <div
-                                class="h-24 p-2 border-2 border-gray-100 rounded-2xl flex flex-col items-center justify-center gap-2 peer-checked:border-orange-500 peer-checked:bg-orange-50 peer-checked:text-orange-600 text-gray-400 hover:bg-gray-50 transition-all">
+                                class="h-24 p-2 border-2 border-gray-100 rounded-2xl flex flex-col items-center justify-center gap-2 peer-checked:border-teal-600 peer-checked:bg-teal-50 peer-checked:text-teal-700 text-gray-400 hover:bg-gray-50 transition-all">
                                 <i class="ph-fill ph-dog text-3xl"></i>
                                 <span class="text-xs font-bold text-center">Cachorro</span>
                             </div>
@@ -134,7 +140,7 @@
                         <label class="cursor-pointer">
                             <input type="radio" name="p-species" value="gato" class="peer hidden">
                             <div
-                                class="h-24 p-2 border-2 border-gray-100 rounded-2xl flex flex-col items-center justify-center gap-2 peer-checked:border-orange-500 peer-checked:bg-orange-50 peer-checked:text-orange-600 text-gray-400 hover:bg-gray-50 transition-all">
+                                class="h-24 p-2 border-2 border-gray-100 rounded-2xl flex flex-col items-center justify-center gap-2 peer-checked:border-teal-600 peer-checked:bg-teal-50 peer-checked:text-teal-700 text-gray-400 hover:bg-gray-50 transition-all">
                                 <i class="ph-fill ph-cat text-3xl"></i>
                                 <span class="text-xs font-bold text-center">Gato</span>
                             </div>
@@ -142,7 +148,7 @@
                         <label class="cursor-pointer">
                             <input type="radio" name="p-species" value="" class="peer hidden" checked>
                             <div
-                                class="h-24 p-2 border-2 border-gray-100 rounded-2xl flex flex-col items-center justify-center gap-2 peer-checked:border-orange-500 peer-checked:bg-orange-50 peer-checked:text-orange-600 text-gray-400 hover:bg-gray-50 transition-all">
+                                class="h-24 p-2 border-2 border-gray-100 rounded-2xl flex flex-col items-center justify-center gap-2 peer-checked:border-teal-600 peer-checked:bg-teal-50 peer-checked:text-teal-700 text-gray-400 hover:bg-gray-50 transition-all">
                                 <i class="ph-fill ph-paw-print text-3xl"></i>
                                 <span class="text-xs font-bold text-center">Ambos</span>
                             </div>
@@ -157,25 +163,25 @@
                         <label class="cursor-pointer">
                             <input type="radio" name="p-size" value="" class="peer hidden" checked>
                             <div
-                                class="p-3 border-2 border-gray-100 rounded-xl flex justify-center items-center peer-checked:border-orange-500 peer-checked:bg-orange-50 peer-checked:text-orange-600 text-gray-400 transition-all text-xs font-bold">
+                                class="p-3 border-2 border-gray-100 rounded-xl flex justify-center items-center peer-checked:border-teal-600 peer-checked:bg-teal-50 peer-checked:text-teal-700 text-gray-400 transition-all text-xs font-bold">
                                 Todos</div>
                         </label>
                         <label class="cursor-pointer">
                             <input type="radio" name="p-size" value="pequeno" class="peer hidden">
                             <div
-                                class="p-3 border-2 border-gray-100 rounded-xl flex justify-center items-center peer-checked:border-orange-500 peer-checked:bg-orange-50 peer-checked:text-orange-600 text-gray-400 transition-all text-xs font-bold">
+                                class="p-3 border-2 border-gray-100 rounded-xl flex justify-center items-center peer-checked:border-teal-600 peer-checked:bg-teal-50 peer-checked:text-teal-700 text-gray-400 transition-all text-xs font-bold">
                                 Pequeno</div>
                         </label>
                         <label class="cursor-pointer">
                             <input type="radio" name="p-size" value="médio" class="peer hidden">
                             <div
-                                class="p-3 border-2 border-gray-100 rounded-xl flex justify-center items-center peer-checked:border-orange-500 peer-checked:bg-orange-50 peer-checked:text-orange-600 text-gray-400 transition-all text-xs font-bold">
+                                class="p-3 border-2 border-gray-100 rounded-xl flex justify-center items-center peer-checked:border-teal-600 peer-checked:bg-teal-50 peer-checked:text-teal-700 text-gray-400 transition-all text-xs font-bold">
                                 Médio</div>
                         </label>
                         <label class="cursor-pointer">
                             <input type="radio" name="p-size" value="grande" class="peer hidden">
                             <div
-                                class="p-3 border-2 border-gray-100 rounded-xl flex justify-center items-center peer-checked:border-orange-500 peer-checked:bg-orange-50 peer-checked:text-orange-600 text-gray-400 transition-all text-xs font-bold">
+                                class="p-3 border-2 border-gray-100 rounded-xl flex justify-center items-center peer-checked:border-teal-600 peer-checked:bg-teal-50 peer-checked:text-teal-700 text-gray-400 transition-all text-xs font-bold">
                                 Grande</div>
                         </label>
                     </div>
@@ -186,7 +192,7 @@
                         <label class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-3 block">Idade
                             Desejada</label>
                         <select id="p-age"
-                            class="w-full p-3 border-2 border-gray-100 rounded-xl bg-white text-gray-700 font-medium focus:outline-none focus:border-orange-500 text-sm">
+                            class="w-full p-3 border-2 border-gray-100 rounded-xl bg-white text-gray-700 font-medium focus:outline-none focus:border-teal-600 text-sm">
                             <option value="">Qualquer</option>
                             <option value="filhote">Filhote</option>
                             <option value="adulto">Adulto</option>
@@ -197,7 +203,7 @@
                         <label class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-3 block">Objetivo da
                             Adoção</label>
                         <select id="p-purpose"
-                            class="w-full p-3 border-2 border-gray-100 rounded-xl bg-white text-gray-700 font-medium focus:outline-none focus:border-orange-500 text-sm">
+                            class="w-full p-3 border-2 border-gray-100 rounded-xl bg-white text-gray-700 font-medium focus:outline-none focus:border-teal-600 text-sm">
                             <option value="companhia" selected>Companhia / Pet de estimação</option>
                             <option value="guarda">Cão de Guarda / Alerta</option>
                         </select>
@@ -303,7 +309,7 @@
                     <hr class="border-gray-200">
                     <div class="flex items-center justify-between">
                         <div class="flex items-center gap-2 text-gray-700 font-medium text-sm">
-                            <i class="ph-fill ph-first-aid text-xl text-orange-500"></i> Aceita adotar pets
+                            <i class="ph-fill ph-first-aid text-xl text-teal-600"></i> Aceita adotar pets
                             PCD/Crônicos?
                         </div>
                         <div
@@ -372,7 +378,7 @@
         <div
             class="absolute bottom-0 left-0 w-full p-4 bg-gradient-to-t from-white via-white/90 to-transparent z-20 pointer-events-none">
             <button onclick="saveProfile()"
-                class="w-full bg-orange-500 text-white py-4 rounded-xl font-bold shadow-lg shadow-orange-200 active:scale-95 transition-transform flex items-center justify-center gap-2 pointer-events-auto">
+                class="w-full bg-teal-600 text-white py-4 rounded-xl font-bold shadow-lg shadow-teal-200 active:scale-95 transition-transform flex items-center justify-center gap-2 pointer-events-auto">
                 Encontrar meu match <i class="ph-bold ph-arrow-right"></i>
             </button>
         </div>
@@ -384,7 +390,7 @@
         <header class="flex justify-between items-center p-4 border-b border-gray-100 z-20 bg-white flex-shrink-0">
             <div class="w-10"></div>
             <h1 class="text-xl font-bold text-gray-800 tracking-tight flex items-center gap-1">
-                <i class="ph-fill ph-paw-print text-orange-500"></i> Adota Aí
+                <i class="ph-fill ph-paw-print text-teal-600"></i> Adota Aí
             </h1>
             <div class="w-10"></div>
         </header>
@@ -438,7 +444,7 @@
                         </div>
                     </div>
                     <button onclick="applyFilters()"
-                        class="w-full bg-orange-500 text-white py-3 rounded-xl font-bold shadow-lg shadow-orange-200 active:scale-95 transition-transform text-sm">
+                        class="w-full bg-teal-600 text-white py-3 rounded-xl font-bold shadow-lg shadow-teal-200 active:scale-95 transition-transform text-sm">
                         Aplicar Filtros
                     </button>
                 </div>
@@ -448,14 +454,14 @@
 
             <div id="empty-state"
                 class="absolute inset-0 flex flex-col items-center justify-center p-6 text-center bg-gray-50 z-0 hidden">
-                <div class="w-20 h-20 bg-orange-100 rounded-full flex items-center justify-center mb-4">
-                    <i class="ph-fill ph-check-circle text-4xl text-orange-500"></i>
+                <div class="w-20 h-20 bg-teal-100 rounded-full flex items-center justify-center mb-4">
+                    <i class="ph-fill ph-check-circle text-4xl text-teal-600"></i>
                 </div>
                 <h2 class="text-xl font-bold text-gray-800 mb-2">Você viu todos!</h2>
                 <p class="text-sm text-gray-500 mb-6 px-4">Não há mais pets na sua região no momento de acordo com seus
                     critérios.</p>
                 <button onclick="resetApp()"
-                    class="px-6 py-2.5 bg-white border-2 border-orange-500 text-orange-500 text-sm font-bold rounded-full shadow hover:bg-orange-50 active:scale-95 transition-transform">
+                    class="px-6 py-2.5 bg-white border-2 border-teal-600 text-teal-600 text-sm font-bold rounded-full shadow hover:bg-teal-50 active:scale-95 transition-transform">
                     Ver Novamente
                 </button>
             </div>
@@ -488,12 +494,12 @@
             <div class="p-4 sm:p-6">
                 <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 mb-6 text-center">
                     <div
-                        class="w-20 h-20 bg-orange-100 rounded-full flex items-center justify-center mx-auto mb-3 border-4 border-white shadow-md relative">
-                        <i class="ph-fill ph-user text-4xl text-orange-500"></i>
+                        class="w-20 h-20 bg-teal-100 rounded-full flex items-center justify-center mx-auto mb-3 border-4 border-white shadow-md relative">
+                        <i class="ph-fill ph-user text-4xl text-teal-600"></i>
                     </div>
                     <h3 class="font-bold text-base text-gray-800 truncate" id="profile-user-email">usuario@email.com
                     </h3>
-                    <p class="text-gray-500 text-xs mt-1"><i class="ph-fill ph-map-pin mr-1 text-orange-500"></i>
+                    <p class="text-gray-500 text-xs mt-1"><i class="ph-fill ph-map-pin mr-1 text-teal-600"></i>
                         Itapetininga - SP</p>
                     <div
                         class="mt-2 inline-block bg-green-100 text-green-700 text-[10px] font-bold px-2 py-0.5 rounded-full">
@@ -514,43 +520,44 @@
                         </div>
                         <i class="ph-bold ph-caret-right text-gray-400"></i>
                     </button>
+                    <div>
 
-                    <div class="w-full flex items-center justify-between p-4 border-b border-gray-50">
-                        <div class="flex items-center gap-3">
-                            <div class="bg-green-100 p-2 rounded-lg text-green-600">
-                                <i class="ph-fill ph-bell text-lg"></i>
+                        <div class="w-full flex items-center justify-between p-4 border-b border-gray-50">
+                            <div class="flex items-center gap-3">
+                                <div class="bg-green-100 p-2 rounded-lg text-green-600">
+                                    <i class="ph-fill ph-bell text-lg"></i>
+                                </div>
+                                <span class="font-medium text-gray-700">Notificações Push</span>
                             </div>
-                            <span class="font-medium text-gray-700">Notificações Push</span>
-                        </div>
-                        <div
-                            class="relative inline-block w-10 mr-2 align-middle select-none transition duration-200 ease-in">
-                            <input type="checkbox" name="toggle" id="toggle"
-                                class="toggle-checkbox absolute block w-5 h-5 rounded-full bg-white border-4 appearance-none cursor-pointer transition-transform"
-                                checked />
-                            <label for="toggle"
-                                class="toggle-label block overflow-hidden h-5 rounded-full bg-gray-300 cursor-pointer"></label>
+                            <div
+                                class="relative inline-block w-10 mr-2 align-middle select-none transition duration-200 ease-in">
+                                <input type="checkbox" name="toggle" id="toggle"
+                                    class="toggle-checkbox absolute block w-5 h-5 rounded-full bg-white border-4 appearance-none cursor-pointer transition-transform"
+                                    checked />
+                                <label for="toggle"
+                                    class="toggle-label block overflow-hidden h-5 rounded-full bg-gray-300 cursor-pointer"></label>
+                            </div>
                         </div>
                     </div>
-                </div>
 
-                <div class="space-y-3">
-                    <button onclick="logout()"
-                        class="w-full bg-white border border-gray-200 text-gray-700 font-bold py-3 rounded-xl flex items-center justify-center gap-2 text-sm shadow-sm hover:bg-gray-50 active:scale-95 transition-transform">
-                        <i class="ph-bold ph-sign-out text-base"></i> Sair da Conta
-                    </button>
+                    <div class="space-y-3">
+                        <button onclick="logout()"
+                            class="w-full bg-white border border-gray-200 text-gray-700 font-bold py-3 rounded-xl flex items-center justify-center gap-2 text-sm shadow-sm hover:bg-gray-50 active:scale-95 transition-transform">
+                            <i class="ph-bold ph-sign-out text-base"></i> Sair da Conta
+                        </button>
 
-                    <button onclick="deleteAccount()"
-                        class="w-full text-red-500 font-medium py-2 text-xs flex items-center justify-center gap-2 hover:bg-red-50 transition-colors">
-                        <i class="ph-bold ph-trash"></i> Excluir minha conta
-                    </button>
+                        <button onclick="deleteAccount()"
+                            class="w-full text-red-500 font-medium py-2 text-xs flex items-center justify-center gap-2 hover:bg-red-50 transition-colors">
+                            <i class="ph-bold ph-trash"></i> Excluir minha conta
+                        </button>
+                    </div>
                 </div>
-            </div>
         </main>
 
         <nav
             class="absolute bottom-0 left-0 right-0 bg-white border-t border-gray-100 h-16 flex justify-around items-center z-30 px-4 shadow-[0_-4px_12px_rgba(0,0,0,0.03)] flex-shrink-0">
             <button id="nav-tab-swipe" onclick="switchTab('swipe')"
-                class="flex flex-col items-center justify-center text-orange-500 flex-1 h-full transition-all">
+                class="flex flex-col items-center justify-center text-teal-600 flex-1 h-full transition-all">
                 <i class="ph-fill ph-paw-print text-2xl"></i>
                 <span class="text-[10px] font-bold mt-0.5">Descobrir</span>
             </button>
@@ -589,13 +596,13 @@
             <div class="p-5 space-y-4 overflow-y-auto no-scrollbar flex-1 text-sm">
                 <div class="grid grid-cols-2 gap-2 text-xs font-medium text-gray-600 bg-gray-50 p-2.5 rounded-xl">
                     <span id="modal-age" class="flex items-center gap-1"><i class="ph-fill ph-clock"></i></span>
-                    <span id="modal-city" class="flex items-center gap-1 text-orange-600"><i
+                    <span id="modal-city" class="flex items-center gap-1 text-teal-700"><i
                             class="ph-fill ph-map-pin"></i></span>
                 </div>
 
                 <div class="grid grid-cols-2 gap-2 text-xs">
                     <div
-                        class="bg-orange-50 border border-orange-100 p-2.5 rounded-xl text-orange-800 flex items-center gap-1.5">
+                        class="bg-teal-50 border border-teal-100 p-2.5 rounded-xl text-teal-900 flex items-center gap-1.5">
                         <i class="ph-fill ph-arrows-out"></i> Porte: <span id="modal-size"
                             class="font-bold capitalize"></span>
                     </div>
@@ -622,11 +629,29 @@
                     </div>
                 </div>
 
-                <div id="modal-user-actions">
-                    <button onclick="fakeAdoptionAction()"
-                        class="w-full mt-2 bg-orange-500 text-white py-3.5 rounded-xl font-bold shadow-lg shadow-orange-200 active:scale-95 transition-transform flex justify-center items-center gap-2 text-sm">
-                        Tenho interesse em adotar <i class="ph-fill ph-paw-print"></i>
+                <div id="modal-user-actions" class="space-y-3 pt-2">
+
+                    <div class="bg-teal-50 border border-teal-200 rounded-xl p-3">
+                        <p class="text-xs text-teal-800 flex items-start gap-2">
+                            <i class="ph-fill ph-info text-base mt-0.5"></i>
+
+                            <span>
+                                Ao demonstrar interesse, a ONG receberá seu
+                                e-mail e telefone cadastrados para entrar em contato.
+                            </span>
+                        </p>
+                    </div>
+
+                    <button onclick="fakeAdoptionAction()" class="w-full bg-teal-600 hover:bg-teal-700 text-white py-3.5
+               rounded-xl font-bold shadow-lg active:scale-95
+               transition-transform flex justify-center items-center
+               gap-2 text-sm">
+
+                        Tenho interesse em adotar
+
+                        <i class="ph-fill ph-paw-print"></i>
                     </button>
+
                 </div>
 
                 <div id="modal-admin-actions" class="hidden grid grid-cols-2 gap-3 pt-2">
@@ -660,14 +685,14 @@
                 <div>
                     <label class="font-bold text-gray-600 block mb-1">Nome do Pet*</label>
                     <input type="text" id="pet-form-name" required
-                        class="w-full p-2.5 border rounded-xl bg-gray-50 focus:outline-none focus:ring-2 focus:ring-orange-500">
+                        class="w-full p-2.5 border rounded-xl bg-gray-50 focus:outline-none focus:ring-2 focus:ring-teal-600">
                 </div>
 
                 <div class="grid grid-cols-2 gap-3">
                     <div>
                         <label class="font-bold text-gray-600 block mb-1">Sexo*</label>
                         <select id="pet-form-sex" required
-                            class="w-full p-2.5 border rounded-xl bg-gray-50 focus:outline-none focus:ring-2 focus:ring-orange-500">
+                            class="w-full p-2.5 border rounded-xl bg-gray-50 focus:outline-none focus:ring-2 focus:ring-teal-600">
                             <option value="Macho">Macho</option>
                             <option value="Fêmea">Fêmea</option>
                         </select>
@@ -675,7 +700,7 @@
                     <div>
                         <label class="font-bold text-gray-600 block mb-1">Espécie*</label>
                         <select id="pet-form-species" required
-                            class="w-full p-2.5 border rounded-xl bg-gray-50 focus:outline-none focus:ring-2 focus:ring-orange-500">
+                            class="w-full p-2.5 border rounded-xl bg-gray-50 focus:outline-none focus:ring-2 focus:ring-teal-600">
                             <option value="cão">Cão</option>
                             <option value="gato">Gato</option>
                         </select>
@@ -686,13 +711,13 @@
                     <div>
                         <label class="font-bold text-gray-600 block mb-1">Data de Nascimento*</label>
                         <input type="date" id="pet-form-birthdate" required onchange="previewPetAge()"
-                            class="w-full p-2.5 border rounded-xl bg-gray-50 focus:outline-none focus:ring-2 focus:ring-orange-500">
-                        <span id="pet-age-preview" class="text-[10px] text-orange-600 font-bold block mt-1"></span>
+                            class="w-full p-2.5 border rounded-xl bg-gray-50 focus:outline-none focus:ring-2 focus:ring-teal-600">
+                        <span id="pet-age-preview" class="text-[10px] text-teal-700 font-bold block mt-1"></span>
                     </div>
                     <div>
                         <label class="font-bold text-gray-600 block mb-1">Porte*</label>
                         <select id="pet-form-size" required
-                            class="w-full p-2.5 border rounded-xl bg-gray-50 focus:outline-none focus:ring-2 focus:ring-orange-500">
+                            class="w-full p-2.5 border rounded-xl bg-gray-50 focus:outline-none focus:ring-2 focus:ring-teal-600">
                             <option value="pequeno">Pequeno</option>
                             <option value="médio">Médio</option>
                             <option value="grande">Grande</option>
@@ -704,12 +729,12 @@
                     <div>
                         <label class="font-bold text-gray-600 block mb-1">Raça*</label>
                         <input type="text" id="pet-form-breed" placeholder="Ex: Sem Raça Definida" required
-                            class="w-full p-2.5 border rounded-xl bg-gray-50 focus:outline-none focus:ring-2 focus:ring-orange-500">
+                            class="w-full p-2.5 border rounded-xl bg-gray-50 focus:outline-none focus:ring-2 focus:ring-teal-600">
                     </div>
                     <div>
                         <label class="font-bold text-gray-600 block mb-1">Cidade*</label>
                         <input type="text" id="pet-form-city" placeholder="Ex: Itapetininga" required
-                            class="w-full p-2.5 border rounded-xl bg-gray-50 focus:outline-none focus:ring-2 focus:ring-orange-500">
+                            class="w-full p-2.5 border rounded-xl bg-gray-50 focus:outline-none focus:ring-2 focus:ring-teal-600">
                     </div>
                 </div>
 
@@ -718,7 +743,7 @@
                     <label class="font-bold text-gray-600 block mb-1">Foto do Pet*</label>
                     <div class="flex gap-2 mb-2">
                         <button type="button" onclick="setImgSourceMode('file')" id="btn-mode-file"
-                            class="flex-1 py-1.5 px-2 bg-orange-500 text-white rounded-lg font-bold text-[11px] flex items-center justify-center gap-1">
+                            class="flex-1 py-1.5 px-2 bg-teal-600 text-white rounded-lg font-bold text-[11px] flex items-center justify-center gap-1">
                             <i class="ph-bold ph-upload-simple"></i> Arquivo
                         </button>
                         <button type="button" onclick="setImgSourceMode('camera')" id="btn-mode-camera"
@@ -748,7 +773,7 @@
                     <div id="img-input-url" class="hidden">
                         <input type="url" id="pet-form-img-url" placeholder="https://..."
                             onchange="document.getElementById('pet-form-img-value').value = this.value; updateImgPreview(this.value)"
-                            class="w-full p-2.5 border rounded-xl bg-gray-50 focus:outline-none focus:ring-2 focus:ring-orange-500">
+                            class="w-full p-2.5 border rounded-xl bg-gray-50 focus:outline-none focus:ring-2 focus:ring-teal-600">
                     </div>
 
                     <!-- Preview da imagem -->
@@ -762,35 +787,35 @@
                 <div>
                     <label class="font-bold text-gray-600 block mb-1">Saúde e Cuidados Médico</label>
                     <input type="text" id="pet-form-medical" placeholder="Ex: Vacinado, vermifugado"
-                        class="w-full p-2.5 border rounded-xl bg-gray-50 focus:outline-none focus:ring-2 focus:ring-orange-500">
+                        class="w-full p-2.5 border rounded-xl bg-gray-50 focus:outline-none focus:ring-2 focus:ring-teal-600">
                 </div>
 
                 <div>
                     <label class="font-bold text-gray-600 block mb-1">Histórico do Resgate</label>
                     <textarea id="pet-form-past" rows="2"
-                        class="w-full p-2.5 border rounded-xl bg-gray-50 focus:outline-none focus:ring-2 focus:ring-orange-500"></textarea>
+                        class="w-full p-2.5 border rounded-xl bg-gray-50 focus:outline-none focus:ring-2 focus:ring-teal-600"></textarea>
                 </div>
 
                 <div>
                     <label class="font-bold text-gray-600 block mb-1">Descrição / Sobre</label>
                     <textarea id="pet-form-desc" rows="2"
-                        class="w-full p-2.5 border rounded-xl bg-gray-50 focus:outline-none focus:ring-2 focus:ring-orange-500"></textarea>
+                        class="w-full p-2.5 border rounded-xl bg-gray-50 focus:outline-none focus:ring-2 focus:ring-teal-600"></textarea>
                 </div>
 
                 <div class="flex items-center gap-4 pt-1">
                     <label class="flex items-center gap-1.5 cursor-pointer font-bold text-gray-700">
                         <input type="checkbox" id="pet-form-castrated"
-                            class="rounded text-orange-500 focus:ring-orange-500"> Castrado
+                            class="rounded text-teal-600 focus:ring-teal-600"> Castrado
                     </label>
                     <label class="flex items-center gap-1.5 cursor-pointer font-bold text-gray-700">
                         <input type="checkbox" id="pet-form-specialNeed"
-                            class="rounded text-orange-500 focus:ring-orange-500"> Necessidade Especial/PCD
+                            class="rounded text-teal-600 focus:ring-teal-600"> Necessidade Especial/PCD
                     </label>
                 </div>
 
                 <div class="pt-3">
                     <button type="submit"
-                        class="w-full bg-orange-500 text-white py-3 rounded-xl font-bold text-sm active:scale-95 transition-transform shadow-md">
+                        class="w-full bg-teal-600 text-white py-3 rounded-xl font-bold text-sm active:scale-95 transition-transform shadow-md">
                         Salvar Animal
                     </button>
                 </div>
