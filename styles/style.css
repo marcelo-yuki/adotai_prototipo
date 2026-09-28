@@ -31,17 +31,27 @@ body {
     width: 100%;
     height: 100%;
     border-radius: 1.5rem;
-
     background-color: #f8faf9;
-
-    box-shadow:
-        0 12px 28px -8px rgba(15, 23, 42, 0.22);
-
+    box-shadow: 0 12px 28px -8px rgba(15, 23, 42, 0.22);
     overflow: hidden;
     transform-origin: 50% 100%;
     will-change: transform;
     transition: transform 0.3s ease-out;
+
+    /* Mobile */
     touch-action: none;
+}
+
+/* Desktop */
+@media (min-width: 768px) {
+    .swipe-card {
+        cursor: grab;
+        user-select: none;
+    }
+
+    .swipe-card:active {
+        cursor: grabbing;
+    }
 }
 
 input,
@@ -180,4 +190,357 @@ textarea:focus {
 #filter-icon,
 nav button {
     touch-action: manipulation;
+}
+/* =========================================================
+   RESPONSIVIDADE — ADOTA AÍ
+   Mobile continua sendo o padrão.
+   ========================================================= */
+
+
+/* TABLETS E DESKTOPS */
+@media (min-width: 768px) {
+
+    body {
+        position: static !important;
+        min-height: 100vh;
+        height: auto !important;
+        padding: 24px;
+        overflow: auto;
+    }
+
+
+    /* =====================================================
+       APP DO ADOTANTE
+       ===================================================== */
+
+    #app {
+        width: min(100%, 1000px) !important;
+        max-width: 1000px !important;
+        height: min(92vh, 900px) !important;
+
+        margin: auto;
+
+        border-radius: 28px;
+        border: 1px solid #d5dcda;
+
+        box-shadow:
+            0 24px 60px -20px rgba(15, 23, 42, 0.25);
+    }
+
+
+    /* Conteúdo principal */
+
+    #view-swipe {
+        padding-left: 32px;
+        padding-right: 32px;
+    }
+
+
+    /* Filtros */
+
+    #view-swipe > div:first-child {
+        width: 100%;
+        max-width: 650px;
+        margin-left: auto;
+        margin-right: auto;
+    }
+
+    #filter-menu {
+        left: 50% !important;
+        right: auto !important;
+
+        width: min(600px, calc(100% - 48px));
+
+        transform: translateX(-50%);
+    }
+
+
+    /* Área dos cards */
+
+    #cards-container {
+        width: 100%;
+        max-width: 520px;
+        margin-left: auto;
+        margin-right: auto;
+    }
+
+
+    /* Matches */
+
+    #view-liked > div {
+        max-width: 900px;
+        margin: 0 auto;
+    }
+
+    #liked-grid {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 20px;
+    }
+
+
+    /* Configurações */
+
+    #view-settings-tab > div {
+        max-width: 760px;
+        margin: 0 auto;
+    }
+
+
+    /* =====================================================
+       QUESTIONÁRIO
+       ===================================================== */
+
+    #view-profile {
+        background: #e8edf0 !important;
+        padding: 24px;
+    }
+
+
+    /* Cabeçalho */
+
+    #view-profile > div:first-child {
+        width: min(100%, 1000px);
+
+        margin: 0 auto;
+
+        padding: 24px 32px;
+
+        border-radius: 24px 24px 0 0;
+
+        background: #f8faf9;
+    }
+
+
+    /* Área das perguntas */
+
+    #view-profile > div:nth-child(2) {
+        width: min(100%, 1000px);
+
+        margin: 0 auto;
+
+        padding: 32px 40px 150px;
+
+        background: #f8faf9;
+
+        border-radius: 0 0 24px 24px;
+
+        box-shadow:
+            0 20px 50px -25px rgba(15, 23, 42, 0.25);
+    }
+
+
+    /* Cada seção do questionário vira um bloco */
+
+    #view-profile > div:nth-child(2) > .space-y-6 {
+        background: white;
+
+        border: 1px solid #dfe5e3;
+        border-radius: 20px;
+
+        padding: 28px;
+
+        box-shadow:
+            0 6px 20px -14px rgba(15, 23, 42, 0.20);
+    }
+
+
+    /* Espaçamento entre seções */
+
+    #view-profile > div:nth-child(2) {
+        display: flex;
+        flex-direction: column;
+        gap: 28px;
+    }
+
+
+    /* Cards de espécie */
+
+    #view-profile input[name="p-species"] + div,
+    #view-profile input[name="p-housing"] + div {
+        height: 115px;
+    }
+
+
+    /* Porte */
+
+    #view-profile input[name="p-size"] + div {
+        min-height: 52px;
+    }
+
+
+    /* Selects maiores no desktop */
+
+    #view-profile select {
+        min-height: 48px;
+        font-size: 0.95rem;
+    }
+
+
+    /* =====================================================
+       BOTÃO FINAL DO QUESTIONÁRIO
+       ===================================================== */
+
+    #view-profile > div:last-child {
+        width: 100%;
+        max-width: 1000px;
+
+        left: 50% !important;
+        transform: translateX(-50%);
+
+        padding: 24px 40px;
+
+        background:
+            linear-gradient(
+                to top,
+                #f8faf9 70%,
+                rgba(248, 250, 249, 0)
+            );
+    }
+
+    #view-profile > div:last-child button {
+        max-width: 420px;
+        margin: 0 auto;
+    }
+
+
+    /* =====================================================
+       PAINEL ADMINISTRATIVO
+       ===================================================== */
+
+    #view-admin {
+        width: min(96vw, 1400px) !important;
+        max-width: 1400px !important;
+
+        height: min(92vh, 950px) !important;
+
+        margin: auto;
+
+        border-radius: 28px;
+
+        border: 1px solid #d5dcda;
+
+        box-shadow:
+            0 24px 60px -20px rgba(15, 23, 42, 0.25);
+    }
+
+
+    /* Cabeçalho admin */
+
+    #view-admin header {
+        padding: 20px 28px;
+    }
+
+
+    /* Conteúdo */
+
+    #admin-tab-pets,
+    #admin-tab-interests {
+        padding: 24px 28px;
+    }
+
+
+    /* GRID DE ANIMAIS */
+
+    #admin-pets-grid {
+        grid-template-columns:
+            repeat(3, minmax(0, 1fr));
+
+        gap: 20px;
+    }
+
+
+    /* Lista de interessados */
+
+    #admin-interests-list {
+        max-width: 1000px;
+        margin: 0 auto;
+    }
+
+
+    /* =====================================================
+       MODAIS
+       ===================================================== */
+
+    #pet-modal > div {
+        max-width: 700px !important;
+    }
+
+}
+
+
+/* =========================================================
+   DESKTOP GRANDE
+   ========================================================= */
+
+@media (min-width: 1100px) {
+
+    /* 4 animais por linha */
+
+    #admin-pets-grid {
+        grid-template-columns:
+            repeat(4, minmax(0, 1fr));
+    }
+
+
+    /* Matches também aproveitam melhor o espaço */
+
+    #liked-grid {
+        grid-template-columns:
+            repeat(4, minmax(0, 1fr));
+    }
+
+
+    /* Questionário */
+
+    #view-profile > div:nth-child(2) {
+        padding-left: 48px;
+        padding-right: 48px;
+    }
+
+}
+
+
+/* =========================================================
+   TELAS MUITO GRANDES
+   ========================================================= */
+
+@media (min-width: 1440px) {
+
+    #view-admin {
+        max-width: 1500px !important;
+    }
+
+}
+
+
+/* =========================================================
+   MOBILE PEQUENO
+   ========================================================= */
+
+@media (max-width: 480px) {
+
+    #view-profile {
+        padding: 0;
+    }
+
+    #view-profile > div:nth-child(2) {
+        padding-left: 16px;
+        padding-right: 16px;
+    }
+
+
+    /* Evita campos apertados */
+
+    #view-profile .grid-cols-2 {
+        gap: 10px;
+    }
+
+
+    /* Cards de espécie */
+
+    #view-profile input[name="p-species"] + div,
+    #view-profile input[name="p-housing"] + div {
+        min-height: 88px;
+    }
+
 }

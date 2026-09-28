@@ -1,4 +1,5 @@
 // Dados Base Iniciais
+console.log("APP.JS NOVO CARREGADO");
 document.addEventListener('keydown', function (event) {
     if (event.ctrlKey && event.shiftKey && event.key.toLowerCase() === 'l') {
         event.preventDefault();
@@ -45,6 +46,7 @@ const initialDogs = [
     { id: 30, name: "Rex", sex: "Macho", age: "5 anos", breed: "Sem Raça Definida", city: "Tatuí", species: "cão", size: "grande", medical: "Castrado e vacinado", castrated: true, specialNeed: false, singlePet: false, purpose: "guarda e companhia", img: "https://i0.wp.com/petcaramelo.com/wp-content/uploads/2019/02/cachorros-grandes-e-doceis.jpg?fit=645%2C380&ssl=1", desc: "Calmo e obediente, ótimo para guarda e companhia.", past: "Ex-cão de firma que faliu. Ficou para trás no terreno e foi resgatado pela equipe voluntária." }
 ];
 // Force a atualização dos dados de teste:
+let currentUser = JSON.parse(localStorage.getItem('currentUser')) || null;  
 localStorage.setItem('dbDogs', JSON.stringify(initialDogs));
 let dbDogs = JSON.parse(localStorage.getItem('dbDogs')) || initialDogs;
 let users = JSON.parse(localStorage.getItem("users")) || [];
@@ -54,11 +56,11 @@ let adoptionInterests = JSON.parse(localStorage.getItem('adoptionInterests')) ||
     { petId: 1, petName: "Caramelo", userEmail: "joao.adotante@gmail.com", date: "28/08/2026" }
 ];
 
-let currentUser = JSON.parse(localStorage.getItem('currentUser')) || null;
 let currentModalPetId = null;
 
 let dogsList = [];
 let isDragging = false;
+let hasDragged = false;
 let startX = 0, startY = 0, currentX = 0, currentY = 0;
 let topCard = null;
 
@@ -334,7 +336,7 @@ function renderAdminPets() {
         const card = document.createElement('div');
         card.className = "bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden relative flex flex-col cursor-pointer group hover:shadow-md transition-shadow";
         card.innerHTML = `
-            <div class="relative h-32 w-full bg-gray-100" onclick="openModal(${pet.id})">
+            <div class="relative h-32 md:h-44 lg:h-48 w-full bg-gray-100" onclick="openModal(${pet.id})">
                 <img src="${pet.img}" class="w-full h-full object-cover">
                 <div class="absolute top-2 right-2 flex gap-1">
                     <button onclick="event.stopPropagation(); openPetFormModal(${pet.id})" 
@@ -342,17 +344,17 @@ function renderAdminPets() {
                         <i class="ph-bold ph-pencil-simple text-sm"></i>
                     </button>
                     <button onclick="event.stopPropagation(); deletePet(${pet.id})" 
-                        class="bg-white/90 text-red-500 hover:text-red-700 rounded-full w-7 h-7 flex items-center justify-center shadow backdrop-blur-sm transition-colors" title="Excluir Pet">
+                        class="bg-white/90 text-gray-700 hover:text-teal-600 rounded-full w-8 h-8 lg:w-9 lg:h-9 flex items-center justify-center shadow backdrop-blur-sm transition-colors" title="Excluir Pet">
                         <i class="ph-bold ph-trash text-sm"></i>
                     </button>
                 </div>
             </div>
-            <div class="p-2.5 flex flex-col justify-between flex-1" onclick="openModal(${pet.id})">
+            <div class="p-2.5 md:p-4 flex flex-col justify-between flex-1" onclick="openModal(${pet.id})">
                 <div class="flex items-center justify-between">
-                    <h3 class="font-bold text-gray-800 text-xs truncate max-w-[80px]">${pet.name}</h3>
+                    <h3 class="font-bold text-gray-800 text-xs md:text-base truncate max-w-[80px] md:max-w-[160px]">${pet.name}</h3>
                     <span class="text-xs flex items-center gap-0.5 font-semibold text-gray-600">${sexIcon} ${pet.sex || 'Macho'}</span>
                 </div>
-                <p class="text-[10px] text-gray-500 truncate mt-0.5">${pet.breed} • ${pet.age}</p>
+                <p class="text-[10px] md:text-sm text-gray-500 truncate mt-1">${pet.breed} • ${pet.age}</p>
             </div>
         `;
         grid.appendChild(card);
@@ -650,6 +652,7 @@ function renderCards() {
 
 function setupDragEvents() {
     const cards = document.querySelectorAll('.swipe-card');
+
     if (cards.length === 0) return;
 
     topCard = cards[cards.length - 1];
@@ -659,25 +662,55 @@ function setupDragEvents() {
     topCard.addEventListener('pointerup', handleDragEnd);
     topCard.addEventListener('pointercancel', handleDragEnd);
 
-    topCard.addEventListener('click', (e) => {
-        if (Math.abs(currentX) < 10 && Math.abs(currentY) < 10) {
-            const id = parseInt(topCard.dataset.id);
-            openModal(id);
+    // Segurança extra caso o ponteiro seja perdido
+    topCard.addEventListener('lostpointercapture', () => {
+        if (isDragging) {
+            handleDragEnd();
         }
+    });
+
+    topCard.addEventListener('click', (e) => {
+        if (hasDragged) {
+            e.preventDefault();
+            e.stopPropagation();
+
+            hasDragged = false;
+            return;
+        }
+
+        const id = parseInt(topCard.dataset.id);
+        openModal(id);
     });
 }
 
 function handleDragStart(e) {
+    if (!topCard) return;
+
+    if (e.pointerType === 'mouse' && e.button !== 0) {
+        return;
+    }
+
     isDragging = true;
+    hasDragged = false;
+
     startX = e.clientX;
     startY = e.clientY;
+
+    currentX = 0;
+    currentY = 0;
+
     topCard.style.transition = 'none';
+
+    topCard.setPointerCapture(e.pointerId);
 }
 
 function handleDragMove(e) {
     if (!isDragging) return;
     currentX = e.clientX - startX;
     currentY = e.clientY - startY;
+    if (Math.abs(currentX) > 10 || Math.abs(currentY) > 10) {
+        hasDragged = true;
+    }
 
     const rotate = currentX * 0.05;
     topCard.style.transform = `translate(${currentX}px, ${currentY}px) rotate(${rotate}deg)`;
@@ -697,20 +730,43 @@ function handleDragMove(e) {
     }
 }
 
-function handleDragEnd() {
+function handleDragEnd(e) {
     if (!isDragging) return;
+
     isDragging = false;
+
+    // Libera o mouse
+    if (
+        e &&
+        e.pointerId !== undefined &&
+        topCard &&
+        topCard.hasPointerCapture?.(e.pointerId)
+    ) {
+        topCard.releasePointerCapture(e.pointerId);
+    }
+
+    if (!topCard) return;
 
     topCard.style.transition = 'transform 0.3s ease-out';
 
     if (currentX > 100) {
+
         swipeCard('right');
+
     } else if (currentX < -100) {
+
         swipeCard('left');
+
     } else {
-        topCard.style.transform = 'translate(0px, 0px) rotate(0deg)';
+
+        topCard.style.transform =
+            'translate(0px, 0px) rotate(0deg)';
+
         const stamps = topCard.querySelectorAll('.stamp');
-        stamps.forEach(s => s.style.opacity = 0);
+
+        stamps.forEach(s => {
+            s.style.opacity = 0;
+        });
     }
 
     currentX = 0;
