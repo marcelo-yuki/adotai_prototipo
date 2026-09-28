@@ -46,12 +46,12 @@ const initialDogs = [
     { id: 30, name: "Rex", sex: "Macho", age: "5 anos", breed: "Sem Raça Definida", city: "Tatuí", species: "cão", size: "grande", medical: "Castrado e vacinado", castrated: true, specialNeed: false, singlePet: false, purpose: "guarda e companhia", img: "https://i0.wp.com/petcaramelo.com/wp-content/uploads/2019/02/cachorros-grandes-e-doceis.jpg?fit=645%2C380&ssl=1", desc: "Calmo e obediente, ótimo para guarda e companhia.", past: "Ex-cão de firma que faliu. Ficou para trás no terreno e foi resgatado pela equipe voluntária." }
 ];
 // Force a atualização dos dados de teste:
-let currentUser = JSON.parse(localStorage.getItem('currentUser')) || null;  
+let currentUser = JSON.parse(localStorage.getItem('currentUser')) || null;
 localStorage.setItem('dbDogs', JSON.stringify(initialDogs));
 let dbDogs = JSON.parse(localStorage.getItem('dbDogs')) || initialDogs;
 let users = JSON.parse(localStorage.getItem("users")) || [];
 let userProfile = JSON.parse(localStorage.getItem('profile')) || null;
-let likedDogs = JSON.parse(localStorage.getItem('likedDogs')) || [];
+let likedDogs = [];
 let adoptionInterests = JSON.parse(localStorage.getItem('adoptionInterests')) || [
     { petId: 1, petName: "Caramelo", userEmail: "joao.adotante@gmail.com", date: "28/08/2026" }
 ];
@@ -64,11 +64,31 @@ let hasDragged = false;
 let startX = 0, startY = 0, currentX = 0, currentY = 0;
 let topCard = null;
 
+function getLikedDogsKey() {
+    if (!currentUser || !currentUser.email) return null;
+
+    return `likedDogs_${currentUser.email}`;
+}
+
+function loadLikedDogs() {
+    const key = getLikedDogsKey();
+
+    if (!key) {
+        likedDogs = [];
+        return;
+    }
+
+    likedDogs = JSON.parse(localStorage.getItem(key)) || [];
+}
 function saveStorage() {
     localStorage.setItem('dbDogs', JSON.stringify(dbDogs));
     localStorage.setItem('users', JSON.stringify(users));
     localStorage.setItem('profile', JSON.stringify(userProfile));
-    localStorage.setItem('likedDogs', JSON.stringify(likedDogs));
+    const likedDogsKey = getLikedDogsKey();
+
+    if (likedDogsKey) {
+        localStorage.setItem(likedDogsKey, JSON.stringify(likedDogs));
+    }
     localStorage.setItem('adoptionInterests', JSON.stringify(adoptionInterests));
     if (currentUser) {
         localStorage.setItem('currentUser', JSON.stringify(currentUser));
@@ -211,6 +231,8 @@ function login() {
     // Mantém email, telefone, senha e role do usuário
     currentUser = user;
 
+    loadLikedDogs();
+
     saveStorage();
 
     document.getElementById('profile-user-email').innerText = currentUser.email;
@@ -262,6 +284,9 @@ function register() {
 
     // Login automático
     currentUser = newUser;
+
+    likedDogs = [];
+
     saveStorage();
 
     alert("Conta criada com sucesso! Complete seu perfil a seguir.");
@@ -274,6 +299,7 @@ function register() {
 
 function logout() {
     // Remove somente a sessão atual
+    likedDogs = [];
     currentUser = null;
     localStorage.removeItem('currentUser');
 
