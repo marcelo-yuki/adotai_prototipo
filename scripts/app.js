@@ -57,6 +57,10 @@ let adoptionInterests = JSON.parse(localStorage.getItem('adoptionInterests')) ||
 ];
 
 let currentModalPetId = null;
+let chatMessages =
+    JSON.parse(localStorage.getItem('chatMessages')) || [];
+
+let currentChatInterestId = null;
 
 let dogsList = [];
 let isDragging = false;
@@ -81,19 +85,76 @@ function loadLikedDogs() {
     likedDogs = JSON.parse(localStorage.getItem(key)) || [];
 }
 function saveStorage() {
-    localStorage.setItem('dbDogs', JSON.stringify(dbDogs));
-    localStorage.setItem('users', JSON.stringify(users));
-    localStorage.setItem('profile', JSON.stringify(userProfile));
+
+    localStorage.setItem(
+        'dbDogs',
+        JSON.stringify(dbDogs)
+    );
+
+    localStorage.setItem(
+        'users',
+        JSON.stringify(users)
+    );
+
+    localStorage.setItem(
+        'profile',
+        JSON.stringify(userProfile)
+    );
+
+    localStorage.setItem(
+        'adoptionInterests',
+        JSON.stringify(adoptionInterests)
+    );
+
+    localStorage.setItem(
+        'chatMessages',
+        JSON.stringify(chatMessages)
+    );
+
     const likedDogsKey = getLikedDogsKey();
 
     if (likedDogsKey) {
-        localStorage.setItem(likedDogsKey, JSON.stringify(likedDogs));
+        localStorage.setItem(
+            likedDogsKey,
+            JSON.stringify(likedDogs)
+        );
     }
-    localStorage.setItem('adoptionInterests', JSON.stringify(adoptionInterests));
+
     if (currentUser) {
-        localStorage.setItem('currentUser', JSON.stringify(currentUser));
+        localStorage.setItem(
+            'currentUser',
+            JSON.stringify(currentUser)
+        );
     }
+
 }
+function ensureInterestIds() {
+
+    let changed = false;
+
+    adoptionInterests.forEach((interest, index) => {
+
+        if (!interest.id) {
+
+            interest.id =
+                Date.now() +
+                index +
+                Math.floor(Math.random() * 1000);
+
+            changed = true;
+        }
+
+    });
+
+    if (changed) {
+        localStorage.setItem(
+            'adoptionInterests',
+            JSON.stringify(adoptionInterests)
+        );
+    }
+
+}
+ensureInterestIds();
 function calculateAgeString(birthdateStr) {
     if (!birthdateStr) return "Idade não informada";
 
@@ -405,20 +466,71 @@ function renderAdminInterests() {
         const card = document.createElement('div');
         card.className = "bg-white p-3.5 rounded-2xl border border-gray-100 shadow-sm flex flex-col gap-2 text-xs";
         card.innerHTML = `
-            <div class="flex items-center justify-between">
-                <span class="bg-teal-100 text-teal-800 font-bold px-2 py-0.5 rounded-md text-[10px]">Pet: ${item.petName}</span>
-                <div class="flex items-center gap-2">
-                    <span class="text-[10px] text-gray-500">${item.date || 'Hoje'}</span>
-                    <button onclick="removeInterest(${index})" class="text-red-400 hover:text-red-600 p-1" title="Remover">
-                        <i class="ph-bold ph-trash text-base"></i>
-                    </button>
-                </div>
-            </div>
-            <div class="space-y-1 text-gray-700">
-                <p class="font-bold text-gray-900"><i class="ph-fill ph-envelope mr-1 text-gray-500"></i>${item.userEmail}</p>
-                <p><i class="ph-fill ph-phone mr-1 text-gray-500"></i><strong>Tel:</strong> ${item.phone || 'Não informado'}</p>
-            </div>
-        `;
+
+    <div class="flex items-center justify-between">
+
+        <span class="bg-teal-100 text-teal-800 font-bold px-2 py-0.5 rounded-md text-[10px]">
+            Pet: ${item.petName}
+        </span>
+
+        <div class="flex items-center gap-2">
+
+            <span class="text-[10px] text-gray-500">
+                ${item.date || 'Hoje'}
+            </span>
+
+            <button
+                onclick="removeInterest(${index})"
+                class="text-red-400 hover:text-red-600 p-1"
+                title="Remover">
+
+                <i class="ph-bold ph-trash text-base"></i>
+
+            </button>
+
+        </div>
+
+    </div>
+
+
+    <div class="space-y-1 text-gray-700">
+
+        <p class="font-bold text-gray-900">
+
+            <i class="ph-fill ph-envelope mr-1 text-gray-500"></i>
+
+            ${item.userEmail}
+
+        </p>
+
+        <p>
+
+            <i class="ph-fill ph-phone mr-1 text-gray-500"></i>
+
+            <strong>Tel:</strong>
+
+            ${item.phone || 'Não informado'}
+
+        </p>
+
+    </div>
+
+
+    <div class="pt-2 border-t border-gray-100">
+
+        <button
+            onclick="openChat(${item.id})"
+            class="w-full bg-teal-600 hover:bg-teal-700 text-white font-bold py-2.5 rounded-xl transition-colors flex items-center justify-center gap-2">
+
+            <i class="ph-bold ph-chat-circle-dots text-base"></i>
+
+            Conversar com adotante
+
+        </button>
+
+    </div>
+
+`;
         list.appendChild(card);
     });
 }
@@ -623,6 +735,7 @@ function initApp() {
 
     updateLikedView();
     updateBadge();
+    renderUserInterests();
     renderCards();
 }
 
@@ -851,14 +964,54 @@ function resetApp() {
 
 // --- NAVEGAÇÃO ENTRE ABAS DO USUÁRIO ---
 function switchTab(tab) {
-    ['swipe', 'liked', 'settings'].forEach(t => {
-        const view = document.getElementById(`view-${t === 'settings' ? 'settings-tab' : t}`);
-        const navBtn = document.getElementById(`nav-tab-${t}`);
-        if (view) view.classList.toggle('hidden', t !== tab);
-        if (navBtn) navBtn.className = t === tab
-            ? 'flex flex-col items-center justify-center text-teal-600 flex-1 h-full transition-all'
-            : 'flex flex-col items-center justify-center text-gray-400 flex-1 h-full transition-all relative';
+
+    const tabs = [
+        'swipe',
+        'liked',
+        'interests',
+        'settings'
+    ];
+
+    tabs.forEach(t => {
+
+        const viewId =
+            t === 'settings'
+                ? 'view-settings-tab'
+                : `view-${t}`;
+
+        const view =
+            document.getElementById(viewId);
+
+        const navBtn =
+            document.getElementById(
+                `nav-tab-${t}`
+            );
+
+        if (view) {
+            view.classList.toggle(
+                'hidden',
+                t !== tab
+            );
+        }
+
+        if (navBtn) {
+
+            navBtn.className =
+                t === tab
+
+                    ? 'flex flex-col items-center justify-center text-teal-600 flex-1 h-full transition-all relative'
+
+                    : 'flex flex-col items-center justify-center text-gray-400 flex-1 h-full transition-all relative';
+
+        }
+
     });
+
+
+    if (tab === 'interests') {
+        renderUserInterests();
+    }
+
 }
 
 function updateLikedView() {
@@ -890,6 +1043,579 @@ function updateLikedView() {
                 `;
         grid.appendChild(card);
     });
+}
+function renderUserInterests() {
+
+    const list =
+        document.getElementById(
+            'user-interests-list'
+        );
+
+    const empty =
+        document.getElementById(
+            'no-interests'
+        );
+
+    const badge =
+        document.getElementById(
+            'interest-badge'
+        );
+
+    if (!list || !currentUser) return;
+
+
+    const userInterests =
+        adoptionInterests.filter(
+            interest =>
+                interest.userEmail ===
+                currentUser.email
+        );
+
+
+    list.innerHTML = '';
+
+
+    if (badge) {
+
+        if (userInterests.length > 0) {
+
+            badge.innerText =
+                userInterests.length;
+
+            badge.classList.remove(
+                'hidden'
+            );
+
+            badge.classList.add(
+                'flex'
+            );
+
+        } else {
+
+            badge.classList.add(
+                'hidden'
+            );
+
+            badge.classList.remove(
+                'flex'
+            );
+
+        }
+
+    }
+
+
+    if (userInterests.length === 0) {
+
+        empty.classList.remove(
+            'hidden'
+        );
+
+        return;
+
+    }
+
+
+    empty.classList.add(
+        'hidden'
+    );
+
+
+    userInterests.forEach(
+        interest => {
+
+            const pet =
+                dbDogs.find(
+                    p =>
+                        p.id ===
+                        interest.petId
+                );
+
+
+            const image =
+                pet?.img || '';
+
+
+            const breed =
+                pet?.breed ||
+                'Animal para adoção';
+
+
+            const city =
+                pet?.city || '';
+
+
+            const messageCount =
+                chatMessages.filter(
+                    message =>
+                        message.interestId ===
+                        interest.id
+                ).length;
+
+
+            const card =
+                document.createElement(
+                    'div'
+                );
+
+
+            card.className =
+                'interest-card bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden';
+
+
+            card.innerHTML = `
+
+                <div class="flex p-3 gap-3">
+
+                    <img
+                        src="${image}"
+                        alt="${interest.petName}"
+                        class="w-24 h-24 rounded-xl object-cover bg-gray-100 shrink-0">
+
+                    <div class="flex-1 min-w-0">
+
+                        <div class="flex items-start justify-between gap-2">
+
+                            <div>
+
+                                <h3 class="font-bold text-gray-800 text-base">
+                                    ${interest.petName}
+                                </h3>
+
+                                <p class="text-xs text-gray-500 mt-0.5">
+                                    ${breed}
+                                </p>
+
+                            </div>
+
+                            <span
+                                class="bg-teal-50 text-teal-700 text-[10px] font-bold px-2 py-1 rounded-full whitespace-nowrap">
+
+                                ${interest.status || 'Em análise'}
+
+                            </span>
+
+                        </div>
+
+                        ${city
+                    ? `
+                                    <p class="text-xs text-gray-400 mt-2">
+                                        <i class="ph-fill ph-map-pin"></i>
+                                        ${city}
+                                    </p>
+                                `
+                    : ''
+                }
+
+                        <p class="text-[10px] text-gray-400 mt-1">
+                            Interesse enviado em ${interest.date || ''}
+                        </p>
+
+                    </div>
+
+                </div>
+
+
+                <div
+                    class="px-3 pb-3 flex gap-2">
+
+                    <button
+                        onclick="openModal(${interest.petId})"
+                        class="flex-1 py-2.5 rounded-xl bg-gray-100 hover:bg-gray-200 text-gray-700 text-xs font-bold transition-colors">
+
+                        <i class="ph-bold ph-paw-print mr-1"></i>
+
+                        Ver animal
+
+                    </button>
+
+
+                    <button
+                        onclick="openChat(${interest.id})"
+                        class="flex-1 py-2.5 rounded-xl bg-teal-600 hover:bg-teal-700 text-white text-xs font-bold transition-colors relative">
+
+                        <i class="ph-bold ph-chat-circle-dots mr-1"></i>
+
+                        Conversar
+
+                        ${messageCount > 0
+                    ? `
+                                    <span class="ml-1 bg-white/20 px-1.5 py-0.5 rounded-full">
+                                        ${messageCount}
+                                    </span>
+                                `
+                    : ''
+                }
+
+                    </button>
+
+                </div>
+
+            `;
+
+
+            list.appendChild(card);
+
+        }
+    );
+
+}
+function openChat(interestId) {
+
+    const interest =
+        adoptionInterests.find(
+            item =>
+                item.id === interestId
+        );
+
+
+    if (!interest) {
+        alert(
+            'Interesse não encontrado.'
+        );
+        return;
+    }
+
+
+    currentChatInterestId =
+        interestId;
+
+
+    const pet =
+        dbDogs.find(
+            p =>
+                p.id === interest.petId
+        );
+
+
+    document.getElementById(
+        'chat-title'
+    ).innerText =
+        interest.petName;
+
+
+    document.getElementById(
+        'chat-pet-image'
+    ).src =
+        pet?.img || '';
+
+
+    const subtitle =
+        document.getElementById(
+            'chat-subtitle'
+        );
+
+
+    if (
+        currentUser &&
+        currentUser.role === 'admin'
+    ) {
+
+        subtitle.innerText =
+            interest.userEmail;
+
+    } else {
+
+        subtitle.innerText =
+            'Conversa com a ONG';
+
+    }
+
+
+    document.getElementById(
+        'chat-interest-info'
+    ).innerHTML = `
+
+        <i class="ph-fill ph-heart mr-1"></i>
+
+        Interesse em
+        <strong>${interest.petName}</strong>
+
+        • ${interest.date || ''}
+
+    `;
+
+
+    renderChatMessages();
+
+
+    const modal =
+        document.getElementById(
+            'chat-modal'
+        );
+
+
+    modal.classList.remove(
+        'hidden'
+    );
+
+    modal.classList.add(
+        'flex'
+    );
+
+
+    setTimeout(() => {
+
+        document.getElementById(
+            'chat-input'
+        ).focus();
+
+    }, 100);
+
+}
+function closeChat() {
+
+    const modal =
+        document.getElementById(
+            'chat-modal'
+        );
+
+
+    modal.classList.add(
+        'hidden'
+    );
+
+    modal.classList.remove(
+        'flex'
+    );
+
+
+    currentChatInterestId =
+        null;
+
+
+    document.getElementById(
+        'chat-input'
+    ).value = '';
+
+}
+function renderChatMessages() {
+
+    const container =
+        document.getElementById(
+            'chat-messages'
+        );
+
+
+    if (!container) return;
+
+
+    container.innerHTML = '';
+
+
+    const messages =
+        chatMessages
+            .filter(
+                message =>
+                    message.interestId ===
+                    currentChatInterestId
+            )
+            .sort(
+                (a, b) =>
+                    a.timestamp -
+                    b.timestamp
+            );
+
+
+    if (messages.length === 0) {
+
+        container.innerHTML = `
+
+            <div class="text-center py-12">
+
+                <div
+                    class="w-14 h-14 bg-teal-50 rounded-full flex items-center justify-center mx-auto mb-3">
+
+                    <i
+                        class="ph-fill ph-chat-circle-dots text-2xl text-teal-500">
+                    </i>
+
+                </div>
+
+                <p class="text-sm font-semibold text-gray-600">
+                    Inicie uma conversa
+                </p>
+
+                <p class="text-xs text-gray-400 mt-1">
+                    Envie uma mensagem sobre o processo de adoção.
+                </p>
+
+            </div>
+
+        `;
+
+        return;
+
+    }
+
+
+    messages.forEach(
+        message => {
+
+            const mine =
+                message.sender ===
+                currentUser.email;
+
+
+            const wrapper =
+                document.createElement(
+                    'div'
+                );
+
+
+            wrapper.className =
+                `chat-message ${mine
+                    ? 'mine'
+                    : 'other'
+                }`;
+
+
+            wrapper.innerHTML = `
+
+                <div class="chat-bubble">
+
+                    ${!mine
+                    ? `
+                                <div class="text-[10px] font-bold mb-1 opacity-70">
+                                    ${message.senderRole === 'admin'
+                        ? 'ONG'
+                        : message.sender
+                    }
+                                </div>
+                            `
+                    : ''
+                }
+
+                    <div>
+                        ${escapeHTML(message.message)}
+                    </div>
+
+                    <span class="chat-time">
+                        ${message.time}
+                    </span>
+
+                </div>
+
+            `;
+
+
+            container.appendChild(
+                wrapper
+            );
+
+        }
+    );
+
+
+    container.scrollTop =
+        container.scrollHeight;
+
+}
+function escapeHTML(text) {
+
+    const div =
+        document.createElement('div');
+
+    div.textContent = text;
+
+    return div.innerHTML;
+
+} function sendChatMessage(event) {
+
+    event.preventDefault();
+
+
+    const input =
+        document.getElementById(
+            'chat-input'
+        );
+
+
+    const text =
+        input.value.trim();
+
+
+    if (
+        !text ||
+        !currentChatInterestId ||
+        !currentUser
+    ) {
+        return;
+    }
+
+
+    const now =
+        new Date();
+
+
+    const message = {
+
+        id:
+            Date.now() +
+            Math.floor(
+                Math.random() * 1000
+            ),
+
+        interestId:
+            currentChatInterestId,
+
+        sender:
+            currentUser.email,
+
+        senderRole:
+            currentUser.role === 'admin'
+                ? 'admin'
+                : 'user',
+
+        message:
+            text,
+
+        timestamp:
+            now.getTime(),
+
+        date:
+            now.toLocaleDateString(
+                'pt-BR'
+            ),
+
+        time:
+            now.toLocaleTimeString(
+                'pt-BR',
+                {
+                    hour: '2-digit',
+                    minute: '2-digit'
+                }
+            )
+
+    };
+
+
+    chatMessages.push(
+        message
+    );
+
+
+    saveStorage();
+
+
+    input.value = '';
+
+
+    renderChatMessages();
+
+
+    if (
+        currentUser.role === 'admin'
+    ) {
+
+        renderAdminInterests();
+
+    } else {
+
+        renderUserInterests();
+
+    }
+
 }
 
 function updateBadge() {
@@ -998,17 +1724,32 @@ function fakeAdoptionAction() {
     }
 
     const newInterest = {
-        petId: pet.id,
-        petName: pet.name,
-        userEmail: email,
-        phone: phone,
-        housing: userProfile?.housing || "Não informado",
-        date: today
-    };
 
+        id:
+            Date.now() +
+            Math.floor(Math.random() * 1000),
+
+        petId: pet.id,
+
+        petName: pet.name,
+
+        userEmail: email,
+
+        phone: phone,
+
+        housing:
+            userProfile?.housing ||
+            "Não informado",
+
+        date: today,
+
+        status: "Em análise"
+
+    };
     adoptionInterests.unshift(newInterest);
 
     saveStorage();
+    renderUserInterests();
 
     alert(
         `Interesse registrado com sucesso!\n\n` +
