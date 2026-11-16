@@ -3,8 +3,7 @@
 
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport"
-      content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Adota Aí - Encontre seu novo melhor amigo</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/@phosphor-icons/web"></script>
@@ -61,13 +60,12 @@
         </div>
     </div>
 
-    <div id="view-admin"
-    class="hidden relative w-full md:max-w-6xl xl:max-w-[1400px]
+    <div id="view-admin" class="hidden relative w-full md:max-w-6xl xl:max-w-[1400px]
     h-[100dvh] md:h-[92vh]
     md:rounded-3xl bg-white shadow-2xl
     flex flex-col overflow-hidden
     md:border md:border-gray-200">
-            <header
+        <header
             class="flex justify-between items-center px-5 py-4 border-b border-gray-100 bg-white z-20 flex-shrink-0">
             <div class="flex items-center gap-2 text-teal-600 font-bold text-lg">
                 <i class="ph-fill ph-shield-check text-2xl"></i>
@@ -100,9 +98,7 @@
                 </button>
             </div>
 
-            <div id="admin-pets-grid"
-            class="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-3 md:gap-5 pb-6">
-            </div>  
+            <div id="admin-pets-grid" class="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-3 md:gap-5 pb-6">
             </div>
         </main>
 
@@ -163,58 +159,43 @@
                 </div>
 
                 <div>
-                    <label class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-3 block">Porte do
-                        Pet</label>
-                    <div class="grid grid-cols-4 gap-2">
-                        <label class="cursor-pointer">
-                            <input type="radio" name="p-size" value="" class="peer hidden" checked>
-                            <div
-                                class="p-3 border-2 border-gray-100 rounded-xl flex justify-center items-center peer-checked:border-teal-600 peer-checked:bg-teal-50 peer-checked:text-teal-700 text-gray-400 transition-all text-xs font-bold">
-                                Todos</div>
-                        </label>
-                        <label class="cursor-pointer">
-                            <input type="radio" name="p-size" value="pequeno" class="peer hidden">
-                            <div
-                                class="p-3 border-2 border-gray-100 rounded-xl flex justify-center items-center peer-checked:border-teal-600 peer-checked:bg-teal-50 peer-checked:text-teal-700 text-gray-400 transition-all text-xs font-bold">
-                                Pequeno</div>
-                        </label>
-                        <label class="cursor-pointer">
-                            <input type="radio" name="p-size" value="médio" class="peer hidden">
-                            <div
-                                class="p-3 border-2 border-gray-100 rounded-xl flex justify-center items-center peer-checked:border-teal-600 peer-checked:bg-teal-50 peer-checked:text-teal-700 text-gray-400 transition-all text-xs font-bold">
-                                Médio</div>
-                        </label>
-                        <label class="cursor-pointer">
-                            <input type="radio" name="p-size" value="grande" class="peer hidden">
-                            <div
-                                class="p-3 border-2 border-gray-100 rounded-xl flex justify-center items-center peer-checked:border-teal-600 peer-checked:bg-teal-50 peer-checked:text-teal-700 text-gray-400 transition-all text-xs font-bold">
-                                Grande</div>
-                        </label>
+
+                    <div class="grid grid-cols-2 gap-3 mb-4">
+
+                        <!-- Porte do pet -->
+                        <div>
+                            <label class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-3 block">
+                                Porte do pet
+                            </label>
+
+                            <select id="p-size"
+                                class="w-full px-3 py-3 bg-gray-50 border border-gray-200 rounded-xl text-gray-700 outline-none focus:border-teal-500">
+                                <option value="">Qualquer porte</option>
+                                <option value="pequeno">Pequeno</option>
+                                <option value="médio">Médio</option>
+                                <option value="grande">Grande</option>
+                            </select>
+                        </div>
+
+                        <!-- Idade do pet -->
+                        <div>
+                            <label class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-3 block">
+                                Idade do pet
+                            </label>
+
+                            <select id="p-age"
+                                class="w-full px-3 py-3 bg-gray-50 border border-gray-200 rounded-xl text-gray-700 outline-none focus:border-teal-500">
+                                <option value="">Qualquer idade</option>
+                                <option value="filhote">Filhote</option>
+                                <option value="adulto">Adulto</option>
+                                <option value="idoso">Idoso</option>
+                            </select>
+                        </div>
+
                     </div>
+
                 </div>
 
-                <div class="grid grid-cols-2 gap-4">
-                    <div>
-                        <label class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-3 block">Idade
-                            Desejada</label>
-                        <select id="p-age"
-                            class="w-full p-3 border-2 border-gray-100 rounded-xl bg-white text-gray-700 font-medium focus:outline-none focus:border-teal-600 text-sm">
-                            <option value="">Qualquer</option>
-                            <option value="filhote">Filhote</option>
-                            <option value="adulto">Adulto</option>
-                            <option value="idoso">Idoso</option>
-                        </select>
-                    </div>
-                    <div>
-                        <label class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-3 block">Objetivo da
-                            Adoção</label>
-                        <select id="p-purpose"
-                            class="w-full p-3 border-2 border-gray-100 rounded-xl bg-white text-gray-700 font-medium focus:outline-none focus:border-teal-600 text-sm">
-                            <option value="companhia" selected>Companhia / Pet de estimação</option>
-                            <option value="guarda">Cão de Guarda / Alerta</option>
-                        </select>
-                    </div>
-                </div>
             </div>
 
             <div class="space-y-6">
@@ -233,7 +214,7 @@
                             <div
                                 class="h-24 p-2 border-2 border-gray-100 rounded-2xl flex flex-col items-center justify-center gap-2 peer-checked:border-blue-500 peer-checked:bg-blue-50 peer-checked:text-blue-600 text-gray-400 hover:bg-gray-50 transition-all">
                                 <i class="ph-fill ph-buildings text-3xl"></i>
-                                <span class="text-xs font-bold text-center">Apê</span>
+                                <span class="text-xs font-bold text-center">Apartamento</span>
                             </div>
                         </label>
                         <label class="cursor-pointer">
@@ -249,7 +230,7 @@
                             <div
                                 class="h-24 p-2 border-2 border-gray-100 rounded-2xl flex flex-col items-center justify-center gap-2 peer-checked:border-blue-500 peer-checked:bg-blue-50 peer-checked:text-blue-600 text-gray-400 hover:bg-gray-50 transition-all">
                                 <i class="ph-fill ph-tree text-3xl"></i>
-                                <span class="text-xs font-bold text-center">Quintal</span>
+                                <span class="text-xs font-bold text-center">Sítio/Chácara</span>
                             </div>
                         </label>
                     </div>
@@ -261,19 +242,18 @@
                             Atividade</label>
                         <select id="p-activity-select"
                             class="w-full p-3 border-2 border-gray-100 rounded-xl bg-white text-gray-700 font-medium focus:outline-none focus:border-blue-500 text-sm">
-                            <option value="sedentario">Tranquilo / Calmo</option>
-                            <option value="moderado" selected>Moderado</option>
-                            <option value="ativo">Ativo / Pratica Esportes</option>
+                            <option value="sedentario">Sedentário</option>
+                            <option value="moderado" selected>Moderadamente Ativo</option>
+                            <option value="ativo">Muito Ativo</option>
                         </select>
                     </div>
                     <div>
-                        <label class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-3 block">Rotina
-                            Diária</label>
+                        <label class="text-[11px] font-bold text-gray-400 uppercase tracking-wider mb-3 block">Quanto tempo, em média, por dia, o animal ficará sozinho?</label>
                         <select id="p-routine"
                             class="w-full p-3 border-2 border-gray-100 rounded-xl bg-white text-gray-700 font-medium focus:outline-none focus:border-blue-500 text-sm">
-                            <option value="fica_em_casa">Fico em casa / Home Office</option>
-                            <option value="trabalho_fora">Trabalho fora o dia todo</option>
-                            <option value="viajo_frequente">Viajo frequentemente</option>
+                            <option value="pouco_tempo">Menos de 2 Horas</option>
+                            <option value="medio_tempo">Entre 2 e 8 horas</option>
+                            <option value="muito_tempo">Mais de 8 horas</option>
                         </select>
                     </div>
                 </div>
@@ -289,7 +269,7 @@
                 <div class="bg-gray-50 p-4 rounded-2xl border border-gray-100 space-y-4">
                     <div class="flex items-center justify-between">
                         <div class="flex items-center gap-2 text-gray-700 font-medium text-sm">
-                            <i class="ph-fill ph-baby text-xl text-gray-400"></i> Tem crianças em casa?
+                            <i class="ph-fill ph-baby text-xl text-teal-600"></i> Tem crianças em casa?
                         </div>
                         <div
                             class="relative inline-block w-12 align-middle select-none transition duration-200 ease-in">
@@ -302,7 +282,7 @@
                     <hr class="border-gray-200">
                     <div class="flex items-center justify-between">
                         <div class="flex items-center gap-2 text-gray-700 font-medium text-sm">
-                            <i class="ph-fill ph-paw-print text-xl text-gray-400"></i> Já tem outros pets?
+                            <i class="ph-fill ph-paw-print text-xl text-teal-600"></i> Já tem outros pets?
                         </div>
                         <div
                             class="relative inline-block w-12 align-middle select-none transition duration-200 ease-in">
@@ -315,8 +295,8 @@
                     <hr class="border-gray-200">
                     <div class="flex items-center justify-between">
                         <div class="flex items-center gap-2 text-gray-700 font-medium text-sm">
-                            <i class="ph-fill ph-first-aid text-xl text-teal-600"></i> Aceita adotar pets
-                            PCD/Crônicos?
+                            <i class="ph-fill ph-first-aid text-xl text-teal-600"></i> Está disposto a adotar um animal
+                            com deficiência ou doença crônica?
                         </div>
                         <div
                             class="relative inline-block w-12 align-middle select-none transition duration-200 ease-in">
@@ -324,56 +304,6 @@
                                 class="toggle-checkbox absolute block w-6 h-6 rounded-full bg-white border-4 appearance-none cursor-pointer transition-transform" />
                             <label for="p-acceptSpecial"
                                 class="toggle-label block overflow-hidden h-6 rounded-full bg-gray-300 cursor-pointer"></label>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <div class="space-y-6">
-                <div class="flex items-center gap-3 border-b border-gray-100 pb-2">
-                    <span
-                        class="bg-purple-100 text-purple-600 w-8 h-8 rounded-full flex items-center justify-center font-bold text-sm">4</span>
-                    <h3 class="text-lg font-bold text-gray-800">Segurança e Suporte Financeiro</h3>
-                </div>
-
-                <div>
-                    <label class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-2 block">Capacidade
-                        Financeira Estimada (Mensal p/ o Pet)</label>
-                    <select id="p-finance"
-                        class="w-full p-3 border-2 border-gray-100 rounded-xl bg-white text-gray-700 font-medium focus:outline-none focus:border-purple-500 text-sm">
-                        <option value="basico">Consigo arcar com o básico (Ração e Vacinas)</option>
-                        <option value="medio" selected>Intermediário (Ração Premium e Consultas)</option>
-                        <option value="pleno">Completo (Ração Super Premium, Veterinário e Emergências)</option>
-                    </select>
-                </div>
-
-                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    <div>
-                        <label class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-2 block">Documento de
-                            Identidade (RG/CNH)</label>
-                        <div class="flex items-center justify-center w-full">
-                            <label
-                                class="flex flex-col w-full h-20 border-2 border-dashed border-gray-200 hover:bg-gray-50 rounded-xl justify-center items-center cursor-pointer transition-colors p-2">
-                                <i class="ph ph-identification-card text-2xl text-gray-400"></i>
-                                <span class="text-xs text-gray-500 font-medium text-center mt-1" id="lbl-file-id">Enviar
-                                    foto do Doc</span>
-                                <input type="file" id="p-docId" class="hidden"
-                                    onchange="updateFileLabel('p-docId', 'lbl-file-id')" />
-                            </label>
-                        </div>
-                    </div>
-                    <div>
-                        <label class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-2 block">Comprovante
-                            de Residência</label>
-                        <div class="flex items-center justify-center w-full">
-                            <label
-                                class="flex flex-col w-full h-20 border-2 border-dashed border-gray-200 hover:bg-gray-50 rounded-xl justify-center items-center cursor-pointer transition-colors p-2">
-                                <i class="ph ph-file-text text-2xl text-gray-400"></i>
-                                <span class="text-xs text-gray-500 font-medium text-center mt-1"
-                                    id="lbl-file-res">Enviar Comprovante</span>
-                                <input type="file" id="p-docRes" class="hidden"
-                                    onchange="updateFileLabel('p-docRes', 'lbl-file-res')" />
-                            </label>
                         </div>
                     </div>
                 </div>
@@ -432,11 +362,11 @@
                             </select>
                         </div>
                         <div>
-                            <label class="text-xs font-bold text-gray-400 uppercase">Especial / PCD</label>
+                            <label class="text-xs font-bold text-gray-400 uppercase">Com deficiência ou doença</label>
                             <select id="filter-special"
                                 class="w-full p-2 bg-gray-50 border-none rounded-lg text-sm focus:ring-0">
                                 <option value="">Todos</option>
-                                <option value="true">Apenas PCD/Crônicos</option>
+                                <option value="true">Apenas animais deficientes ou doentes</option>
                                 <option value="false">Sem condições especiais</option>
                             </select>
                         </div>
@@ -472,6 +402,47 @@
                 </button>
             </div>
         </main>
+        <section id="view-interests" class="hidden flex-1 overflow-y-auto px-4 pt-5 pb-28">
+
+            <div class="max-w-3xl mx-auto">
+
+                <div class="mb-5">
+                    <h2 class="text-2xl font-bold text-gray-800">
+                        Meus Interesses
+                    </h2>
+
+                    <p class="text-sm text-gray-500 mt-1">
+                        Acompanhe os animais que você demonstrou interesse em adotar.
+                    </p>
+                </div>
+
+                <!-- Estado vazio -->
+                <div id="no-interests" class="hidden text-center py-16">
+
+                    <div class="w-16 h-16 mx-auto mb-4 rounded-full bg-teal-50 flex items-center justify-center">
+
+                        <i class="ph-fill ph-paw-print text-3xl text-teal-500"></i>
+
+                    </div>
+
+                    <h3 class="font-bold text-gray-700">
+                        Nenhum interesse ainda
+                    </h3>
+
+                    <p class="text-sm text-gray-400 mt-1">
+                        Quando você demonstrar interesse em um animal,
+                        ele aparecerá aqui.
+                    </p>
+
+                </div>
+
+                <!-- Lista -->
+                <div id="user-interests-list" class="space-y-4">
+                </div>
+
+            </div>
+
+        </section>
 
         <main id="view-liked"
             class="flex-1 hidden flex-col w-full h-full bg-gray-50 overflow-y-auto no-scrollbar relative pb-24">
@@ -573,6 +544,25 @@
                 <span class="text-[10px] font-bold mt-0.5">Matches</span>
                 <span id="liked-badge"
                     class="absolute top-2 right-6 bg-red-500 text-white text-[9px] font-bold rounded-full w-4 h-4 flex items-center justify-center hidden border border-white">0</span>
+            </button>
+            <button id="nav-tab-interests" onclick="switchTab('interests')"
+                class="flex flex-col items-center justify-center text-gray-400 flex-1 h-full transition-all relative">
+
+                <div class="relative">
+
+                    <i class="ph-bold ph-chat-circle-dots text-2xl"></i>
+
+                    <span id="interest-badge"
+                        class="hidden absolute -top-2 -right-3 bg-teal-500 text-white text-[9px] font-bold min-w-[16px] h-4 px-1 rounded-full items-center justify-center">
+                        0
+                    </span>
+
+                </div>
+
+                <span class="text-[10px] mt-1 font-semibold">
+                    Interesses
+                </span>
+
             </button>
             <button id="nav-tab-settings" onclick="switchTab('settings')"
                 class="flex flex-col items-center justify-center text-gray-400 flex-1 h-full transition-all">
@@ -828,8 +818,71 @@
             </form>
         </div>
     </div>
+    <div id="chat-modal"
+        class="hidden fixed inset-0 z-[100] bg-black/50 backdrop-blur-sm items-center justify-center p-0 md:p-4">
+
+        <div
+            class="chat-window bg-white w-full h-full md:h-[650px] md:max-w-lg md:rounded-3xl shadow-2xl flex flex-col overflow-hidden">
+
+            <!-- Cabeçalho -->
+            <div class="flex items-center gap-3 px-4 py-3 border-b border-gray-100 bg-white">
+
+                <button onclick="closeChat()"
+                    class="w-10 h-10 rounded-full hover:bg-gray-100 flex items-center justify-center text-gray-600">
+
+                    <i class="ph-bold ph-arrow-left text-xl"></i>
+
+                </button>
+
+                <img id="chat-pet-image" src="" alt="" class="w-11 h-11 rounded-full object-cover bg-gray-100">
+
+                <div class="flex-1 min-w-0">
+
+                    <h3 id="chat-title" class="font-bold text-gray-800 truncate">
+                        Conversa
+                    </h3>
+
+                    <p id="chat-subtitle" class="text-xs text-gray-400 truncate">
+                        ONG Adota Aí
+                    </p>
+
+                </div>
+
+                <div class="w-9 h-9 rounded-full bg-teal-50 flex items-center justify-center">
+
+                    <i class="ph-fill ph-paw-print text-teal-600"></i>
+
+                </div>
+
+            </div>
+
+            <!-- Informações do interesse -->
+            <div id="chat-interest-info" class="px-4 py-2 bg-teal-50 text-xs text-teal-700 border-b border-teal-100">
+            </div>
+
+            <!-- Mensagens -->
+            <div id="chat-messages" class="chat-messages flex-1 overflow-y-auto p-4 space-y-3 bg-gray-50">
+
+            </div>
+
+            <!-- Envio -->
+            <form onsubmit="sendChatMessage(event)" class="p-3 border-t border-gray-100 bg-white flex items-end gap-2">
+
+                <textarea id="chat-input" rows="1" maxlength="500" placeholder="Digite uma mensagem..."
+                    class="chat-input flex-1 resize-none bg-gray-100 border border-transparent focus:border-teal-400 focus:bg-white outline-none rounded-2xl px-4 py-3 text-sm max-h-28"></textarea>
+
+                <button type="submit"
+                    class="w-11 h-11 shrink-0 rounded-full bg-teal-600 hover:bg-teal-700 text-white flex items-center justify-center transition-colors">
+
+                    <i class="ph-fill ph-paper-plane-tilt text-xl"></i>
+
+                </button>
+
+            </form>
+
+        </div>
+
+    </div>
 
     <script src="scripts/app.js"></script>
 </body>
-
-</html>

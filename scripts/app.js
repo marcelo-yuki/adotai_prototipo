@@ -46,17 +46,21 @@ const initialDogs = [
     { id: 30, name: "Rex", sex: "Macho", age: "5 anos", breed: "Sem Raça Definida", city: "Tatuí", species: "cão", size: "grande", medical: "Castrado e vacinado", castrated: true, specialNeed: false, singlePet: false, purpose: "guarda e companhia", img: "https://i0.wp.com/petcaramelo.com/wp-content/uploads/2019/02/cachorros-grandes-e-doceis.jpg?fit=645%2C380&ssl=1", desc: "Calmo e obediente, ótimo para guarda e companhia.", past: "Ex-cão de firma que faliu. Ficou para trás no terreno e foi resgatado pela equipe voluntária." }
 ];
 // Force a atualização dos dados de teste:
-let currentUser = JSON.parse(localStorage.getItem('currentUser')) || null;  
+let currentUser = JSON.parse(localStorage.getItem('currentUser')) || null;
 localStorage.setItem('dbDogs', JSON.stringify(initialDogs));
 let dbDogs = JSON.parse(localStorage.getItem('dbDogs')) || initialDogs;
 let users = JSON.parse(localStorage.getItem("users")) || [];
 let userProfile = JSON.parse(localStorage.getItem('profile')) || null;
-let likedDogs = JSON.parse(localStorage.getItem('likedDogs')) || [];
+let likedDogs = [];
 let adoptionInterests = JSON.parse(localStorage.getItem('adoptionInterests')) || [
     { petId: 1, petName: "Caramelo", userEmail: "joao.adotante@gmail.com", date: "28/08/2026" }
 ];
 
 let currentModalPetId = null;
+let chatMessages =
+    JSON.parse(localStorage.getItem('chatMessages')) || [];
+
+let currentChatInterestId = null;
 
 let dogsList = [];
 let isDragging = false;
@@ -64,16 +68,93 @@ let hasDragged = false;
 let startX = 0, startY = 0, currentX = 0, currentY = 0;
 let topCard = null;
 
-function saveStorage() {
-    localStorage.setItem('dbDogs', JSON.stringify(dbDogs));
-    localStorage.setItem('users', JSON.stringify(users));
-    localStorage.setItem('profile', JSON.stringify(userProfile));
-    localStorage.setItem('likedDogs', JSON.stringify(likedDogs));
-    localStorage.setItem('adoptionInterests', JSON.stringify(adoptionInterests));
-    if (currentUser) {
-        localStorage.setItem('currentUser', JSON.stringify(currentUser));
-    }
+function getLikedDogsKey() {
+    if (!currentUser || !currentUser.email) return null;
+
+    return `likedDogs_${currentUser.email}`;
 }
+
+function loadLikedDogs() {
+    const key = getLikedDogsKey();
+
+    if (!key) {
+        likedDogs = [];
+        return;
+    }
+
+    likedDogs = JSON.parse(localStorage.getItem(key)) || [];
+}
+function saveStorage() {
+
+    localStorage.setItem(
+        'dbDogs',
+        JSON.stringify(dbDogs)
+    );
+
+    localStorage.setItem(
+        'users',
+        JSON.stringify(users)
+    );
+
+    localStorage.setItem(
+        'profile',
+        JSON.stringify(userProfile)
+    );
+
+    localStorage.setItem(
+        'adoptionInterests',
+        JSON.stringify(adoptionInterests)
+    );
+
+    localStorage.setItem(
+        'chatMessages',
+        JSON.stringify(chatMessages)
+    );
+
+    const likedDogsKey = getLikedDogsKey();
+
+    if (likedDogsKey) {
+        localStorage.setItem(
+            likedDogsKey,
+            JSON.stringify(likedDogs)
+        );
+    }
+
+    if (currentUser) {
+        localStorage.setItem(
+            'currentUser',
+            JSON.stringify(currentUser)
+        );
+    }
+
+}
+function ensureInterestIds() {
+
+    let changed = false;
+
+    adoptionInterests.forEach((interest, index) => {
+
+        if (!interest.id) {
+
+            interest.id =
+                Date.now() +
+                index +
+                Math.floor(Math.random() * 1000);
+
+            changed = true;
+        }
+
+    });
+
+    if (changed) {
+        localStorage.setItem(
+            'adoptionInterests',
+            JSON.stringify(adoptionInterests)
+        );
+    }
+
+}
+ensureInterestIds();
 function calculateAgeString(birthdateStr) {
     if (!birthdateStr) return "Idade não informada";
 
@@ -211,6 +292,8 @@ function login() {
     // Mantém email, telefone, senha e role do usuário
     currentUser = user;
 
+    loadLikedDogs();
+
     saveStorage();
 
     document.getElementById('profile-user-email').innerText = currentUser.email;
@@ -262,6 +345,9 @@ function register() {
 
     // Login automático
     currentUser = newUser;
+
+    likedDogs = [];
+
     saveStorage();
 
     alert("Conta criada com sucesso! Complete seu perfil a seguir.");
@@ -274,6 +360,7 @@ function register() {
 
 function logout() {
     // Remove somente a sessão atual
+    likedDogs = [];
     currentUser = null;
     localStorage.removeItem('currentUser');
 
@@ -379,20 +466,71 @@ function renderAdminInterests() {
         const card = document.createElement('div');
         card.className = "bg-white p-3.5 rounded-2xl border border-gray-100 shadow-sm flex flex-col gap-2 text-xs";
         card.innerHTML = `
-            <div class="flex items-center justify-between">
-                <span class="bg-teal-100 text-teal-800 font-bold px-2 py-0.5 rounded-md text-[10px]">Pet: ${item.petName}</span>
-                <div class="flex items-center gap-2">
-                    <span class="text-[10px] text-gray-500">${item.date || 'Hoje'}</span>
-                    <button onclick="removeInterest(${index})" class="text-red-400 hover:text-red-600 p-1" title="Remover">
-                        <i class="ph-bold ph-trash text-base"></i>
-                    </button>
-                </div>
-            </div>
-            <div class="space-y-1 text-gray-700">
-                <p class="font-bold text-gray-900"><i class="ph-fill ph-envelope mr-1 text-gray-500"></i>${item.userEmail}</p>
-                <p><i class="ph-fill ph-phone mr-1 text-gray-500"></i><strong>Tel:</strong> ${item.phone || 'Não informado'}</p>
-            </div>
-        `;
+
+    <div class="flex items-center justify-between">
+
+        <span class="bg-teal-100 text-teal-800 font-bold px-2 py-0.5 rounded-md text-[10px]">
+            Pet: ${item.petName}
+        </span>
+
+        <div class="flex items-center gap-2">
+
+            <span class="text-[10px] text-gray-500">
+                ${item.date || 'Hoje'}
+            </span>
+
+            <button
+                onclick="removeInterest(${index})"
+                class="text-red-400 hover:text-red-600 p-1"
+                title="Remover">
+
+                <i class="ph-bold ph-trash text-base"></i>
+
+            </button>
+
+        </div>
+
+    </div>
+
+
+    <div class="space-y-1 text-gray-700">
+
+        <p class="font-bold text-gray-900">
+
+            <i class="ph-fill ph-envelope mr-1 text-gray-500"></i>
+
+            ${item.userEmail}
+
+        </p>
+
+        <p>
+
+            <i class="ph-fill ph-phone mr-1 text-gray-500"></i>
+
+            <strong>Tel:</strong>
+
+            ${item.phone || 'Não informado'}
+
+        </p>
+
+    </div>
+
+
+    <div class="pt-2 border-t border-gray-100">
+
+        <button
+            onclick="openChat(${item.id})"
+            class="w-full bg-teal-600 hover:bg-teal-700 text-white font-bold py-2.5 rounded-xl transition-colors flex items-center justify-center gap-2">
+
+            <i class="ph-bold ph-chat-circle-dots text-base"></i>
+
+            Conversar com adotante
+
+        </button>
+
+    </div>
+
+`;
         list.appendChild(card);
     });
 }
@@ -525,31 +663,28 @@ function updateFileLabel(inputId, labelId) {
     }
 }
 
+
 function saveProfile() {
     const species = document.querySelector('input[name="p-species"]:checked')?.value || "";
-    const size = document.querySelector('input[name="p-size"]:checked')?.value || "";
+    const size = document.getElementById('p-size').value;
     const age = document.getElementById('p-age').value;
-    const purpose = document.getElementById('p-purpose').value;
     const housing = document.querySelector('input[name="p-housing"]:checked')?.value || "casa";
     const activity = document.getElementById('p-activity-select').value;
     const routine = document.getElementById('p-routine').value;
     const kids = document.getElementById('p-kids').checked;
     const otherPets = document.getElementById('p-otherPets').checked;
     const acceptSpecial = document.getElementById('p-acceptSpecial').checked;
-    const finance = document.getElementById('p-finance').value;
 
     userProfile = {
         species,
         size,
         age,
-        purpose,
         housing,
         activity,
         routine,
         kids,
         otherPets,
-        acceptSpecial,
-        finance
+        acceptSpecial
     };
 
     saveStorage();
@@ -563,22 +698,166 @@ function saveProfile() {
 }
 
 function openProfileEdit() {
+    const questionario = document.getElementById('view-profile');
+
+    // Esconde a aplicação principal
     document.getElementById('app').classList.add('hidden');
-    document.getElementById('view-profile').classList.remove('hidden');
+
+    // Abre o mesmo questionário utilizado no primeiro acesso
+    questionario.classList.remove('hidden');
+    questionario.classList.add('flex');
 }
+
+
+
 
 function calculateMatch(profile, pet) {
-    if (!profile) return 85;
-    let score = 50;
+    if (!profile || !pet) return 0;
 
-    if (!profile.acceptSpecial && pet.specialNeed) return 0;
-    if (profile.species && pet.species && profile.species === pet.species) score += 15;
-    if (profile.size && pet.size && profile.size === pet.size) score += 15;
-    if (profile.housing === 'apartamento' && pet.size === 'grande') score -= 10;
-    if (profile.housing === 'casa_quintal' && pet.size === 'grande') score += 10;
+    let pontos = 0;
 
-    return Math.min(Math.max(score, 40), 99);
+    const normalizar = valor =>
+        String(valor ?? "")
+            .trim()
+            .toLowerCase()
+            .normalize("NFD")
+            .replace(/[\u0300-\u036f]/g, "");
+
+    const indiferente = valor =>
+        ["", "qualquer", "ambos", "ambas", "indiferente", "todos", "todas"]
+            .includes(valor);
+
+    const especie = normalizar(profile.species);
+    const especiePet = normalizar(pet.species);
+
+    const porte = normalizar(profile.size);
+    const portePet = normalizar(pet.size);
+
+    const idade = normalizar(profile.age);
+
+    // 1. ESPÉCIE — 30 pontos
+    if (indiferente(especie)) {
+        pontos += 30;
+    } else if (!especiePet) {
+        pontos += 15;
+    } else if (especie === especiePet) {
+        pontos += 30;
+    }
+
+    // 2. PORTE — 25 pontos
+    const portes = ["pequeno", "medio", "grande"];
+
+    if (indiferente(porte)) {
+        pontos += 25;
+    } else if (!portes.includes(portePet)) {
+        pontos += 12.5;
+    } else if (porte === portePet) {
+        pontos += 25;
+    } else if (portes.includes(porte)) {
+        const diferenca = Math.abs(
+            portes.indexOf(porte) - portes.indexOf(portePet)
+        );
+
+        if (diferenca === 1) {
+            pontos += 12.5;
+        }
+    }
+
+    // 3. IDADE — 25 pontos
+    function obterIdadeMeses(animal) {
+        if (animal.birthdate) {
+            const nascimento = new Date(
+                animal.birthdate + "T12:00:00"
+            );
+
+            if (!isNaN(nascimento.getTime())) {
+                const hoje = new Date();
+
+                let meses =
+                    (hoje.getFullYear() - nascimento.getFullYear()) * 12 +
+                    hoje.getMonth() - nascimento.getMonth();
+
+                if (hoje.getDate() < nascimento.getDate()) {
+                    meses--;
+                }
+
+                return Math.max(0, meses);
+            }
+        }
+
+        const texto = normalizar(animal.age);
+
+        const anos = texto.match(/(\d+)\s*ano/);
+        const meses = texto.match(/(\d+)\s*mes/);
+
+        if (!anos && !meses) return null;
+
+        return (
+            (anos ? Number(anos[1]) * 12 : 0) +
+            (meses ? Number(meses[1]) : 0)
+        );
+    }
+
+    if (indiferente(idade)) {
+        pontos += 25;
+    } else {
+        const idadeMeses = obterIdadeMeses(pet);
+
+        if (idadeMeses === null) {
+            pontos += 12.5;
+        } else {
+            const faixa =
+                idadeMeses < 12 ? "filhote" :
+                idadeMeses < 84 ? "adulto" : "idoso";
+
+            if (idade === faixa) {
+                pontos += 25;
+            } else {
+                const faixas = ["filhote", "adulto", "idoso"];
+
+                if (faixas.includes(idade)) {
+                    const diferenca = Math.abs(
+                        faixas.indexOf(idade) -
+                        faixas.indexOf(faixa)
+                    );
+
+                    if (diferenca === 1) {
+                        pontos += 7.5;
+                    }
+                }
+            }
+        }
+    }
+
+    // 4. OUTROS ANIMAIS — 10 pontos
+    if (profile.otherPets === true) {
+        if (pet.singlePet === true) {
+            return 0;
+        }
+
+        pontos += pet.singlePet === false ? 10 : 5;
+    } else {
+        pontos += 10;
+    }
+
+    // 5. NECESSIDADES ESPECIAIS — 10 pontos
+    if (pet.specialNeed === true) {
+        if (profile.acceptSpecial !== true) {
+            return 0;
+        }
+
+        pontos += 10;
+    } else if (pet.specialNeed === false) {
+        pontos += 10;
+    } else {
+        pontos += 5;
+    }
+
+    return Math.round(
+        Math.max(0, Math.min(100, pontos))
+    );
 }
+
 
 function enrichPet(pet) {
     return {
@@ -597,6 +876,7 @@ function initApp() {
 
     updateLikedView();
     updateBadge();
+    renderUserInterests();
     renderCards();
 }
 
@@ -626,7 +906,7 @@ function renderCards() {
                         <div class="stamp stamp-nope">PASSO</div>
                         
                         <div class="absolute top-4 left-4 bg-teal-600 text-white font-bold text-xs px-3 py-1.5 rounded-full shadow-md flex items-center gap-1 z-10">
-                            <i class="ph-fill ph-sparkle"></i> ${pet.matchScore}% Match
+                            <i class="ph-fill ph-sparkle"></i> ${calculateMatch(userProfile, pet)}% Match
                         </div>
 
                         <div class="absolute inset-0 card-gradient flex flex-col justify-end p-5 text-white">
@@ -825,14 +1105,54 @@ function resetApp() {
 
 // --- NAVEGAÇÃO ENTRE ABAS DO USUÁRIO ---
 function switchTab(tab) {
-    ['swipe', 'liked', 'settings'].forEach(t => {
-        const view = document.getElementById(`view-${t === 'settings' ? 'settings-tab' : t}`);
-        const navBtn = document.getElementById(`nav-tab-${t}`);
-        if (view) view.classList.toggle('hidden', t !== tab);
-        if (navBtn) navBtn.className = t === tab
-            ? 'flex flex-col items-center justify-center text-teal-600 flex-1 h-full transition-all'
-            : 'flex flex-col items-center justify-center text-gray-400 flex-1 h-full transition-all relative';
+
+    const tabs = [
+        'swipe',
+        'liked',
+        'interests',
+        'settings'
+    ];
+
+    tabs.forEach(t => {
+
+        const viewId =
+            t === 'settings'
+                ? 'view-settings-tab'
+                : `view-${t}`;
+
+        const view =
+            document.getElementById(viewId);
+
+        const navBtn =
+            document.getElementById(
+                `nav-tab-${t}`
+            );
+
+        if (view) {
+            view.classList.toggle(
+                'hidden',
+                t !== tab
+            );
+        }
+
+        if (navBtn) {
+
+            navBtn.className =
+                t === tab
+
+                    ? 'flex flex-col items-center justify-center text-teal-600 flex-1 h-full transition-all relative'
+
+                    : 'flex flex-col items-center justify-center text-gray-400 flex-1 h-full transition-all relative';
+
+        }
+
     });
+
+
+    if (tab === 'interests') {
+        renderUserInterests();
+    }
+
 }
 
 function updateLikedView() {
@@ -864,6 +1184,579 @@ function updateLikedView() {
                 `;
         grid.appendChild(card);
     });
+}
+function renderUserInterests() {
+
+    const list =
+        document.getElementById(
+            'user-interests-list'
+        );
+
+    const empty =
+        document.getElementById(
+            'no-interests'
+        );
+
+    const badge =
+        document.getElementById(
+            'interest-badge'
+        );
+
+    if (!list || !currentUser) return;
+
+
+    const userInterests =
+        adoptionInterests.filter(
+            interest =>
+                interest.userEmail ===
+                currentUser.email
+        );
+
+
+    list.innerHTML = '';
+
+
+    if (badge) {
+
+        if (userInterests.length > 0) {
+
+            badge.innerText =
+                userInterests.length;
+
+            badge.classList.remove(
+                'hidden'
+            );
+
+            badge.classList.add(
+                'flex'
+            );
+
+        } else {
+
+            badge.classList.add(
+                'hidden'
+            );
+
+            badge.classList.remove(
+                'flex'
+            );
+
+        }
+
+    }
+
+
+    if (userInterests.length === 0) {
+
+        empty.classList.remove(
+            'hidden'
+        );
+
+        return;
+
+    }
+
+
+    empty.classList.add(
+        'hidden'
+    );
+
+
+    userInterests.forEach(
+        interest => {
+
+            const pet =
+                dbDogs.find(
+                    p =>
+                        p.id ===
+                        interest.petId
+                );
+
+
+            const image =
+                pet?.img || '';
+
+
+            const breed =
+                pet?.breed ||
+                'Animal para adoção';
+
+
+            const city =
+                pet?.city || '';
+
+
+            const messageCount =
+                chatMessages.filter(
+                    message =>
+                        message.interestId ===
+                        interest.id
+                ).length;
+
+
+            const card =
+                document.createElement(
+                    'div'
+                );
+
+
+            card.className =
+                'interest-card bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden';
+
+
+            card.innerHTML = `
+
+                <div class="flex p-3 gap-3">
+
+                    <img
+                        src="${image}"
+                        alt="${interest.petName}"
+                        class="w-24 h-24 rounded-xl object-cover bg-gray-100 shrink-0">
+
+                    <div class="flex-1 min-w-0">
+
+                        <div class="flex items-start justify-between gap-2">
+
+                            <div>
+
+                                <h3 class="font-bold text-gray-800 text-base">
+                                    ${interest.petName}
+                                </h3>
+
+                                <p class="text-xs text-gray-500 mt-0.5">
+                                    ${breed}
+                                </p>
+
+                            </div>
+
+                            <span
+                                class="bg-teal-50 text-teal-700 text-[10px] font-bold px-2 py-1 rounded-full whitespace-nowrap">
+
+                                ${interest.status || 'Em análise'}
+
+                            </span>
+
+                        </div>
+
+                        ${city
+                    ? `
+                                    <p class="text-xs text-gray-400 mt-2">
+                                        <i class="ph-fill ph-map-pin"></i>
+                                        ${city}
+                                    </p>
+                                `
+                    : ''
+                }
+
+                        <p class="text-[10px] text-gray-400 mt-1">
+                            Interesse enviado em ${interest.date || ''}
+                        </p>
+
+                    </div>
+
+                </div>
+
+
+                <div
+                    class="px-3 pb-3 flex gap-2">
+
+                    <button
+                        onclick="openModal(${interest.petId})"
+                        class="flex-1 py-2.5 rounded-xl bg-gray-100 hover:bg-gray-200 text-gray-700 text-xs font-bold transition-colors">
+
+                        <i class="ph-bold ph-paw-print mr-1"></i>
+
+                        Ver animal
+
+                    </button>
+
+
+                    <button
+                        onclick="openChat(${interest.id})"
+                        class="flex-1 py-2.5 rounded-xl bg-teal-600 hover:bg-teal-700 text-white text-xs font-bold transition-colors relative">
+
+                        <i class="ph-bold ph-chat-circle-dots mr-1"></i>
+
+                        Conversar
+
+                        ${messageCount > 0
+                    ? `
+                                    <span class="ml-1 bg-white/20 px-1.5 py-0.5 rounded-full">
+                                        ${messageCount}
+                                    </span>
+                                `
+                    : ''
+                }
+
+                    </button>
+
+                </div>
+
+            `;
+
+
+            list.appendChild(card);
+
+        }
+    );
+
+}
+function openChat(interestId) {
+
+    const interest =
+        adoptionInterests.find(
+            item =>
+                item.id === interestId
+        );
+
+
+    if (!interest) {
+        alert(
+            'Interesse não encontrado.'
+        );
+        return;
+    }
+
+
+    currentChatInterestId =
+        interestId;
+
+
+    const pet =
+        dbDogs.find(
+            p =>
+                p.id === interest.petId
+        );
+
+
+    document.getElementById(
+        'chat-title'
+    ).innerText =
+        interest.petName;
+
+
+    document.getElementById(
+        'chat-pet-image'
+    ).src =
+        pet?.img || '';
+
+
+    const subtitle =
+        document.getElementById(
+            'chat-subtitle'
+        );
+
+
+    if (
+        currentUser &&
+        currentUser.role === 'admin'
+    ) {
+
+        subtitle.innerText =
+            interest.userEmail;
+
+    } else {
+
+        subtitle.innerText =
+            'Conversa com a ONG';
+
+    }
+
+
+    document.getElementById(
+        'chat-interest-info'
+    ).innerHTML = `
+
+        <i class="ph-fill ph-heart mr-1"></i>
+
+        Interesse em
+        <strong>${interest.petName}</strong>
+
+        • ${interest.date || ''}
+
+    `;
+
+
+    renderChatMessages();
+
+
+    const modal =
+        document.getElementById(
+            'chat-modal'
+        );
+
+
+    modal.classList.remove(
+        'hidden'
+    );
+
+    modal.classList.add(
+        'flex'
+    );
+
+
+    setTimeout(() => {
+
+        document.getElementById(
+            'chat-input'
+        ).focus();
+
+    }, 100);
+
+}
+function closeChat() {
+
+    const modal =
+        document.getElementById(
+            'chat-modal'
+        );
+
+
+    modal.classList.add(
+        'hidden'
+    );
+
+    modal.classList.remove(
+        'flex'
+    );
+
+
+    currentChatInterestId =
+        null;
+
+
+    document.getElementById(
+        'chat-input'
+    ).value = '';
+
+}
+function renderChatMessages() {
+
+    const container =
+        document.getElementById(
+            'chat-messages'
+        );
+
+
+    if (!container) return;
+
+
+    container.innerHTML = '';
+
+
+    const messages =
+        chatMessages
+            .filter(
+                message =>
+                    message.interestId ===
+                    currentChatInterestId
+            )
+            .sort(
+                (a, b) =>
+                    a.timestamp -
+                    b.timestamp
+            );
+
+
+    if (messages.length === 0) {
+
+        container.innerHTML = `
+
+            <div class="text-center py-12">
+
+                <div
+                    class="w-14 h-14 bg-teal-50 rounded-full flex items-center justify-center mx-auto mb-3">
+
+                    <i
+                        class="ph-fill ph-chat-circle-dots text-2xl text-teal-500">
+                    </i>
+
+                </div>
+
+                <p class="text-sm font-semibold text-gray-600">
+                    Inicie uma conversa
+                </p>
+
+                <p class="text-xs text-gray-400 mt-1">
+                    Envie uma mensagem sobre o processo de adoção.
+                </p>
+
+            </div>
+
+        `;
+
+        return;
+
+    }
+
+
+    messages.forEach(
+        message => {
+
+            const mine =
+                message.sender ===
+                currentUser.email;
+
+
+            const wrapper =
+                document.createElement(
+                    'div'
+                );
+
+
+            wrapper.className =
+                `chat-message ${mine
+                    ? 'mine'
+                    : 'other'
+                }`;
+
+
+            wrapper.innerHTML = `
+
+                <div class="chat-bubble">
+
+                    ${!mine
+                    ? `
+                                <div class="text-[10px] font-bold mb-1 opacity-70">
+                                    ${message.senderRole === 'admin'
+                        ? 'ONG'
+                        : message.sender
+                    }
+                                </div>
+                            `
+                    : ''
+                }
+
+                    <div>
+                        ${escapeHTML(message.message)}
+                    </div>
+
+                    <span class="chat-time">
+                        ${message.time}
+                    </span>
+
+                </div>
+
+            `;
+
+
+            container.appendChild(
+                wrapper
+            );
+
+        }
+    );
+
+
+    container.scrollTop =
+        container.scrollHeight;
+
+}
+function escapeHTML(text) {
+
+    const div =
+        document.createElement('div');
+
+    div.textContent = text;
+
+    return div.innerHTML;
+
+} function sendChatMessage(event) {
+
+    event.preventDefault();
+
+
+    const input =
+        document.getElementById(
+            'chat-input'
+        );
+
+
+    const text =
+        input.value.trim();
+
+
+    if (
+        !text ||
+        !currentChatInterestId ||
+        !currentUser
+    ) {
+        return;
+    }
+
+
+    const now =
+        new Date();
+
+
+    const message = {
+
+        id:
+            Date.now() +
+            Math.floor(
+                Math.random() * 1000
+            ),
+
+        interestId:
+            currentChatInterestId,
+
+        sender:
+            currentUser.email,
+
+        senderRole:
+            currentUser.role === 'admin'
+                ? 'admin'
+                : 'user',
+
+        message:
+            text,
+
+        timestamp:
+            now.getTime(),
+
+        date:
+            now.toLocaleDateString(
+                'pt-BR'
+            ),
+
+        time:
+            now.toLocaleTimeString(
+                'pt-BR',
+                {
+                    hour: '2-digit',
+                    minute: '2-digit'
+                }
+            )
+
+    };
+
+
+    chatMessages.push(
+        message
+    );
+
+
+    saveStorage();
+
+
+    input.value = '';
+
+
+    renderChatMessages();
+
+
+    if (
+        currentUser.role === 'admin'
+    ) {
+
+        renderAdminInterests();
+
+    } else {
+
+        renderUserInterests();
+
+    }
+
 }
 
 function updateBadge() {
@@ -972,17 +1865,32 @@ function fakeAdoptionAction() {
     }
 
     const newInterest = {
-        petId: pet.id,
-        petName: pet.name,
-        userEmail: email,
-        phone: phone,
-        housing: userProfile?.housing || "Não informado",
-        date: today
-    };
 
+        id:
+            Date.now() +
+            Math.floor(Math.random() * 1000),
+
+        petId: pet.id,
+
+        petName: pet.name,
+
+        userEmail: email,
+
+        phone: phone,
+
+        housing:
+            userProfile?.housing ||
+            "Não informado",
+
+        date: today,
+
+        status: "Em análise"
+
+    };
     adoptionInterests.unshift(newInterest);
 
     saveStorage();
+    renderUserInterests();
 
     alert(
         `Interesse registrado com sucesso!\n\n` +
