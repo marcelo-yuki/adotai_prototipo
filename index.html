@@ -236,27 +236,38 @@
                     </div>
                 </div>
 
-                <div class="grid grid-cols-2 gap-4">
-                    <div>
-                        <label class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-3 block">Nível de
-                            Atividade</label>
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+
+                    <div class="flex flex-col min-w-0">
+                        <label for="p-activity-select"
+                            class="text-[11px] font-bold text-gray-500 uppercase tracking-wide mb-2 block sm:min-h-[48px]">
+                            Nível de Atividade
+                        </label>
+
                         <select id="p-activity-select"
-                            class="w-full p-3 border-2 border-gray-100 rounded-xl bg-white text-gray-700 font-medium focus:outline-none focus:border-blue-500 text-sm">
+                            class="w-full min-w-0 p-3 border-2 border-gray-100 rounded-xl bg-white text-gray-700 font-medium focus:outline-none focus:border-teal-600 text-sm">
                             <option value="sedentario">Sedentário</option>
                             <option value="moderado" selected>Moderadamente Ativo</option>
                             <option value="ativo">Muito Ativo</option>
                         </select>
                     </div>
-                    <div>
-                        <label class="text-[11px] font-bold text-gray-400 uppercase tracking-wider mb-3 block">Quanto tempo, em média, por dia, o animal ficará sozinho?</label>
+
+                    <div class="flex flex-col min-w-0">
+                        <label for="p-routine"
+                            class="text-[11px] font-bold text-gray-500 uppercase tracking-wide mb-2 block sm:min-h-[48px]">
+                            Quanto tempo, em média, por dia, o animal ficará sozinho?
+                        </label>
+
                         <select id="p-routine"
-                            class="w-full p-3 border-2 border-gray-100 rounded-xl bg-white text-gray-700 font-medium focus:outline-none focus:border-blue-500 text-sm">
+                            class="w-full min-w-0 p-3 border-2 border-gray-100 rounded-xl bg-white text-gray-700 font-medium focus:outline-none focus:border-teal-600 text-sm">
                             <option value="pouco_tempo">Menos de 2 Horas</option>
                             <option value="medio_tempo">Entre 2 e 8 horas</option>
                             <option value="muito_tempo">Mais de 8 horas</option>
                         </select>
                     </div>
+
                 </div>
+
             </div>
 
             <div class="space-y-6">
@@ -293,13 +304,17 @@
                         </div>
                     </div>
                     <hr class="border-gray-200">
-                    <div class="flex items-center justify-between">
-                        <div class="flex items-center gap-2 text-gray-700 font-medium text-sm">
-                            <i class="ph-fill ph-first-aid text-xl text-teal-600"></i> Está disposto a adotar um animal
-                            com deficiência ou doença crônica?
+                    <div class="flex items-center justify-between gap-4">
+
+                        <div class="flex-1 min-w-0 flex items-center gap-2 text-gray-700 font-medium text-sm">
+                            <i class="ph-fill ph-first-aid text-xl text-teal-600 flex-shrink-0"></i>
+
+                            <span>
+                                Está disposto a adotar um animal com deficiência ou doença crônica?
+                            </span>
                         </div>
                         <div
-                            class="relative inline-block w-12 align-middle select-none transition duration-200 ease-in">
+                            class="relative inline-block w-12 min-w-12 flex-shrink-0 align-middle select-none transition duration-200 ease-in">
                             <input type="checkbox" id="p-acceptSpecial"
                                 class="toggle-checkbox absolute block w-6 h-6 rounded-full bg-white border-4 appearance-none cursor-pointer transition-transform" />
                             <label for="p-acceptSpecial"

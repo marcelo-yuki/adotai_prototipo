@@ -660,3 +660,94 @@ nav button {
     }
 
 }
+
+#view-profile {
+    box-sizing: border-box;
+    padding: 0 12px;
+}
+
+#view-profile > div:first-child {
+    padding: 20px 12px;
+}
+
+#view-profile > div:nth-child(2) {
+    padding: 24px 12px 140px;
+    box-sizing: border-box;
+}
+
+#view-profile > div:nth-child(2) > .space-y-6 {
+    min-width: 0;
+}
+
+#view-profile select {
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
+    min-height: 46px;
+    box-sizing: border-box;
+}
+
+#view-profile label {
+    line-height: 1.5;
+}
+
+/* CELULARES */
+@media (max-width: 767px) {
+    #view-profile {
+        padding: 0 12px;
+    }
+
+    #view-profile > div:first-child {
+        padding: 20px 8px;
+    }
+
+    #view-profile > div:nth-child(2) {
+        padding: 24px 8px 140px;
+    }
+
+    #view-profile > div:last-child {
+        padding: 16px 20px;
+    }
+}
+
+/* TABLETS E DESKTOPS */
+@media (min-width: 768px) {
+    #view-profile {
+        padding: 24px;
+    }
+
+    #view-profile > div:first-child {
+        padding: 24px 32px;
+    }
+
+    #view-profile > div:nth-child(2) {
+        padding: 32px 40px 150px;
+    }
+}
+@media (max-width: 480px) {
+    #view-profile .grid-cols-3 {
+        gap: 8px;
+    }
+
+    #view-profile .grid-cols-3 label {
+        min-width: 0;
+    }
+
+    #view-profile .grid-cols-3 label > div {
+        padding: 8px 4px;
+    }
+
+    #view-profile .grid-cols-3 span {
+        font-size: 11px;
+        overflow-wrap: anywhere;
+    }
+
+    #view-profile h2 {
+        font-size: 1.35rem;
+        line-height: 1.4;
+    }
+
+    #view-profile h3 {
+        font-size: 1rem;
+    }
+}
